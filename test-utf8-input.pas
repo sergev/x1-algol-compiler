@@ -1,39 +1,72 @@
 program test_utf8_input(input, output);
 var
     ascii_table: array[0..127] of integer;
-    i, count: integer;
     input_line: string;
     input_pos: integer;
+    i, count: integer;
+
+    function read_next_byte: integer;
+    var i: integer;
+        ch: char;
+    begin
+        if input_pos >= length(input_line) then begin
+            writeln('Bad input: ', input_line);
+            halt
+        end;
+        input_pos := input_pos + 1;
+        ch := input_line[input_pos];
+        i := ord(ch);
+        {writeln(ch, ' ', i);}
+        read_next_byte := i;
+    end;
 
     function read_utf8_symbol: integer;
     label 1;
     var i, a: integer;
         ch: char;
     begin
-     1: if input_pos >= length(input_line) then begin
+1:      if input_pos >= length(input_line) then begin
             if eof(input) then begin
                 writeln('End of input');
                 halt
             end;
             readln(input, input_line);
             input_pos := 0;
-            read_utf8_symbol := 119; {newline}
-            writeln('---');
-            exit;
+            {writeln('---');}
+            exit(119); {newline}
         end;
-        input_pos := input_pos + 1;
-        ch := input_line[input_pos];
-        i := ord(ch);
-        writeln(ch, ' ', i);
+        i := read_next_byte;
         if i < 128 then begin
             a := ascii_table[i];
             if a < 0 then
                 goto 1;
-        end else begin
-            writeln('Got utf8 byte ', i);
-            halt
+            exit(a);
         end;
-        read_utf8_symbol := a;
+        if i = 194 then begin
+            i := read_next_byte;
+            if i = 172 then
+                exit(76); {¬}
+        end else if i = 195 then begin
+            i := read_next_byte;
+            if i = 151 then
+                exit(66); {×}
+        end else if i = 226 then begin
+            i := read_next_byte;
+            if i = 136 then begin
+                i := read_next_byte;
+                if i = 167 then
+                    exit(77); {∧}
+                if i = 168 then
+                    exit(78); {∨}
+            end;
+            if i = 143 then begin
+                i := read_next_byte;
+                if i = 168 then
+                    exit(89); {⏨}
+            end;
+        end;
+        writeln('Bad input: ', input_line);
+        halt
     end;
 
     procedure test(expect: integer);
@@ -117,17 +150,12 @@ begin
     ascii_table[ord('Z')] := 62;
     ascii_table[ord('+')] := 64;
     ascii_table[ord('-')] := 65;
-{   ascii_table[ord('×')] := 66; }
     ascii_table[ord('/')] := 67;
     ascii_table[ord('>')] := 70;
     ascii_table[ord('=')] := 72;
     ascii_table[ord('<')] := 74;
-{   ascii_table[ord('¬')] := 76; }
-{   ascii_table[ord('∧')] := 77; }
-{   ascii_table[ord('∨')] := 78; }
     ascii_table[ord(',')] := 87;
     ascii_table[ord('.')] := 88;
-{   ascii_table[ord('⏨')] := 89; }
     ascii_table[ord(';')] := 91;
     ascii_table[ord('(')] := 98;
     ascii_table[ord(')')] := 99;
@@ -242,4 +270,5 @@ begin
     test(124); { : }
     test(162); { | }
     test(163); { _ }
+    writeln('Test PASSED.');
 end.
