@@ -79,7 +79,7 @@ begin
     input_pos := input_pos + 1;
     ch := input_line[input_pos];
     i := ord(ch);
-    {writeln(ch, ' ', i);}
+    writeln(ch, ' ', i);
     read_next_byte := i;
 end;
 
@@ -90,11 +90,11 @@ begin
 1:  if input_pos >= length(input_line) then begin
         if eof(input) then begin
             writeln('End of input');
-            halt
+            exit(123); {space}
         end;
         readln(input, input_line);
         input_pos := 0;
-        {writeln('---');}
+        writeln('---');
         exit(119); {newline}
     end;
     i := read_next_byte;

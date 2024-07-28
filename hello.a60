@@ -1,1 +1,3 @@
-'begin' print; 'end'
+_b_e_g_i_n
+    print(|<Hello Algol|>);
+_e_n_d
