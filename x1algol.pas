@@ -36,7 +36,7 @@ const d2  =         4;
       mcpb =      928;   {0-29-00}
 
 var tlsc,plib,flib,klib,nlib,
-    rht,vht,qc,scan,rfsb,rnsa,rnsb,rnsc,rnsd,
+    rht,vht,qc,scan,rnsa,rnsb,rnsc,rnsd,
     dl,inw,fnw,dflag,bflag,oflag,
     nflag,kflag,
     iflag,mflag,vflag,aflag,sflag,eflag,jflag,pflag,fflag,
@@ -47,7 +47,7 @@ var tlsc,plib,flib,klib,nlib,
     bitcount,bitstock: integer;
     store: array[0..12287] of integer;
     rns_state: (ps,ms,virginal);
-    rfs_case,nas_stock,pos: integer;
+    nas_stock,pos: integer;
     word_del_table: array[10..38] of integer;
     ascii_table: array[0..127] of integer;
     opc_table: array[0..112] of integer;
@@ -250,7 +250,7 @@ begin
         else begin rnsc:= d15; rnsd:= rnsd + 1 end
       end;
   virginal:
-      begin qc:= 0; rfs_case:= 0; nas_stock:= 1;
+      begin qc:= 0; nas_stock:= 1;
         if scan > 0 {prescan}
         then begin rns_state:= ps;
                {initialize symbol store:}
