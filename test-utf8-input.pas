@@ -1,7 +1,7 @@
 program test_utf8_input(input, output);
 var
     ascii_table: array[0..127] of integer;
-    input_line: string;
+    input_line: shortstring;
     input_pos: integer;
     i, count: integer;
 
@@ -23,7 +23,6 @@ var
     function read_utf8_symbol: integer;
     label 1;
     var i, a: integer;
-        ch: char;
     begin
 1:      if input_pos >= length(input_line) then begin
             if eof(input) then begin
@@ -44,25 +43,20 @@ var
         end;
         if i = 194 then begin
             i := read_next_byte;
-            if i = 172 then
-                exit(76); {¬}
+            if i = 172 then exit(76); {¬}
         end else if i = 195 then begin
             i := read_next_byte;
-            if i = 151 then
-                exit(66); {×}
+            if i = 151 then exit(66); {×}
         end else if i = 226 then begin
             i := read_next_byte;
             if i = 136 then begin
                 i := read_next_byte;
-                if i = 167 then
-                    exit(77); {∧}
-                if i = 168 then
-                    exit(78); {∨}
+                if i = 167 then exit(77); {∧}
+                if i = 168 then exit(78); {∨}
             end;
             if i = 143 then begin
                 i := read_next_byte;
-                if i = 168 then
-                    exit(89); {⏨}
+                if i = 168 then exit(89); {⏨}
             end;
         end;
         writeln('Bad input: ', input_line);

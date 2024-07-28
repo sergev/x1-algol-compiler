@@ -49,7 +49,7 @@ var tlsc,plib,flib,klib,nlib,
     rns_state: (ps,ms,virginal);
     rfs_case,nas_stock,pos: integer;
     word_del_table: array[10..38] of integer;
-    flex_table: array[0..127] of integer;
+    ascii_table: array[0..127] of integer;
     opc_table: array[0..112] of integer;
 
     rlib,mcpe: integer;
@@ -58,6 +58,9 @@ var tlsc,plib,flib,klib,nlib,
 
     ii: integer;
 
+    input_line: shortstring;
+    input_pos: integer;
+
 procedure stop(n: integer);
 {emulation of a machine instruction}
 begin writeln(output);
@@ -65,28 +68,63 @@ begin writeln(output);
   halt
 end {stop};
 
-function read_flexowriter_symbol: integer;                         {LK}
-label 1,2;
-var s,fts: integer;
+function read_next_byte: integer;
+var i: integer;
+    ch: char;
 begin
-  1: read(input,s);
-     if rfsb = 0
-     then if (s = 62 {tab}) or (s = 16 {space}) or (s = 26 {crlf})
-          then goto 2
-          else if (s = 122 {lc}) or (s = 124 {uc}) or (s = 0 {blank})
-               then begin rfsb:= s {new flexowriter shift}; goto 1 end
-               else if s = 127 {erase} then goto 1
-               else stop(19) {flexowriter shift undefined};
-  2: fts:= flex_table[s];
-     if fts > 0
-     then if rfsb = 124
-          then {uppercase} read_flexowriter_symbol:= fts div d8
-          else {lowercase} read_flexowriter_symbol:= fts mod d8
-     else if fts = -0 then stop(20) {wrong parity}
-     else if fts = -1 then stop(21) {undefined punching}
-     else if s = 127 {erase} then goto 1
-     else begin rfsb:= s {new flexowriter shift}; goto 1 end
-end {read_flexowriter_symbol};
+    if input_pos >= length(input_line) then begin
+        writeln('Bad input: ', input_line);
+        halt
+    end;
+    input_pos := input_pos + 1;
+    ch := input_line[input_pos];
+    i := ord(ch);
+    {writeln(ch, ' ', i);}
+    read_next_byte := i;
+end;
+
+function read_utf8_symbol: integer;
+label 1;
+var i, a: integer;
+begin
+1:  if input_pos >= length(input_line) then begin
+        if eof(input) then begin
+            writeln('End of input');
+            halt
+        end;
+        readln(input, input_line);
+        input_pos := 0;
+        {writeln('---');}
+        exit(119); {newline}
+    end;
+    i := read_next_byte;
+    if i < 128 then begin
+        a := ascii_table[i];
+        if a < 0 then
+            goto 1;
+        exit(a);
+    end;
+    if i = 194 then begin
+        i := read_next_byte;
+        if i = 172 then exit(76); {¬}
+    end else if i = 195 then begin
+        i := read_next_byte;
+        if i = 151 then exit(66); {×}
+    end else if i = 226 then begin
+        i := read_next_byte;
+        if i = 136 then begin
+            i := read_next_byte;
+            if i = 167 then exit(77); {∧}
+            if i = 168 then exit(78); {∨}
+        end;
+        if i = 143 then begin
+            i := read_next_byte;
+            if i = 168 then exit(89); {⏨}
+        end;
+    end;
+    writeln('Bad input: ', input_line);
+    halt
+end;
 
 function next_ALGOL_symbol: integer;                               {HT}
 label 1;
@@ -94,23 +132,23 @@ var sym,wdt1,wdt2: integer;
 begin sym:= - nas_stock;
   if sym >= 0 {symbol in stock}
   then nas_stock:= sym + 1{stock empty now}
-  else sym:= read_flexowriter_symbol;
+  else sym:= read_utf8_symbol;
 1: if sym > 101 {analysis required}
   then begin if sym = 123 {space symbol} then sym:= 93;
          if sym <= 119 {space symbol, tab, or nlcr}
          then if qc = 0
-              then begin sym:= read_flexowriter_symbol;
+              then begin sym:= read_utf8_symbol;
                      goto 1
                    end
               else
          else if sym = 124 {:}
-              then begin sym:= read_flexowriter_symbol;
+              then begin sym:= read_utf8_symbol;
                      if sym = 72
                      then sym:= 92 {:=}
                      else begin nas_stock:= -sym; sym:= 90 {:} end
                    end
          else if sym = 162 {|}
-              then begin repeat sym:= read_flexowriter_symbol
+              then begin repeat sym:= read_utf8_symbol
                      until sym <> 162;
                      if sym = 77 {^} then sym:= 69 {|^}
                      else if sym = 72 {=} then sym:= 75 {|=}
@@ -119,7 +157,7 @@ begin sym:= - nas_stock;
                      else stop(11)
                    end
          else if sym = 163 {_}
-           then begin repeat sym:= read_flexowriter_symbol
+           then begin repeat sym:= read_utf8_symbol
                   until sym <> 163;
                   if (sym > 9) and (sym <= 38) {a..B}
                   then begin {word delimiter}
@@ -131,25 +169,25 @@ begin sym:= - nas_stock;
                          else if wdt1 = 1 {sym = c}
                          then if qc = 0 {outside string}
                            then begin {skip comment}
-                                  repeat sym:= read_flexowriter_symbol
+                                  repeat sym:= read_utf8_symbol
                                   until sym = 91 {;};
-                                  sym:= read_flexowriter_symbol;
+                                  sym:= read_utf8_symbol;
                                   goto 1
                                 end
                            else sym:= 97 {comment}
-                         else begin sym:= read_flexowriter_symbol;
+                         else begin sym:= read_utf8_symbol;
                                 if sym = 163 {_}
                                 then begin repeat sym:=
-                                        read_flexowriter_symbol
+                                        read_utf8_symbol
                                        until sym <> 163;
                                        if (sym > 9) and (sym <= 32)
                                        then if sym = 29 {t}
                                         then begin sym:=
-                                                 read_flexowriter_symbol;
+                                                 read_utf8_symbol;
                                                if sym = 163 {_}
                                                then begin repeat
                                                         sym:=
-                                                        read_flexowriter_symbol
+                                                        read_utf8_symbol
                                                       until sym <> 163;
                                                       if sym = 14 {e}
                                                       then sym:=  94 {step}
@@ -167,9 +205,9 @@ begin sym:= - nas_stock;
                                      end
                                 else stop(12)
                               end;
-                         repeat nas_stock:= - read_flexowriter_symbol;
+                         repeat nas_stock:= - read_utf8_symbol;
                            if nas_stock = - 163 {_}
-                           then repeat nas_stock:= read_flexowriter_symbol
+                           then repeat nas_stock:= read_utf8_symbol
                              until nas_stock <> 163
                          until nas_stock <= 0
                        end {word delimiter}
@@ -1934,50 +1972,96 @@ begin
   word_del_table[36]:=     0; word_del_table[37]:=     0;
   word_del_table[38]:=   107;
 
-{initialization of flex_table}                                     {LK}
-  flex_table[  0]:=    -2; flex_table[  1]:= 19969; flex_table[  2]:= 16898;
-  flex_table[  3]:=    -0; flex_table[  4]:= 18436; flex_table[  5]:=    -0;
-  flex_table[  6]:=    -0; flex_table[  7]:= 25863; flex_table[  8]:= 25096;
-  flex_table[  9]:=    -0; flex_table[ 10]:=    -0; flex_table[ 11]:=    -1;
-  flex_table[ 12]:=    -0; flex_table[ 13]:=    -1; flex_table[ 14]:= 41635;
-  flex_table[ 15]:=    -0; flex_table[ 16]:= 31611; flex_table[ 17]:=    -0;
-  flex_table[ 18]:=    -0; flex_table[ 19]:= 17155; flex_table[ 20]:=    -0;
-  flex_table[ 21]:= 23301; flex_table[ 22]:= 25606; flex_table[ 23]:=    -0;
-  flex_table[ 24]:=    -0; flex_table[ 25]:= 25353; flex_table[ 26]:= 30583;
-  flex_table[ 27]:=    -0; flex_table[ 28]:=    -1; flex_table[ 29]:=    -0;
-  flex_table[ 30]:=    -0; flex_table[ 31]:=    -1; flex_table[ 32]:= 19712;
-  flex_table[ 33]:=    -0; flex_table[ 34]:=    -0; flex_table[ 35]:= 14365;
-  flex_table[ 36]:=    -0; flex_table[ 37]:= 14879; flex_table[ 38]:= 15136;
-  flex_table[ 39]:=    -0; flex_table[ 40]:=    -0; flex_table[ 41]:= 15907;
-  flex_table[ 42]:=    -1; flex_table[ 43]:=    -0; flex_table[ 44]:=    -1;
-  flex_table[ 45]:=    -0; flex_table[ 46]:=    -0; flex_table[ 47]:=    -1;
-  flex_table[ 48]:=    -0; flex_table[ 49]:= 17994; flex_table[ 50]:= 14108;
-  flex_table[ 51]:=    -0; flex_table[ 52]:= 14622; flex_table[ 53]:=    -0;
-  flex_table[ 54]:=    -0; flex_table[ 55]:= 15393; flex_table[ 56]:= 15650;
-  flex_table[ 57]:=    -0; flex_table[ 58]:=    -0; flex_table[ 59]:= 30809;
-  flex_table[ 60]:=    -0; flex_table[ 61]:=    -1; flex_table[ 62]:= 30326;
-  flex_table[ 63]:=    -0; flex_table[ 64]:= 19521; flex_table[ 65]:=    -0;
-  flex_table[ 66]:=    -0; flex_table[ 67]:= 12309; flex_table[ 68]:=    -0;
-  flex_table[ 69]:= 12823; flex_table[ 70]:= 13080; flex_table[ 71]:=    -0;
-  flex_table[ 72]:=    -0; flex_table[ 73]:= 13851; flex_table[ 74]:=    -1;
-  flex_table[ 75]:=    -0; flex_table[ 76]:=    -1; flex_table[ 77]:=    -0;
-  flex_table[ 78]:=    -0; flex_table[ 79]:=    -1; flex_table[ 80]:=    -0;
-  flex_table[ 81]:= 11795; flex_table[ 82]:= 12052; flex_table[ 83]:=    -0;
-  flex_table[ 84]:= 12566; flex_table[ 85]:=    -0; flex_table[ 86]:=    -0;
-  flex_table[ 87]:= 13337; flex_table[ 88]:= 13594; flex_table[ 89]:=    -0;
-  flex_table[ 90]:=    -0; flex_table[ 91]:= 31319; flex_table[ 92]:=    -0;
-  flex_table[ 93]:=    -1; flex_table[ 94]:=    -1; flex_table[ 95]:=    -0;
-  flex_table[ 96]:=    -0; flex_table[ 97]:=  9482; flex_table[ 98]:=  9739;
-  flex_table[ 99]:=    -0; flex_table[100]:= 10253; flex_table[101]:=    -0;
-  flex_table[102]:=    -0; flex_table[103]:= 11024; flex_table[104]:= 11281;
-  flex_table[105]:=    -0; flex_table[106]:=    -0; flex_table[107]:= 31832;
-  flex_table[108]:=    -0; flex_table[109]:=    -1; flex_table[110]:=    -1;
-  flex_table[111]:=    -0; flex_table[112]:= 31040; flex_table[113]:=    -0;
-  flex_table[114]:=    -0; flex_table[115]:=  9996; flex_table[116]:=    -0;
-  flex_table[117]:= 10510; flex_table[118]:= 10767; flex_table[119]:=    -0;
-  flex_table[120]:=    -0; flex_table[121]:= 11538; flex_table[122]:=    -2;
-  flex_table[123]:=    -0; flex_table[124]:=    -2; flex_table[125]:=    -0;
-  flex_table[126]:=    -0; flex_table[127]:=    -2;
+{initialization of ascii_table}
+  for ii:= 0 to 127 do
+      ascii_table[ii] := -1;
+  ascii_table[ord('0')] := 0;
+  ascii_table[ord('1')] := 1;
+  ascii_table[ord('2')] := 2;
+  ascii_table[ord('3')] := 3;
+  ascii_table[ord('4')] := 4;
+  ascii_table[ord('5')] := 5;
+  ascii_table[ord('6')] := 6;
+  ascii_table[ord('7')] := 7;
+  ascii_table[ord('8')] := 8;
+  ascii_table[ord('9')] := 9;
+  ascii_table[ord('a')] := 10;
+  ascii_table[ord('b')] := 11;
+  ascii_table[ord('c')] := 12;
+  ascii_table[ord('d')] := 13;
+  ascii_table[ord('e')] := 14;
+  ascii_table[ord('f')] := 15;
+  ascii_table[ord('g')] := 16;
+  ascii_table[ord('h')] := 17;
+  ascii_table[ord('i')] := 18;
+  ascii_table[ord('j')] := 19;
+  ascii_table[ord('k')] := 20;
+  ascii_table[ord('l')] := 21;
+  ascii_table[ord('m')] := 22;
+  ascii_table[ord('n')] := 23;
+  ascii_table[ord('o')] := 24;
+  ascii_table[ord('p')] := 25;
+  ascii_table[ord('q')] := 26;
+  ascii_table[ord('r')] := 27;
+  ascii_table[ord('s')] := 28;
+  ascii_table[ord('t')] := 29;
+  ascii_table[ord('u')] := 30;
+  ascii_table[ord('v')] := 31;
+  ascii_table[ord('w')] := 32;
+  ascii_table[ord('x')] := 33;
+  ascii_table[ord('y')] := 34;
+  ascii_table[ord('z')] := 35;
+  ascii_table[ord('A')] := 37;
+  ascii_table[ord('B')] := 38;
+  ascii_table[ord('C')] := 39;
+  ascii_table[ord('D')] := 40;
+  ascii_table[ord('E')] := 41;
+  ascii_table[ord('F')] := 42;
+  ascii_table[ord('G')] := 43;
+  ascii_table[ord('H')] := 44;
+  ascii_table[ord('I')] := 45;
+  ascii_table[ord('J')] := 46;
+  ascii_table[ord('K')] := 47;
+  ascii_table[ord('L')] := 48;
+  ascii_table[ord('M')] := 49;
+  ascii_table[ord('N')] := 50;
+  ascii_table[ord('O')] := 51;
+  ascii_table[ord('P')] := 52;
+  ascii_table[ord('Q')] := 53;
+  ascii_table[ord('R')] := 54;
+  ascii_table[ord('S')] := 55;
+  ascii_table[ord('T')] := 56;
+  ascii_table[ord('U')] := 57;
+  ascii_table[ord('V')] := 58;
+  ascii_table[ord('W')] := 59;
+  ascii_table[ord('X')] := 60;
+  ascii_table[ord('Y')] := 61;
+  ascii_table[ord('Z')] := 62;
+  ascii_table[ord('+')] := 64;
+  ascii_table[ord('-')] := 65;
+  ascii_table[ord('/')] := 67;
+  ascii_table[ord('>')] := 70;
+  ascii_table[ord('=')] := 72;
+  ascii_table[ord('<')] := 74;
+  ascii_table[ord(',')] := 87;
+  ascii_table[ord('.')] := 88;
+  ascii_table[ord(';')] := 91;
+  ascii_table[ord('(')] := 98;
+  ascii_table[ord(')')] := 99;
+  ascii_table[ord('[')] := 100;
+  ascii_table[ord(']')] := 101;
+  ascii_table[ord(' ')] := 119;
+  ascii_table[9]        := 118; {tab}
+  ascii_table[10]       := 119; {newline}
+  ascii_table[ord('''')] := 120; {'}
+  ascii_table[ord('"')] := 121;
+  ascii_table[ord('?')] := 122;
+  ascii_table[ord(' ')] := 123; {space}
+  ascii_table[ord(':')] := 124;
+  ascii_table[ord('|')] := 162;
+  ascii_table[ord('_')] := 163;
+
+  readln(input, input_line);
 
 {preparation of prescan}                                           {LE}
   rns_state:= virginal; scan:= 1;
