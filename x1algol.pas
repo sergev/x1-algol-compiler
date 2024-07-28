@@ -65,6 +65,10 @@ procedure stop(n: integer);
 {emulation of a machine instruction}
 begin writeln(output);
   writeln(output,'*** stop ',n div d5:1,'-',n mod d5:2,' ***');
+  if not eof(input) then begin
+      writeln('Line: ', input_line);
+      writeln('      ', '^' : input_pos);
+  end;
   halt
 end {stop};
 
@@ -79,7 +83,7 @@ begin
     input_pos := input_pos + 1;
     ch := input_line[input_pos];
     i := ord(ch);
-    writeln(ch, ' ', i);
+    {writeln(ch, ' ', i);} {for debug}
     read_next_byte := i;
 end;
 
@@ -89,19 +93,21 @@ var i, a: integer;
 begin
 1:  if input_pos >= length(input_line) then begin
         if eof(input) then begin
-            writeln('End of input');
+            {writeln('End of input');} {for debug}
             exit(123); {space}
         end;
         readln(input, input_line);
         input_pos := 0;
-        writeln('---');
+        {writeln('---');} {for debug}
         exit(119); {newline}
     end;
     i := read_next_byte;
     if i < 128 then begin
         a := ascii_table[i];
-        if a < 0 then
+        if a < 0 then begin
+            {writeln('--- Bad symbol!'); halt;} {for debug}
             goto 1;
+        end;
         exit(a);
     end;
     if i = 194 then begin
@@ -2039,6 +2045,7 @@ begin
   ascii_table[ord('Z')] := 62;
   ascii_table[ord('+')] := 64;
   ascii_table[ord('-')] := 65;
+  ascii_table[ord('*')] := 66; {also ×}
   ascii_table[ord('/')] := 67;
   ascii_table[ord('>')] := 70;
   ascii_table[ord('=')] := 72;

@@ -1,0 +1,180 @@
+_b_e_g_i_n _c_o_m_m_e_n_t JAZ164, R743, Outer Planets;
+_i_n_t_e_g_e_r k,t; _r_e_a_l a,k2,x; _B_o_o_l_e_a_n fi;
+_a_r_r_a_y y,ya,z,za[1:15],m[0:5],e[1:60],d[1:33];
+_r_e_a_l _p_r_o_c_e_d_u_r_e f(k); _i_n_t_e_g_e_r k;
+_b_e_g_i_n _i_n_t_e_g_e_r i,j,i3,j3; _r_e_a_l p;
+_o_w_n _r_e_a_l _a_r_r_a_y d[1:5,1:5],r[1:5];
+_i_f k |= 1 _t_h_e_n _g_o_t_o A;
+_f_o_r i:= 1 _s_t_e_p 1 _u_n_t_i_l 4 _d_o
+_b_e_g_i_n i3:= 3*i;
+_f_o_r j:= i+1 _s_t_e_p 1 _u_n_t_i_l 5 _d_o
+_b_e_g_i_n j3:= 3*j;
+p:= (y[i3-2] - y[j3-2])|∧2 + (y[i3-1] - y[j3-1])|∧2 +
+(y[i3] - y[j3])|∧2;
+d[i,j]:= d[j,i]:= 1/p/sqrt(p)
+_e_n_d
+_e_n_d ;
+_f_o_r i:= 1 _s_t_e_p 1 _u_n_t_i_l 5 _d_o
+_b_e_g_i_n i3:= 3*i; d[i,i]:= 0;
+p:= y[i3-2]|∧2 + y[i3-1]|∧2 + y[i3]|∧2;
+r[i]:= 1/p/sqrt(p)
+_e_n_d ;
+A: i:= (k - 1) _: 3 + 1;
+f:= k2 * (- m[0] * y[k] * r[i] +
+SUM(j,1,5,m[j]*((y[3*(j-i)+k]-y[k])*d[i,j]-y[3*(j-i)+k]*r[j])))
+_e_n_d f;
+_p_r_o_c_e_d_u_r_e RK3n(x,a,b,y,ya,z,za,fxyj,j,e,d,fi,n);
+_v_a_l_u_e b,fi,n; _i_n_t_e_g_e_r j,n; _r_e_a_l x,a,b,fxyj;
+_B_o_o_l_e_a_n fi; _a_r_r_a_y y,ya,z,za,e,d;
+_b_e_g_i_n _i_n_t_e_g_e_r jj;
+_r_e_a_l xl,h,hmin,int,hl,absh,fhm,discry,discrz,toly,tolz,mu,mu1,fhy,fhz;
+_B_o_o_l_e_a_n last,first,reject;
+_a_r_r_a_y yl,zl,k0,k1,k2,k3,k4,k5[1:n],ee[1:4*n];
+_i_f fi
+_t_h_e_n _b_e_g_i_n d[3]:= a;
+_f_o_r jj:= 1 _s_t_e_p 1 _u_n_t_i_l n _d_o
+_b_e_g_i_n d[jj+3]:= ya[jj]; d[n+jj+3]:= za[jj] _e_n_d
+_e_n_d ;
+d[1]:= 0; xl:= d[3];
+_f_o_r jj:= 1 _s_t_e_p 1 _u_n_t_i_l n _d_o
+_b_e_g_i_n yl[jj]:= d[jj+3]; zl[jj]:= d[n+jj+3] _e_n_d ;
+_i_f fi _t_h_e_n d[2]:= b - d[3];
+absh:= h:= abs(d[2]);
+_i_f b - xl < 0 _t_h_e_n h:= - h;
+int:= abs(b - xl); hmin:= int * e[1] + e[2];
+_f_o_r jj:= 2 _s_t_e_p 1 _u_n_t_i_l 2*n _d_o
+_b_e_g_i_n hl:= int * e[2*jj-1] + e[2*jj];
+_i_f hl < hmin _t_h_e_n hmin:= hl
+_e_n_d ;
+_f_o_r jj:= 1 _s_t_e_p 1 _u_n_t_i_l 4*n _d_o ee[jj]:= e[jj]/int;
+first:= reject:= _t_r_u_e ;
+_i_f fi
+_t_h_e_n _b_e_g_i_n last:= _t_r_u_e ; _g_o_t_o step _e_n_d ;
+test: absh:= abs(h);
+_i_f absh < hmin
+_t_h_e_n _b_e_g_i_n h:= _i_f h > 0 _t_h_e_n hmin _e_l_s_e - hmin;
+absh:= hmin
+_e_n_d ;
+_i_f h _> b - xl _= h _> 0
+_t_h_e_n _b_e_g_i_n d[2]:= h; last:= _t_r_u_e ;
+h:= b - xl; absh:= abs(h)
+_e_n_d
+_e_l_s_e last:= _f_a_l_s_e ;
+step: _i_f reject
+_t_h_e_n _b_e_g_i_n x:= xl;
+_f_o_r jj:= 1 _s_t_e_p 1 _u_n_t_i_l n _d_o
+y[jj]:= yl[jj];
+_f_o_r j:= 1 _s_t_e_p 1 _u_n_t_i_l n _d_o
+k0[j]:= fxyj * h
+_e_n_d
+_e_l_s_e _b_e_g_i_n fhy:= h/hl;
+_f_o_r jj:= 1 _s_t_e_p 1 _u_n_t_i_l n _d_o
+k0[jj]:= k5[jj] * fhy
+_e_n_d ;
+x:= xl + .27639 32022 50021 * h;
+_f_o_r jj:= 1 _s_t_e_p 1 _u_n_t_i_l n _d_o
+y[jj]:= yl[jj] + (zl[jj] * .27639 32022 50021 +
+k0[jj] * .03819 66011 25011) * h;
+_f_o_r j:= 1 _s_t_e_p 1 _u_n_t_i_l n _d_o k1[j]:= fxyj * h;
+x:= xl + .72360 67977 49979 * h;
+_f_o_r jj:= 1 _s_t_e_p 1 _u_n_t_i_l n _d_o
+y[jj]:= yl[jj] + (zl[jj] * .72360 67977 49979 +
+k1[jj] * .26180 33988 74989) * h;
+_f_o_r j:= 1 _s_t_e_p 1 _u_n_t_i_l n _d_o k2[j]:= fxyj * h;
+x:= xl + h * .5;
+_f_o_r jj:= 1 _s_t_e_p 1 _u_n_t_i_l n _d_o
+y[jj]:= yl[jj] + (zl[jj] * .5 +
+k0[jj] * .04687 5 +
+k1[jj] * .07982 41558 39840 -
+k2[jj] * .00169 91558 39840) * h;
+_f_o_r j:= 1 _s_t_e_p 1 _u_n_t_i_l n _d_o k4[j]:= fxyj * h;
+x:= _i_f last _t_h_e_n b _e_l_s_e xl + h;
+_f_o_r jj:= 1 _s_t_e_p 1 _u_n_t_i_l n _d_o
+y[jj]:= yl[jj] + (zl[jj] +
+k0[jj] * .30901 69943 74947 +
+k2[jj] * .19098 30056 25053) * h;
+_f_o_r j:= 1 _s_t_e_p 1 _u_n_t_i_l n _d_o k3[j]:= fxyj * h;
+_f_o_r jj:= 1 _s_t_e_p 1 _u_n_t_i_l n _d_o
+y[jj]:= yl[jj] + (zl[jj] +
+k0[jj] * .08333 33333 33333 +
+k1[jj] * .30150 28323 95825 +
+k2[jj] * .11516 38342 70842) * h;
+_f_o_r j:= 1 _s_t_e_p 1 _u_n_t_i_l n _d_o k5[j]:= fxyj * h;
+reject:= _f_a_l_s_e ; fhm:= 0;
+_f_o_r jj:= 1 _s_t_e_p 1 _u_n_t_i_l n _d_o
+_b_e_g_i_n
+discry:= abs((- k0[jj] * .5 + k1[jj] * 1.80901 69943 74947 +
+k2[jj] * .69098 30056 25053 - k4[jj] * 2) * h);
+discrz:= abs((k0[jj] - k3[jj]) * 2 - (k1[jj] + k2[jj]) * 10 +
+k4[jj] * 16 + k5[jj] * 4);
+toly:= absh * (abs(zl[jj]) * ee[2*jj-1] + ee[2*jj]);
+tolz:= abs(k0[jj]) * ee[2*(jj+n)-1] + absh * ee[2*(jj+n)];
+reject:= discry > toly ∨ discrz > tolz ∨ reject;
+fhy:= discry/toly; fhz:= discrz/tolz;
+_i_f fhz > fhy _t_h_e_n fhy:= fhz;
+_i_f fhy > fhm _t_h_e_n fhm:= fhy
+_e_n_d ;
+mu:= 1/(1 + fhm) + .45;
+_i_f reject
+_t_h_e_n _b_e_g_i_n _i_f absh _< hmin
+_t_h_e_n _b_e_g_i_n d[1]:= d[1] + 1;
+_f_o_r jj:= 1 _s_t_e_p 1 _u_n_t_i_l n _d_o
+_b_e_g_i_n y[jj]:= yl[jj];
+z[jj]:= zl[jj]
+_e_n_d ;
+first:= _t_r_u_e ; _g_o_t_o next
+_e_n_d ;
+h:= mu * h; _g_o_t_o test
+_e_n_d rej;
+_i_f first
+_t_h_e_n _b_e_g_i_n first:= _f_a_l_s_e ; hl:= h; h:= mu * h;
+_g_o_t_o acc
+_e_n_d ;
+fhy:= mu * h/hl + mu - mu1; hl:= h; h:= fhy * h;
+acc: mu1:= mu;
+_f_o_r jj:= 1 _s_t_e_p 1 _u_n_t_i_l n _d_o
+z[jj]:= zl[jj] + (k0[jj] + k3[jj]) * .08333 33333 33333 +
+(k1[jj] + k2[jj]) * .41666 66666 66667;
+next: _i_f b |= x
+_t_h_e_n _b_e_g_i_n xl:= x;
+_f_o_r jj:= 1 _s_t_e_p 1 _u_n_t_i_l n _d_o
+_b_e_g_i_n yl[jj]:= y[jj]; zl[jj]:= z[jj] _e_n_d ;
+_g_o_t_o test
+_e_n_d ;
+_i_f ¬ last _t_h_e_n d[2]:= h;
+d[3]:= x;
+_f_o_r jj:= 1 _s_t_e_p 1 _u_n_t_i_l n _d_o
+_b_e_g_i_n d[jj+3]:= y[jj]; d[n+jj+3]:= z[jj] _e_n_d
+_e_n_d RK3n;
+_p_r_o_c_e_d_u_r_e TYP(x); _a_r_r_a_y x;
+_b_e_g_i_n _i_n_t_e_g_e_r k;
+NLCR; PRINTTEXT(|<T = |>); ABSFIXT(7,1,t+a); NLCR; NLCR;
+_f_o_r k:= 1 _s_t_e_p 1 _u_n_t_i_l 5 _d_o
+_b_e_g_i_n _i_f k=1 _t_h_e_n PRINTTEXT(|<J |>) _e_l_s_e
+_i_f k=2 _t_h_e_n PRINTTEXT(|<S |>) _e_l_s_e
+_i_f k=3 _t_h_e_n PRINTTEXT(|<U |>) _e_l_s_e
+_i_f k=4 _t_h_e_n PRINTTEXT(|<N |>) _e_l_s_e
+PRINTTEXT(|<P |>);
+FIXT(2,9,x[3*k-2]); FIXT(2,9,x[3*k-1]); FIXT(2,9,x[3*k]);
+NLCR
+_e_n_d
+_e_n_d TYP;
+a:= read;
+_f_o_r k:= 1 _s_t_e_p 1 _u_n_t_i_l 15 _d_o
+_b_e_g_i_n ya[k]:= read; za[k]:= read _e_n_d ;
+_f_o_r k:= 0 _s_t_e_p 1 _u_n_t_i_l 5 _d_o m[k]:= read;
+k2:= read; e[1]:= read;
+_f_o_r k:= 2 _s_t_e_p 1 _u_n_t_i_l 60 _d_o e[k]:= e[1];
+NLCR; PRINTTEXT(|<JAZ164, R743, Outer Planets|>); NLCR; NLCR;
+_f_o_r k:= 1 _s_t_e_p 1 _u_n_t_i_l 15 _d_o
+_b_e_g_i_n FLOT(12,ya[k]); FLOT(12,za[k]); NLCR _e_n_d ;
+_f_o_r k:= 0 _s_t_e_p 1 _u_n_t_i_l 5 _d_o
+_b_e_g_i_n NLCR; FLOT(12,m[k]) _e_n_d ;
+NLCR; NLCR; FLOT(12,k2);
+NLCR; NLCR; PRINTTEXT(|<eps = |>); FLOT(2,e[1]); NLCR;
+t:= 0; TYP(ya); fi:= _t_r_u_e ;
+_f_o_r t:= 500,1000 _d_o
+_b_e_g_i_n RK3n(x,0,t,y,ya,z,za,f(k),k,e,d,fi,15);
+fi:= _f_a_l_s_e ; TYP(y)
+_e_n_d
+_e_n_d
