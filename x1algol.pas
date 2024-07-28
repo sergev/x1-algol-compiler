@@ -110,6 +110,7 @@ begin
         end;
         exit(a);
     end;
+    {decode utf-8}
     if i = 194 then begin
         i := read_next_byte;
         if i = 172 then exit(76); {¬}
@@ -122,8 +123,7 @@ begin
             i := read_next_byte;
             if i = 167 then exit(77); {∧}
             if i = 168 then exit(78); {∨}
-        end;
-        if i = 143 then begin
+        end else if i = 143 then begin
             i := read_next_byte;
             if i = 168 then exit(89); {⏨}
         end;
@@ -1938,6 +1938,10 @@ begin {of program loader}
   while mcp_count <> 0 do
   begin writeln(output);
     writeln(output,'load (next) library tape into the tape reader');
+    if eof(lib_tape) then begin
+        writeln(output,'bad library tape');
+        halt
+    end;
     prepare_read_bit_string3;
     ll:= read_bit_string(13) {for length or end marker};
     while ll < 7680 do
