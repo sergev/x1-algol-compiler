@@ -60,6 +60,7 @@ var tlsc,plib,flib,klib,nlib,
 
     input_line: shortstring;
     input_pos: integer;
+    input_eof_seen: Boolean;
 
 procedure stop(n: integer);
 {emulation of a machine instruction}
@@ -91,9 +92,14 @@ function read_utf8_symbol: integer;
 label 1;
 var i, a: integer;
 begin
+    if input_eof_seen then begin
+        writeln('End of input');
+        halt
+    end;
 1:  if input_pos >= length(input_line) then begin
         if eof(input) then begin
             {writeln('End of input');} {for debug}
+            input_eof_seen := true;
             exit(123); {space}
         end;
         readln(input, input_line);
