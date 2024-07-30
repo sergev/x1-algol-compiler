@@ -1,0 +1,14 @@
+_b_e_g_i_n
+  _i_n_t_e_g_e_r y;
+  
+  _i_n_t_e_g_e_r _p_r_o_c_e_d_u_r_e A(x);
+  _v_a_l_u_e x;
+  _i_n_t_e_g_e_r x;
+  _b_e_g_i_n
+     x := x + 2;
+     print(x);
+     A := x;
+  _e_n_d;
+  y := A(5);
+  print(A(5));
+_e_n_d

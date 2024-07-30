@@ -1,0 +1,12 @@
+_b_e_g_i_n
+  _i_n_t_e_g_e_r x;
+
+  _p_r_o_c_e_d_u_r_e A(s);
+  _s_t_r_i_n_g s;
+  _b_e_g_i_n
+  _e_n_d;
+
+  x := 1;
+  A(|<XXXXX|>);
+
+_e_n_d
