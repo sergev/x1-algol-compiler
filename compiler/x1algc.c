@@ -29,9 +29,7 @@ int P_ioresult;
 
 __p2c_jmp_buf *__top_jb;
 
-void PASCAL_MAIN(argc, argv)
-int argc;
-char **argv;
+void PASCAL_MAIN(int argc, char **argv)
 {
     P_argc = argc;
     P_argv = argv;
@@ -45,9 +43,7 @@ char **argv;
 #define BadInputFormat   14
 #define EndOfFile        30
 
-char *_ShowEscape(buf, code, ior, prefix)
-char *buf, *prefix;
-int code, ior;
+char *_ShowEscape(char *buf, int code, int ior, char *prefix)
 {
     char *bufp;
 
@@ -130,9 +126,7 @@ int code, ior;
     return buf;
 }
 
-
-int _Escape(code)
-int code;
+int _Escape(int code)
 {
     char buf[100];
 
@@ -150,8 +144,7 @@ int code;
     exit(EXIT_FAILURE);
 }
 
-int P_eof(f)
-FILE *f;
+int P_eof(FILE *f)
 {
     register int ch;
 
@@ -165,6 +158,7 @@ FILE *f;
     ungetc(ch, f);
     return 0;
 }
+
 #define d2              4
 #define d3              8
 #define d4              16
@@ -201,19 +195,20 @@ FILE *f;
 #define crfb            623   /*0-19-15*/
 #define mcpb            928   /*0-29-00*/
 
-
 Static int tlsc, plib, flib, klib, nlib, rht, vht, qc, scan, rnsa, rnsb,
 	    rnsc, rnsd, dl, inw, fnw, dflag, bflag, oflag, nflag, kflag,
 	    iflag, mflag, vflag, aflag, sflag, eflag, jflag, pflag, fflag, bn,
 	    vlam, pnlv, gvc, lvc, oh, id, nid, ibd, inba, fora, forc, psta,
 	    pstb, spe, arra, arrb, arrc, arrd, ic, aic, rlaa, rlab, qa, qb,
 	    rlsc, flsc, klsc, nlsc, bitcount, bitstock;
-/* p2c: x1algol.pas, line 65: 
+/* p2c: x1algol.pas, line 65:
  * Note: Line breaker spent 0.0 seconds, 5000 tries on line 50 [251] */
 Static int store[12288];
+
 Static enum {
   ps, ms, virginal
 } rns_state;
+
 Static int nas_stock, pos_;
 Static int word_del_table[29];
 Static int ascii_table[128];
@@ -230,9 +225,7 @@ size_t input_line_len;
 Static int input_pos;
 Static boolean input_eof_seen;
 
-
-Static Void stop(n)
-int n;
+Static Void stop(int n)
 {
   /*emulation of a machine instruction*/
   printf("\n*** stop %d-%2d ***\n", n / d5, n & (d5 - 1));
@@ -242,7 +235,6 @@ int n;
   }
   _Escape(0);
 }  /*stop*/
-
 
 Static int read_next_byte()
 {
@@ -260,7 +252,6 @@ Static int read_next_byte()
   /*for debug*/
   return i & 0xFF;
 }
-
 
 Static int read_utf8_symbol()
 {
@@ -326,7 +317,6 @@ _L1:
   _Escape(0);
   return -1;
 }
-
 
 Static int next_ALGOL_symbol()
 {
@@ -471,7 +461,6 @@ _L1:
   return sym;
 }  /*next_ALGOL_symbol*/
 
-
 Static Void read_next_symbol()
 {
   /*ZY*/
@@ -522,14 +511,12 @@ _L1:
   }
 }  /*read_next_symbol*/
 
-
 /* Local variables for read_until_next_delimiter: */
 struct LOC_read_until_next_delimiter {
   jmp_buf _JL1;
 } ;
 
-Local boolean test1(LINK)
-struct LOC_read_until_next_delimiter *LINK;
+Local boolean test1(struct LOC_read_until_next_delimiter *LINK)
 {
   if (dl == 88) {   /*.*/
     dflag = 1;
@@ -541,16 +528,14 @@ struct LOC_read_until_next_delimiter *LINK;
   longjmp(LINK->_JL1, 1);
 }  /*test1*/
 
-Local boolean test2(LINK)
-struct LOC_read_until_next_delimiter *LINK;
+Local boolean test2(struct LOC_read_until_next_delimiter *LINK)
 {
   if (dl == 89)   /*ten*/
     inw = 1;
   return (test1(LINK));
 }  /*test2*/
 
-Local boolean test3(LINK)
-struct LOC_read_until_next_delimiter *LINK;
+Local boolean test3(struct LOC_read_until_next_delimiter *LINK)
 {
   read_next_symbol();
   return (test1(LINK));
@@ -706,9 +691,7 @@ _L4:
 _L5: ;
 }  /*read_until_next_delimiter*/
 
-
-Static Void fill_t_list(n)
-int n;
+Static Void fill_t_list(int n)
 {
   store[tlsc] = n;
   tlsc++;
@@ -720,9 +703,7 @@ struct LOC_prescan {
   int bc, mbc;
 } ;
 
-Local Void fill_prescan_list(n, LINK)
-int n;
-struct LOC_prescan *LINK;
+Local Void fill_prescan_list(int n, struct LOC_prescan *LINK)
 {  /*update plib and prescan_list chain:*/
   /*n = 0 or n = 1*/
   /*HF*/
@@ -756,8 +737,7 @@ struct LOC_prescan *LINK;
   store[k] = inw;
 }  /*fill_prescan_list*/
 
-Local Void augment_prescan_list(LINK)
-struct LOC_prescan *LINK;
+Local Void augment_prescan_list(struct LOC_prescan *LINK)
 {
   /*HH*/
   dflag = 1;
@@ -766,8 +746,7 @@ struct LOC_prescan *LINK;
   fill_prescan_list(0L, LINK);
 }  /*augment_prescan_list*/
 
-Local Void block_introduction(LINK)
-struct LOC_prescan *LINK;
+Local Void block_introduction(struct LOC_prescan *LINK)
 {
   /*HK*/
   fill_t_list(LINK->bc);   /*block-begin marker*/
@@ -776,7 +755,6 @@ struct LOC_prescan *LINK;
   LINK->bc = LINK->mbc;
   augment_prescan_list(LINK);
 }  /*block_introduction*/
-
 
 Static Void prescan()
 {  /*body of prescan*/
@@ -914,7 +892,6 @@ _L6:
 _L7: ;
 }  /*prescan*/
 
-
 Static Void intro_new_block2()
 {
   /*HW*/
@@ -947,7 +924,6 @@ _L1:
   lvc = 0;
 }  /*intro_new_block2*/
 
-
 Static Void intro_new_block1()
 {
   /*HW*/
@@ -956,7 +932,6 @@ Static Void intro_new_block1()
   intro_new_block2();
 }  /*intro_new_block1*/
 
-
 Static Void intro_new_block()
 {
   /*HW*/
@@ -964,9 +939,7 @@ Static Void intro_new_block()
   intro_new_block1();
 }  /*intro_new_block*/
 
-
-Static Void bit_string_maker(w)
-int w;
+Static Void bit_string_maker(int w)
 {
   /*LL*/
   int head = 0;
@@ -1001,9 +974,7 @@ int w;
   nlib += 8;
 }  /*bit_string_maker*/
 
-
-Static Void address_coder(a)
-int a;
+Static Void address_coder(int a)
 {
   /*LS*/
   int w;
@@ -1052,9 +1023,7 @@ int a;
   bit_string_maker(w);
 }  /*address_coder*/
 
-
-Static Void fill_result_list(opc, w)
-int opc, w;
+Static Void fill_result_list(int opc, int w)
 {
   /*ZF*/
   char j;
@@ -1370,22 +1339,18 @@ int opc, w;
   bit_string_maker(w);
 }  /*fill_result_list*/
 
-
 /* Local variables for main_scan: */
 struct LOC_main_scan {
   jmp_buf _JL9801;
 } ;
 
-Local Void fill_t_list_with_delimiter(LINK)
-struct LOC_main_scan *LINK;
+Local Void fill_t_list_with_delimiter(struct LOC_main_scan *LINK)
 {
   /*ZW*/
   fill_t_list(d8 * oh + dl);
 }  /*fill_t_list_with_delimiter*/
 
-Local Void fill_future_list(place, value, LINK)
-int place, value;
-struct LOC_main_scan *LINK;
+Local Void fill_future_list(int place, int value, struct LOC_main_scan *LINK)
 {
   /*FU*/
   int i, FORLIM;
@@ -1402,9 +1367,7 @@ struct LOC_main_scan *LINK;
   store[place] = value;
 }  /*fill_future_list*/
 
-Local Void fill_constant_list(n, LINK)
-int n;
-struct LOC_main_scan *LINK;
+Local Void fill_constant_list(int n, struct LOC_main_scan *LINK)
 {
   /*KU*/
   int i, FORLIM;
@@ -1425,18 +1388,14 @@ struct LOC_main_scan *LINK;
   klsc++;
 }  /*fill_constant_list*/
 
-Local Void unload_t_list_element(variable, LINK)
-int *variable;
-struct LOC_main_scan *LINK;
+Local Void unload_t_list_element(int *variable, struct LOC_main_scan *LINK)
 {
   /*ZU*/
   tlsc--;
   *variable = store[tlsc];
 }  /*unload_t_list_element*/
 
-Local Void fill_output(c, LINK)
-int c;
-struct LOC_main_scan *LINK;
+Local Void fill_output(int c, struct LOC_main_scan *LINK)
 {
   pos_++;
   if (c < 10) {
@@ -1464,9 +1423,7 @@ struct LOC_main_scan *LINK;
   }
 }  /*fill_output*/
 
-Local Void offer_character_to_typewriter(c, LINK)
-int c;
-struct LOC_main_scan *LINK;
+Local Void offer_character_to_typewriter(int c, struct LOC_main_scan *LINK)
 {
   /*HS*/
   c &= 63;
@@ -1474,43 +1431,42 @@ struct LOC_main_scan *LINK;
     fill_output(c, LINK);
 }  /*offer_character_to_typewriter*/
 
-Local Void label_declaration(LINK)
-struct LOC_main_scan *LINK;
+Local Void label_declaration(struct LOC_main_scan *LINK)
 {
   /*FY*/
-  int id, id2, i, w;
+  int id1, id2, i, w;
 
-  id = store[nlib + nid];
-  if (((id / d15) & 1) == 0)  /*preceding applied occurrences*/
-    fill_future_list(flib + (id & (d15 - 1)), rlsc, LINK);
+  id1 = store[nlib + nid];
+  if (((id1 / d15) & 1) == 0)  /*preceding applied occurrences*/
+    fill_future_list(flib + (id1 & (d15 - 1)), rlsc, LINK);
   else
-    store[nlib + nid] = id - d15 + d24 + rlsc;
+    store[nlib + nid] = id1 - d15 + d24 + rlsc;
   /*first occurrence*/
-  id = store[nlib + nid - 1];
-  if ((id & (d3 - 1)) == 0) {  /*at most 4 letters/digits*/
+  id1 = store[nlib + nid - 1];
+  if ((id1 & (d3 - 1)) == 0) {  /*at most 4 letters/digits*/
     i = 4;
-    id /= d3;
-    while ((id & (d6 - 1)) == 0) {   /*void*/
+    id1 /= d3;
+    while ((id1 & (d6 - 1)) == 0) {   /*void*/
       i--;
-      id /= d6;
+      id1 /= d6;
     }
     do {
-      offer_character_to_typewriter(id, LINK);
+      offer_character_to_typewriter(id1, LINK);
       i--;
-      id /= d6;
+      id1 /= d6;
     } while (i != 0);
   } else {
     id2 = store[nlib + nid - 2];
     id2 = id2 / d3 + (id2 & (d3 - 1)) * d24;
-    w = (id2 & (d24 - 1)) * d3 + id / d24;
-    id = (id & (d24 - 1)) * d3 + id2 / d24;
+    w = (id2 & (d24 - 1)) * d3 + id1 / d24;
+    id1 = (id1 & (d24 - 1)) * d3 + id2 / d24;
     id2 = w;
     i = 9;
     do {
-      offer_character_to_typewriter(id, LINK);
+      offer_character_to_typewriter(id1, LINK);
       i--;
-      w = id2 / d6 + (id & (d6 - 1)) * d21;
-      id = id / d6 + (id2 & (d6 - 1)) * d21;
+      w = id2 / d6 + (id1 & (d6 - 1)) * d21;
+      id1 = id1 / d6 + (id2 & (d6 - 1)) * d21;
       id2 = w;
     } while (i != 0);
   }
@@ -1527,8 +1483,7 @@ struct LOC_main_scan *LINK;
   fill_output(139L, LINK);
 }  /*label_declaration*/
 
-Local Void test_first_occurrence(LINK)
-struct LOC_main_scan *LINK;
+Local Void test_first_occurrence(struct LOC_main_scan *LINK)
 {
   /*LF*/
   id = store[nlib + nid];
@@ -1541,8 +1496,7 @@ struct LOC_main_scan *LINK;
   flsc++;
 }  /*test_first_occurrence*/
 
-Local Void new_block_by_declaration1(LINK)
-struct LOC_main_scan *LINK;
+Local Void new_block_by_declaration1(struct LOC_main_scan *LINK)
 {   /*2B 'bn' A*/
   /*HU*/
   fill_result_list(0L, bn + 71827456L);   /*SCC*/
@@ -1551,8 +1505,7 @@ struct LOC_main_scan *LINK;
   vlam = pnlv;
 }  /*new_block_by_declaration1*/
 
-Local Void new_block_by_declaration(LINK)
-struct LOC_main_scan *LINK;
+Local Void new_block_by_declaration(struct LOC_main_scan *LINK)
 {
   /*HU*/
   if (store[tlsc-2] == 161)   /*block-begin marker*/
@@ -1570,8 +1523,7 @@ struct LOC_main_scan *LINK;
   new_block_by_declaration1(LINK);
 }  /*new_block_by_declaration*/
 
-Local Void fill_name_list(LINK)
-struct LOC_main_scan *LINK;
+Local Void fill_name_list(struct LOC_main_scan *LINK)
 {
   /*HN*/
   nlsc += dflag + 2;
@@ -1583,8 +1535,7 @@ struct LOC_main_scan *LINK;
     store[nlib + nlsc - 3] = fnw;
 }  /*fill_name_list*/
 
-Local Void reservation_of_local_variables(LINK)
-struct LOC_main_scan *LINK;
+Local Void reservation_of_local_variables(struct LOC_main_scan *LINK)
 {
   /*KY*/
   if (lvc <= 0)   /*2A 'lvc' A*/
@@ -1594,8 +1545,7 @@ struct LOC_main_scan *LINK;
   fill_result_list(0L, 8388658L);
 }  /*reservation_of_local_variables*/
 
-Local Void address_to_register(LINK)
-struct LOC_main_scan *LINK;
+Local Void address_to_register(struct LOC_main_scan *LINK)
 {
   /*ZR*/
   if (((id / d15) & 1) != 0) {   /*static addressing*/
@@ -1611,8 +1561,7 @@ struct LOC_main_scan *LINK;
     fill_result_list((id / d24) & 3, (id & (d15 - 1)) + 71827456L);
 }  /*address_to_register*/
 
-Local Void generate_address(LINK)
-struct LOC_main_scan *LINK;
+Local Void generate_address(struct LOC_main_scan *LINK)
 {
   /*ZH*/
   int opc = 14;
@@ -1631,8 +1580,7 @@ struct LOC_main_scan *LINK;
   fill_result_list(opc, 0L);
 }  /*generate_address*/
 
-Local Void reservation_of_arrays(LINK)
-struct LOC_main_scan *LINK;
+Local Void reservation_of_arrays(struct LOC_main_scan *LINK)
 {
   /*KN*/
   if (vlam == 0)
@@ -1690,8 +1638,7 @@ struct LOC_main_scan *LINK;
     id = store[nlib + nid];
 }  /*reservation_of_arrays*/
 
-Local Void procedure_statement(LINK)
-struct LOC_main_scan *LINK;
+Local Void procedure_statement(struct LOC_main_scan *LINK)
 {
   /*LH*/
   if (eflag == 0)
@@ -1709,16 +1656,13 @@ struct LOC_main_scan *LINK;
   }
 }  /*procedure_statement*/
 
-Local Void production_transmark(LINK)
-struct LOC_main_scan *LINK;
+Local Void production_transmark(struct LOC_main_scan *LINK)
 {
   /*ZL*/
   fill_result_list(fflag * 2 - eflag + 9, 0L);
 }  /*production_transmark*/
 
-Local Void production_of_object_program(opht, LINK)
-int opht;
-struct LOC_main_scan *LINK;
+Local Void production_of_object_program(int opht, struct LOC_main_scan *LINK)
 {
   /*ZS*/
   int operator_, block_number;
@@ -1809,8 +1753,7 @@ struct LOC_main_scan *LINK;
   }
 }  /*production_of_object_program*/
 
-Local boolean thenelse(LINK)
-struct LOC_main_scan *LINK;
+Local boolean thenelse(struct LOC_main_scan *LINK)
 {
   /*ZN*/
   if (store[tlsc-1] % 255 == 83 || store[tlsc-1] % 255 == 84) {   /*then*/
@@ -1824,8 +1767,7 @@ struct LOC_main_scan *LINK;
     return false;
 }  /*thenelse*/
 
-Local Void empty_t_list_through_thenelse(LINK)
-struct LOC_main_scan *LINK;
+Local Void empty_t_list_through_thenelse(struct LOC_main_scan *LINK)
 {
   /*FR*/
   oflag = 1;
@@ -1834,8 +1776,7 @@ struct LOC_main_scan *LINK;
   } while (thenelse(LINK));   /*empty_t_list_through_thenelse*/
 }
 
-Local boolean do_in_t_list(LINK)
-struct LOC_main_scan *LINK;
+Local boolean do_in_t_list(struct LOC_main_scan *LINK)
 {
   /*ER*/
   if (store[tlsc-1] % 255 == 86) {
@@ -1849,8 +1790,7 @@ struct LOC_main_scan *LINK;
     return false;
 }  /*do_in_t_list*/
 
-Local Void look_for_name(LINK)
-struct LOC_main_scan *LINK;
+Local Void look_for_name(struct LOC_main_scan *LINK)
 {
   /*HZ*/
   int i, w;
@@ -1880,8 +1820,7 @@ _L2:
   fflag = (id / d16) & 1;
 }  /*look_for_name*/
 
-Local Void look_for_constant(LINK)
-struct LOC_main_scan *LINK;
+Local Void look_for_constant(struct LOC_main_scan *LINK)
 {
   /*FW*/
   int i;
@@ -1915,7 +1854,6 @@ struct LOC_main_scan *LINK;
   pflag = 0;
   fflag = 0;
 }  /*look_for_constant*/
-
 
 Static Void main_scan()
 {   /*body of main scan*/
@@ -2890,7 +2828,6 @@ _L1124:
 _L1052: ;
 }  /*main_scan*/
 
-
 /* Local variables for program_loader: */
 struct LOC_program_loader {
   int ll, list_address, crfa, heptade_count, parity_word, read_location,
@@ -2898,9 +2835,7 @@ struct LOC_program_loader {
   char from_store;
 } ;
 
-Local int logical_sum(n, m, LINK)
-int n, m;
-struct LOC_program_loader *LINK;
+Local int logical_sum(int n, int m, struct LOC_program_loader *LINK)
 {
   /*emulation of a machine instruction*/
   int i;
@@ -2916,8 +2851,7 @@ struct LOC_program_loader *LINK;
   return w;
 }  /*logical_sum*/
 
-Local Void complete_bitstock(LINK)
-struct LOC_program_loader *LINK;
+Local Void complete_bitstock(struct LOC_program_loader *LINK)
 {
   /*RW*/
   int i, w, FORLIM;
@@ -2966,9 +2900,7 @@ struct LOC_program_loader *LINK;
   }
 }  /*complete_bitstock*/
 
-Local int read_bit_string(n, LINK)
-int n;
-struct LOC_program_loader *LINK;
+Local int read_bit_string(int n, struct LOC_program_loader *LINK)
 {
   /*RW*/
   int Result, i;
@@ -2984,8 +2916,7 @@ struct LOC_program_loader *LINK;
   return Result;
 }  /*read_bit_string*/
 
-Local Void prepare_read_bit_string1(LINK)
-struct LOC_program_loader *LINK;
+Local Void prepare_read_bit_string1(struct LOC_program_loader *LINK)
 {
   int i, FORLIM;
 
@@ -2998,8 +2929,7 @@ struct LOC_program_loader *LINK;
   complete_bitstock(LINK);
 }  /*prepare_read_bit_string1*/
 
-Local Void prepare_read_bit_string2(LINK)
-struct LOC_program_loader *LINK;
+Local Void prepare_read_bit_string2(struct LOC_program_loader *LINK)
 {
   bitstock = 0;
   bitcount = 21;
@@ -3010,8 +2940,7 @@ struct LOC_program_loader *LINK;
   } while (read_bit_string(1L, LINK) != 1);   /*prepare_read_bit_string2*/
 }
 
-Local Void prepare_read_bit_string3(LINK)
-struct LOC_program_loader *LINK;
+Local Void prepare_read_bit_string3(struct LOC_program_loader *LINK)
 {
   int w;
 
@@ -3030,8 +2959,7 @@ struct LOC_program_loader *LINK;
   } while (read_bit_string(1L, LINK) != 1);   /*prepare_read_bit_string3*/
 }
 
-Local int address_decoding(LINK)
-struct LOC_program_loader *LINK;
+Local int address_decoding(struct LOC_program_loader *LINK)
 {
   /*RY*/
   int w, a, n;
@@ -3095,8 +3023,7 @@ struct LOC_program_loader *LINK;
   return a;
 }  /*address_decoding*/
 
-Local int read_mask(LINK)
-struct LOC_program_loader *LINK;
+Local int read_mask(struct LOC_program_loader *LINK)
 {
   /*RN*/
   int Result;
@@ -3199,8 +3126,7 @@ struct LOC_program_loader *LINK;
   return Result;
 }  /*read_mask*/
 
-Local int read_binary_word(LINK)
-struct LOC_program_loader *LINK;
+Local int read_binary_word(struct LOC_program_loader *LINK)
 {
   /*RF*/
   int w;
@@ -3275,24 +3201,20 @@ struct LOC_program_loader *LINK;
   }
 }  /*read_binary_word*/
 
-Local Void test_bit_stock(LINK)
-struct LOC_program_loader *LINK;
+Local Void test_bit_stock(struct LOC_program_loader *LINK)
 {
   /*RH*/
   if (bitstock != d21 * 63)
     stop(107L);
 }  /*test_bit_stock*/
 
-Local Void typ_address(a, LINK)
-int a;
-struct LOC_program_loader *LINK;
+Local Void typ_address(int a, struct LOC_program_loader *LINK)
 {
   /*RT*/
   printf("\n%2d %2d %2d", a / 1024, (a & 1023) / 32, a & 31);
 }  /*typ_address*/
 
-Local Void read_list(LINK)
-struct LOC_program_loader *LINK;
+Local Void read_list(struct LOC_program_loader *LINK)
 {
   /*RL*/
   int i, j, w, FORLIM1;
@@ -3312,8 +3234,7 @@ struct LOC_program_loader *LINK;
   test_bit_stock(LINK);
 }  /*read_list*/
 
-Local int read_crf_item(LINK)
-struct LOC_program_loader *LINK;
+Local int read_crf_item(struct LOC_program_loader *LINK)
 {
   /*RS*/
   int Result;
@@ -3326,12 +3247,11 @@ struct LOC_program_loader *LINK;
   return Result;
 }  /*read_crf_item*/
 
-
 Static Void program_loader()
 {  /*program loader*/
   /*RZ*/
   struct LOC_program_loader V;
-  int i, j, id;
+  int i, j, idm;
   int mcp_count = 0;
   boolean use;
   int FORLIM;
@@ -3352,17 +3272,17 @@ Static Void program_loader()
   /*determine primary need of MCP's from name list:*/
   i = nlsc0;
   while (i > nlscop) {
-    id = store[nlib + i - 1];
+    idm = store[nlib + i - 1];
     if ((store[nlib + i - 2] & (d3 - 1)) == 0)
 	  /*at most 4 letter/digit identifier*/
 	    i -= 2;
     else
       i -= 3;
     /*at least 5 letters or digits*/
-    if (((id / d15) & 1) == 0) {   /*MCP is used*/
+    if (((idm / d15) & 1) == 0) {   /*MCP is used*/
       mcp_count++;
-      store[mlib + ((store[flib + (id & (d15 - 1))] - rlib) & (d15 - 1))] =
-	-(flib + (id & (d15 - 1)));
+      store[mlib + ((store[flib + (idm & (d15 - 1))] - rlib) & (d15 - 1))] =
+	-(flib + (idm & (d15 - 1)));
     }
   }
   /*determine secondary need using the cross-reference list:*/
@@ -3456,12 +3376,10 @@ Static Void program_loader()
   typ_address(mcpe, &V);
 }  /*program_loader*/
 
-
-/*main program*/
-
-int main(argc, argv)
-int argc;
-char *argv[];
+/*
+ * main program
+ */
+int main(int argc, char *argv[])
 {
   int FORLIM;
 
