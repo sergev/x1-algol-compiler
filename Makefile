@@ -16,7 +16,7 @@ all:    build
 	$(MAKE) -Cbuild $@
 
 test:   build
-	$(MAKE) -Cbuild x1tests
+	$(MAKE) -Cbuild x1test
 	ctest --test-dir build/tests
 
 install: build

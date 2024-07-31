@@ -15,18 +15,17 @@ enable_testing()
 #
 # Common includes and libraries for all tests.
 #
-include_directories(BEFORE ..)
+include_directories(BEFORE ../simulator)
 link_libraries(simulator gtest_main)
 add_definitions(-DTEST_DIR="${CMAKE_CURRENT_SOURCE_DIR}")
 
 #
 # Unit tests.
 #
-add_executable(x1tests EXCLUDE_FROM_ALL
-    util.cpp
+add_executable(x1test EXCLUDE_FROM_ALL
+    fixture.cpp
     cli_test.cpp
     machine_test.cpp
-    cpu_test.cpp
 )
-add_dependencies(x1tests x1sim)
-gtest_discover_tests(x1tests EXTRA_ARGS --gtest_repeat=1 PROPERTIES TIMEOUT 120)
+add_dependencies(x1test x1sim)
+gtest_discover_tests(x1test EXTRA_ARGS --gtest_repeat=1 PROPERTIES TIMEOUT 120)
