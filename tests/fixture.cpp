@@ -1,9 +1,7 @@
-#include "util.h"
+#include "fixture.h"
 
 #include <fstream>
 #include <cstring>
-
-#include "fixture.h"
 
 //
 // Get current test name, as specified in TEST() macro.
