@@ -258,12 +258,13 @@ Static int read_utf8_symbol()
     }
 _L1:
     if (input_pos >= strlen(input_line)) {
-        if (getline(&input_line, &input_line_len, stdin) < 0) {
+        if (P_eof(stdin)) {
             /*writeln('End of input');*/
             /*for debug*/
             input_eof_seen = true;
             return 123; /*space*/
         }
+        if (getline(&input_line, &input_line_len, stdin));
         input_pos = 0;
         /*writeln('---');*/
         /*for debug*/
@@ -1026,47 +1027,98 @@ Static Void fill_result_list(int opc, int w)
     if (opc < 8) {
         address_coder(w);
         w = w / d15 * d15 + opc;
-        if (w == 21495808L)      /*  2S   0 A  */
-            w = 3076;            /*3*1024 +   4*/
-        else if (w == 71827459L) /*  2B   3 A  */
-            w = 3077;            /*3*1024 +   5*/
-        else if (w == 88080386L) /*  2T 2X0    */
-            w = 4108;            /*4*1024 +  12*/
-        else if (w == 71827456L) /*  2B   0 A  */
-            w = 4109;            /*4*1024 +  13*/
-        else if (w == 4718592L)  /*  2A   0 A  */
-            w = 7280;            /*7*1024 + 112*/
-        else if (w == 71303170L) /*  2B 2X0    */
-            w = 7281;            /*7*1024 + 113*/
-        else if (w == 88604673L) /*  2T   1 A  */
-            w = 7282;            /*7*1024 + 114*/
-        else if (w == 0)         /*  0A 0X0    */
-            w = 7283;            /*7*1024 + 115*/
-        else if (w == 524291L)   /*  0A   3 A  */
-            w = 7284;            /*7*1024 + 116*/
-        else if (w == 88178690L) /*N 2T 2X0    */
-            w = 7285;            /*7*1024 + 117*/
-        else if (w == 71827457L) /*  2B   1 A  */
-            w = 7286;            /*7*1024 + 118*/
-        else if (w == 1048577L)  /*  0A 1X0 B  */
-            w = 7287;            /*7*1024 + 119*/
-        else if (w == 20971522L) /*  2S 2X0    */
-            w = 7288;            /*7*1024 + 120*/
-        else if (w == 4784128L)  /*Y 2A   0 A  */
-            w = 7289;            /*7*1024 + 121*/
-        else if (w == 8388608L)  /*  4A 0X0    */
-            w = 7290;            /*7*1024 + 122*/
-        else if (w == 4390912L)  /*Y 2A 0X0   P*/
-            w = 7291;            /*7*1024 + 123*/
-        else if (w == 13172736L) /*Y 6A   0 A  */
-            w = 7292;            /*7*1024 + 124*/
-        else if (w == 1572865L)  /*  0A 1X0 C  */
-            w = 7293;            /*7*1024 + 125*/
-        else if (w == 524288L)   /*  0A   0 A  */
-            w = 7294;            /*7*1024 + 126*/
-        else {                   /*7*1024 + 127*/
-            address_coder(w / d15 + opc * d12);
-            w = 7295;
+        if (w == 21495808L) /*  2S   0 A  */
+            w = 3076;       /*3*1024 +   4*/
+        else {
+            if (w == 71827459L) /*  2B   3 A  */
+                w = 3077;       /*3*1024 +   5*/
+            else {
+                if (w == 88080386L) /*  2T 2X0    */
+                    w = 4108;       /*4*1024 +  12*/
+                else {
+                    if (w == 71827456L) /*  2B   0 A  */
+                        w = 4109;       /*4*1024 +  13*/
+                    else {
+                        if (w == 4718592L) /*  2A   0 A  */
+                            w = 7280;      /*7*1024 + 112*/
+                        else {
+                            if (w == 71303170L) /*  2B 2X0    */
+                                w = 7281;       /*7*1024 + 113*/
+                            else {
+                                if (w == 88604673L) /*  2T   1 A  */
+                                    w = 7282;       /*7*1024 + 114*/
+                                else {
+                                    if (w == 0)   /*  0A 0X0    */
+                                        w = 7283; /*7*1024 + 115*/
+                                    else {
+                                        if (w == 524291L) /*  0A   3 A  */
+                                            w = 7284;     /*7*1024 + 116*/
+                                        else {
+                                            if (w == 88178690L) /*N 2T 2X0    */
+                                                w = 7285;       /*7*1024 + 117*/
+                                            else {
+                                                if (w == 71827457L) /*  2B   1 A  */
+                                                    w = 7286;       /*7*1024 + 118*/
+                                                else {
+                                                    if (w == 1048577L) /*  0A 1X0 B  */
+                                                        w = 7287;      /*7*1024 + 119*/
+                                                    else {
+                                                        if (w == 20971522L) /*  2S 2X0    */
+                                                            w = 7288;       /*7*1024 + 120*/
+                                                        else {
+                                                            if (w == 4784128L) /*Y 2A   0 A  */
+                                                                w = 7289;      /*7*1024 + 121*/
+                                                            else {
+                                                                if (w == 8388608L) /*  4A 0X0    */
+                                                                    w = 7290;      /*7*1024 + 122*/
+                                                                else {
+                                                                    if (w ==
+                                                                        4390912L) /*Y 2A 0X0   P*/
+                                                                        w = 7291; /*7*1024 + 123*/
+                                                                    else {
+                                                                        if (w ==
+                                                                            13172736L) /*Y 6A   0 A
+                                                                                        */
+                                                                            w = 7292;  /*7*1024 +
+                                                                                          124*/
+                                                                        else {
+                                                                            if (w ==
+                                                                                1572865L) /*  0A 1X0
+                                                                                             C  */
+                                                                                w = 7293; /*7*1024 +
+                                                                                             125*/
+                                                                            else {
+                                                                                if (w ==
+                                                                                    524288L) /*  0A
+                                                                                                0 A
+                                                                                              */
+                                                                                    w = 7294; /*7*1024
+                                                                                                 +
+                                                                                                 126*/
+                                                                                else { /*7*1024 +
+                                                                                          127*/
+                                                                                    address_coder(
+                                                                                        w / d15 +
+                                                                                        opc * d12);
+                                                                                    w = 7295;
+                                                                                }
+                                                                            }
+                                                                        }
+                                                                    }
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         }
     } /*opc < 8*/
     else if (opc <= 61) {
@@ -2809,17 +2861,6 @@ Local int logical_sum(int n, int m, struct LOC_program_loader *LINK)
     return w;
 } /*logical_sum*/
 
-int read_lib_tape()
-{
-    int w;
-
-    if (fscanf(lib_tape, "%d", &w) != 1) {
-        fprintf(stderr, "Bad library tape\n");
-        exit(EXIT_FAILURE);
-    }
-    return w;
-}
-
 Local Void complete_bitstock(struct LOC_program_loader *LINK)
 {
     /*RW*/
@@ -2843,7 +2884,7 @@ Local Void complete_bitstock(struct LOC_program_loader *LINK)
             break;
 
         case 1: /*bit string read from tape:*/
-            w = read_lib_tape();
+            if (fscanf(lib_tape, "%d", &w));
             if (LINK->heptade_count > 0) {
                 /*test parity of the previous 4 heptades*/
                 bitcount++;
@@ -2915,7 +2956,7 @@ Local Void prepare_read_bit_string3(struct LOC_program_loader *LINK)
     bitstock         = 0;
     bitcount         = 21;
     do {
-        w = read_lib_tape();
+        if (fscanf(lib_tape, "%d", &w));
     } while (w == 0);
     if (w != 30) /*D*/
         stop(106L);
@@ -3328,9 +3369,9 @@ Static Void program_loader()
             } else {
                 do {
                     do {
-                        V.ll = read_lib_tape();
+                        if (fscanf(lib_tape, "%d", &V.ll));
                     } while (V.ll != 0);
-                    V.ll = read_lib_tape();
+                    if (fscanf(lib_tape, "%d", &V.ll));
                 } while (V.ll != 0);
             }
             prepare_read_bit_string3(&V);
@@ -3472,10 +3513,7 @@ int main(int argc, char *argv[])
     ascii_table['|']  = 162;
     ascii_table['_']  = 163;
 
-    if (getline(&input_line, &input_line_len, stdin) < 0) {
-        printf("End of input\n");
-        _Escape(0);
-    }
+    if (getline(&input_line, &input_line_len, stdin));
 
     /*preparation of prescan*/
     /*LE*/
