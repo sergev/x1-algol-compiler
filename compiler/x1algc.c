@@ -1,6 +1,7 @@
 /* Output from p2c 2.00.Oct.15, the Pascal-to-C translator */
 /* From input file "x1algol.pas" */
 
+#include <getopt.h>
 #include <setjmp.h>
 #include <stdbool.h>
 #include <stdio.h>
@@ -16,131 +17,13 @@ typedef void Void;
 typedef unsigned char Char;
 typedef unsigned char boolean;
 
-typedef struct __p2c_jmp_buf {
-    struct __p2c_jmp_buf *next;
-    jmp_buf jbuf;
-} __p2c_jmp_buf;
-
 int P_argc;
 char **P_argv;
-
-short P_escapecode;
-int P_ioresult;
-
-__p2c_jmp_buf *__top_jb;
 
 void PASCAL_MAIN(int argc, char **argv)
 {
     P_argc   = argc;
     P_argv   = argv;
-    __top_jb = NULL;
-}
-
-#define FileNotFound   10
-#define FileNotOpen    13
-#define FileWriteError 38
-#define BadInputFormat 14
-#define EndOfFile      30
-
-char *_ShowEscape(char *buf, int code, int ior, char *prefix)
-{
-    char *bufp;
-
-    if (prefix && *prefix) {
-        strcpy(buf, prefix);
-        strcat(buf, ": ");
-        bufp = buf + strlen(buf);
-    } else {
-        bufp = buf;
-    }
-    if (code == -10) {
-        sprintf(bufp, "Pascal system I/O error %d", ior);
-        switch (ior) {
-        case 3:
-            strcat(buf, " (illegal I/O request)");
-            break;
-        case 7:
-            strcat(buf, " (bad file name)");
-            break;
-        case FileNotFound: /*10*/
-            strcat(buf, " (file not found)");
-            break;
-        case FileNotOpen: /*13*/
-            strcat(buf, " (file not open)");
-            break;
-        case BadInputFormat: /*14*/
-            strcat(buf, " (bad input format)");
-            break;
-        case 24:
-            strcat(buf, " (not open for reading)");
-            break;
-        case 25:
-            strcat(buf, " (not open for writing)");
-            break;
-        case 26:
-            strcat(buf, " (not open for direct access)");
-            break;
-        case 28:
-            strcat(buf, " (string subscript out of range)");
-            break;
-        case EndOfFile: /*30*/
-            strcat(buf, " (end-of-file)");
-            break;
-        case FileWriteError: /*38*/
-            strcat(buf, " (file write error)");
-            break;
-        }
-    } else {
-        sprintf(bufp, "Pascal system error %d", code);
-        switch (code) {
-        case -2:
-            strcat(buf, " (out of memory)");
-            break;
-        case -3:
-            strcat(buf, " (reference to NIL pointer)");
-            break;
-        case -4:
-            strcat(buf, " (integer overflow)");
-            break;
-        case -5:
-            strcat(buf, " (divide by zero)");
-            break;
-        case -6:
-            strcat(buf, " (real math overflow)");
-            break;
-        case -8:
-            strcat(buf, " (value range error)");
-            break;
-        case -9:
-            strcat(buf, " (CASE value range error)");
-            break;
-        case -12:
-            strcat(buf, " (bus error)");
-            break;
-        case -20:
-            strcat(buf, " (stopped by user)");
-            break;
-        }
-    }
-    return buf;
-}
-
-int _Escape(int code)
-{
-    char buf[100];
-
-    P_escapecode = code;
-    if (__top_jb) {
-        __p2c_jmp_buf *jb = __top_jb;
-        __top_jb          = jb->next;
-        longjmp(jb->jbuf, 1);
-    }
-    if (code == 0)
-        exit(EXIT_SUCCESS);
-    if (code == -1)
-        exit(EXIT_FAILURE);
-    fprintf(stderr, "%s\n", _ShowEscape(buf, P_escapecode, P_ioresult, ""));
-    exit(EXIT_FAILURE);
 }
 
 int P_eof(FILE *f)
@@ -198,9 +81,28 @@ Static int tlsc, plib, flib, klib, nlib, rht, vht, qc, scan, rnsa, rnsb, rnsc, r
     dflag, bflag, oflag, nflag, kflag, iflag, mflag, vflag, aflag, sflag, eflag, jflag, pflag,
     fflag, bn, vlam, pnlv, gvc, lvc, oh, id, nid, ibd, inba, fora, forc, psta, pstb, spe, arra,
     arrb, arrc, arrd, ic, aic, rlaa, rlab, qa, qb, rlsc, flsc, klsc, nlsc, bitcount, bitstock;
-/* p2c: x1algol.pas, line 65:
- * Note: Line breaker spent 0.0 seconds, 5000 tries on line 50 [251] */
+
 Static int store[12288];
+static inline int _Rstore(int idx, int line, const char * expr) {
+    if (0 <= idx && idx < 12288)
+        return store[idx];
+    else {
+        printf("Runaway read @%d, %s: %d\n", line, expr, idx);
+        exit(1);
+    }
+    return -1;
+}
+#define Rstore(expr) _Rstore(expr, __LINE__, #expr)
+
+static inline void _Wstore(int idx, int val, int line, const char * expr) {
+    if (0 <= idx && idx < 12288)
+        store[idx] = val;
+    else {
+        printf("Runaway write @%d, %s: %d\n", line, expr, idx);
+        exit(1);
+    }
+}
+#define Wstore(expr, val) _Wstore(expr, val, __LINE__, #expr)
 
 Static enum { ps, ms, virginal } rns_state;
 
@@ -211,6 +113,7 @@ Static int opc_table[113];
 
 Static int rlib, mcpe;
 
+Static FILE *source_tape;
 Static FILE *lib_tape;
 
 Static int ii;
@@ -219,16 +122,17 @@ Static char *input_line;
 size_t input_line_len;
 Static int input_pos;
 Static boolean input_eof_seen;
+Static boolean binary_lib_tape;
 
 Static Void stop(int n)
 {
     /*emulation of a machine instruction*/
     printf("\n*** stop %d-%2d ***\n", n / d5, n & (d5 - 1));
-    if (!P_eof(stdin)) {
+    if (!P_eof(source_tape)) {
         printf("Line: %s\n", input_line);
         printf("      %*c\n", (int)input_pos, '^');
     }
-    _Escape(0);
+    exit(EXIT_FAILURE);
 } /*stop*/
 
 Static int read_next_byte()
@@ -238,7 +142,7 @@ Static int read_next_byte()
 
     if (input_pos >= strlen(input_line)) {
         printf("Bad input: %s\n", input_line);
-        _Escape(0);
+        exit(EXIT_FAILURE);
     }
     input_pos++;
     ch = input_line[input_pos - 1];
@@ -254,17 +158,18 @@ Static int read_utf8_symbol()
 
     if (input_eof_seen) {
         printf("End of input\n");
-        _Escape(0);
+        exit(EXIT_FAILURE);
     }
 _L1:
     if (input_pos >= strlen(input_line)) {
-        if (P_eof(stdin)) {
+        if (P_eof(source_tape)) {
             /*writeln('End of input');*/
             /*for debug*/
             input_eof_seen = true;
             return 123; /*space*/
         }
-        if (getline(&input_line, &input_line_len, stdin));
+        if (getline(&input_line, &input_line_len, source_tape))
+            ;
         input_pos = 0;
         /*writeln('---');*/
         /*for debug*/
@@ -309,7 +214,7 @@ _L1:
         }
     }
     printf("Bad input: %s\n", input_line);
-    _Escape(0);
+    exit(EXIT_FAILURE);
     return -1;
 }
 
@@ -477,11 +382,7 @@ _L1:
         break;
 
     case ms: /*take symbol from symbol store:*/
-        if (rnsd > 12287) {
-            printf("Runaway rnsd\n");
-            _Escape(0);
-        }
-        dl = (store[rnsd] / rnsc) & (d7 - 1);
+        dl = (Rstore(rnsd) / rnsc) & (d7 - 1);
         if (rnsc > d7)
             rnsc /= d7;
         else {
@@ -1029,96 +930,45 @@ Static Void fill_result_list(int opc, int w)
         w = w / d15 * d15 + opc;
         if (w == 21495808L) /*  2S   0 A  */
             w = 3076;       /*3*1024 +   4*/
-        else {
-            if (w == 71827459L) /*  2B   3 A  */
-                w = 3077;       /*3*1024 +   5*/
-            else {
-                if (w == 88080386L) /*  2T 2X0    */
-                    w = 4108;       /*4*1024 +  12*/
-                else {
-                    if (w == 71827456L) /*  2B   0 A  */
-                        w = 4109;       /*4*1024 +  13*/
-                    else {
-                        if (w == 4718592L) /*  2A   0 A  */
-                            w = 7280;      /*7*1024 + 112*/
-                        else {
-                            if (w == 71303170L) /*  2B 2X0    */
-                                w = 7281;       /*7*1024 + 113*/
-                            else {
-                                if (w == 88604673L) /*  2T   1 A  */
-                                    w = 7282;       /*7*1024 + 114*/
-                                else {
-                                    if (w == 0)   /*  0A 0X0    */
-                                        w = 7283; /*7*1024 + 115*/
-                                    else {
-                                        if (w == 524291L) /*  0A   3 A  */
-                                            w = 7284;     /*7*1024 + 116*/
-                                        else {
-                                            if (w == 88178690L) /*N 2T 2X0    */
-                                                w = 7285;       /*7*1024 + 117*/
-                                            else {
-                                                if (w == 71827457L) /*  2B   1 A  */
-                                                    w = 7286;       /*7*1024 + 118*/
-                                                else {
-                                                    if (w == 1048577L) /*  0A 1X0 B  */
-                                                        w = 7287;      /*7*1024 + 119*/
-                                                    else {
-                                                        if (w == 20971522L) /*  2S 2X0    */
-                                                            w = 7288;       /*7*1024 + 120*/
-                                                        else {
-                                                            if (w == 4784128L) /*Y 2A   0 A  */
-                                                                w = 7289;      /*7*1024 + 121*/
-                                                            else {
-                                                                if (w == 8388608L) /*  4A 0X0    */
-                                                                    w = 7290;      /*7*1024 + 122*/
-                                                                else {
-                                                                    if (w ==
-                                                                        4390912L) /*Y 2A 0X0   P*/
-                                                                        w = 7291; /*7*1024 + 123*/
-                                                                    else {
-                                                                        if (w ==
-                                                                            13172736L) /*Y 6A   0 A
-                                                                                        */
-                                                                            w = 7292;  /*7*1024 +
-                                                                                          124*/
-                                                                        else {
-                                                                            if (w ==
-                                                                                1572865L) /*  0A 1X0
-                                                                                             C  */
-                                                                                w = 7293; /*7*1024 +
-                                                                                             125*/
-                                                                            else {
-                                                                                if (w ==
-                                                                                    524288L) /*  0A
-                                                                                                0 A
-                                                                                              */
-                                                                                    w = 7294; /*7*1024
-                                                                                                 +
-                                                                                                 126*/
-                                                                                else { /*7*1024 +
-                                                                                          127*/
-                                                                                    address_coder(
-                                                                                        w / d15 +
-                                                                                        opc * d12);
-                                                                                    w = 7295;
-                                                                                }
-                                                                            }
-                                                                        }
-                                                                    }
-                                                                }
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
+        else if (w == 71827459L) /*  2B   3 A  */
+            w = 3077;       /*3*1024 +   5*/
+        else if (w == 88080386L) /*  2T 2X0    */
+            w = 4108;       /*4*1024 +  12*/
+        else if (w == 71827456L) /*  2B   0 A  */
+            w = 4109;       /*4*1024 +  13*/
+        else if (w == 4718592L) /*  2A   0 A  */
+            w = 7280;       /*7*1024 + 112*/
+        else if (w == 71303170L) /*  2B 2X0    */
+            w = 7281;       /*7*1024 + 113*/
+        else if (w == 88604673L) /*  2T   1 A  */
+            w = 7282;       /*7*1024 + 114*/
+        else if (w == 0)    /*  0A 0X0    */
+            w = 7283;       /*7*1024 + 115*/
+        else if (w == 524291L)  /*  0A   3 A  */
+            w = 7284;       /*7*1024 + 116*/
+        else if (w == 88178690L) /*N 2T 2X0    */
+            w = 7285;       /*7*1024 + 117*/
+        else if (w == 71827457L) /*  2B   1 A  */
+            w = 7286;       /*7*1024 + 118*/
+        else if (w == 1048577L) /*  0A 1X0 B  */
+            w = 7287;       /*7*1024 + 119*/
+        else if (w == 20971522L) /*  2S 2X0    */
+            w = 7288;       /*7*1024 + 120*/
+        else if (w == 4784128L) /*Y 2A   0 A  */
+            w = 7289;       /*7*1024 + 121*/
+        else if (w == 8388608L) /*  4A 0X0    */
+            w = 7290;       /*7*1024 + 122*/
+        else if (w == 4390912L) /*Y 2A 0X0   P*/
+            w = 7291;       /*7*1024 + 123*/
+        else if (w == 13172736L) /*Y 6A   0 A */
+            w = 7292;       /*7*1024 + 124*/
+        else if (w == 1572865L) /*  0A 1X0 C  */
+            w = 7293;       /*7*1024 + 125*/
+        else if (w == 524288L)  /*  0A     0 A */
+            w = 7294;       /*7*1024 + 126*/
+        else  {             /*7*1024 + 127*/
+            address_coder(w / d15 + opc * d12);
+            w = 7295;
         }
     } /*opc < 8*/
     else if (opc <= 61) {
@@ -1601,11 +1451,7 @@ Local Void reservation_of_arrays(struct LOC_main_scan *LINK)
         rlaa = nlib + store[tlsc - 3];
     rlab = nlib + nlsc;
     while (rlab != rlaa) {
-        if (rlab <= 0) {
-            printf("Runaway rlab\n");
-            _Escape(0);
-        }
-        id = store[rlab - 1];
+        id = Rstore(rlab - 1);
         if (id >= d26 && id < d25 + d26) { /*value array:*/
             address_to_register(LINK);
             if (((id / d19) & 1) == 0) /*RVA*/
@@ -1623,11 +1469,7 @@ Local Void reservation_of_arrays(struct LOC_main_scan *LINK)
     }
     rlab = nlib + nlsc;
     while (rlab != rlaa) {
-        if (rlab <= 0) {
-            printf("Runaway rlab\n");
-            _Escape(0);
-        }
-        if (store[rlab - 1] >= d26) {
+        if (Rstore(rlab - 1) >= d26) {
             id = store[rlab - 1] - d26;
             if (id < d25) {
                 address_to_register(LINK); /*VAP*/
@@ -2451,11 +2293,7 @@ _L101: /*]*/
             arrb += d19;
         arra = nlib + nlsc;
         do {
-            if (arra <= 0) {
-                printf("Runaway arra\n");
-                _Escape(0);
-            }
-            store[arra - 1] = arrb + pnlv;
+            Wstore(arra - 1, arrb + pnlv);
             if ((store[arra - 2] & (d3 - 1)) == 0)
                 arra -= 2;
             else
@@ -2845,7 +2683,7 @@ struct LOC_program_loader {
     char from_store;
 };
 
-Local int logical_sum(int n, int m, struct LOC_program_loader *LINK)
+Local int logical_sum(int n, int m)
 {
     /*emulation of a machine instruction*/
     int i;
@@ -2861,10 +2699,21 @@ Local int logical_sum(int n, int m, struct LOC_program_loader *LINK)
     return w;
 } /*logical_sum*/
 
+Local int read_byte_from_lib_tape()
+{
+    int w;
+    if (binary_lib_tape)
+        return getc(lib_tape);   
+    else if (fscanf(lib_tape, "%d", &w) <= 0)
+        return EOF;
+    else
+        return w;
+}
+
 Local Void complete_bitstock(struct LOC_program_loader *LINK)
 {
     /*RW*/
-    int i, w, FORLIM;
+    int i, w = 0, FORLIM;
 
     while (bitcount > 0) { /*i.e., at most 20 bits in stock*/
         LINK->heptade_count++;
@@ -2884,12 +2733,12 @@ Local Void complete_bitstock(struct LOC_program_loader *LINK)
             break;
 
         case 1: /*bit string read from tape:*/
-            if (fscanf(lib_tape, "%d", &w));
+            w = read_byte_from_lib_tape();
             if (LINK->heptade_count > 0) {
                 /*test parity of the previous 4 heptades*/
                 bitcount++;
                 LINK->parity_word =
-                    logical_sum(LINK->parity_word, LINK->parity_word / d4, LINK) & (d4 - 1);
+                    logical_sum(LINK->parity_word, LINK->parity_word / d4) & (d4 - 1);
                 if ((unsigned long)LINK->parity_word < 32 &&
                     ((1L << LINK->parity_word) & 0x9669L) != 0)
                     stop(105L);
@@ -2897,7 +2746,7 @@ Local Void complete_bitstock(struct LOC_program_loader *LINK)
                 LINK->parity_word   = w;
                 w /= 2;
             } else
-                LINK->parity_word = logical_sum(LINK->parity_word, w, LINK);
+                LINK->parity_word = logical_sum(LINK->parity_word, w);
             break;
         }
         FORLIM = bitcount;
@@ -2956,7 +2805,8 @@ Local Void prepare_read_bit_string3(struct LOC_program_loader *LINK)
     bitstock         = 0;
     bitcount         = 21;
     do {
-        if (fscanf(lib_tape, "%d", &w));
+        if ((w = read_byte_from_lib_tape()) == EOF)
+            break;
     } while (w == 0);
     if (w != 30) /*D*/
         stop(106L);
@@ -3192,12 +3042,12 @@ Local int read_binary_word(struct LOC_program_loader *LINK)
                 w -= d17;
             else
                 w += d19;
-            w += store[flib + (w & (d15 - 1))] - (w & (d15 - 1));
+            w += Rstore(flib + (w & (d15 - 1))) - (w & (d15 - 1));
             break;
 
         case 3:
             if (klib == crfb)
-                w += store[mlib + (w & (d15 - 1))] - (w & (d15 - 1));
+                w += Rstore(mlib + (w & (d15 - 1))) - (w & (d15 - 1));
             else
                 w += klib;
             break;
@@ -3232,10 +3082,10 @@ Local Void read_list(struct LOC_program_loader *LINK)
                 stop(98L);
             FORLIM1 = flsc;
             for (j = 0; j < FORLIM1; j++)
-                store[LINK->read_location + j] = store[flib + j];
+                Wstore(LINK->read_location + j, Rstore(flib + j));
             flib = LINK->read_location;
         }
-        store[LINK->list_address + i] = w;
+        Wstore(LINK->list_address + i, w);
     } /*for i*/
     test_bit_stock(LINK);
 } /*read_list*/
@@ -3351,36 +3201,132 @@ Static Void program_loader()
     /*load MCP's from tape:*/
     while (mcp_count != 0) {
         printf("\nload (next) library tape into the tape reader\n");
-        lib_tape = fopen("lib_tape", "r");
-        if (!lib_tape || P_eof(lib_tape)) {
+        if (P_argc > optind) {
+            lib_tape = fopen(P_argv[optind++], "r");
+            if (!lib_tape) {
+                perror(P_argv[optind-1]);
+                exit(EXIT_FAILURE);
+            }
+        } else if (!lib_tape || P_eof(lib_tape)) {
             printf("bad library tape\n");
-            _Escape(0);
+            exit(EXIT_FAILURE);
         }
         prepare_read_bit_string3(&V);
         V.ll = read_bit_string(13L, &V); /*for length or end marker*/
         while (V.ll < 7680) {
             i              = read_bit_string(13L, &V); /*for MCP number*/
-            V.list_address = store[crfb + i];
+            V.list_address = Rstore(crfb + i);
             if (V.list_address != 0) {
                 read_list(&V);
                 test_bit_stock(&V);
                 mcp_count--;
                 store[crfb + i] = 0;
             } else {
+                printf("Unneeded library tape: %s contains procedure %d\n",
+                       P_argv[optind-1], i);
+#if 0
                 do {
                     do {
-                        if (fscanf(lib_tape, "%d", &V.ll));
+                        if (EOF == (V.ll = read_byte_from_lib_tape()))
+                            break;
                     } while (V.ll != 0);
-                    if (fscanf(lib_tape, "%d", &V.ll));
+                    if (EOF == (V.ll = read_byte_from_lib_tape()))
+                        break;
                 } while (V.ll != 0);
+#endif
             }
+            break;              /* Reading library routines one per tape */
+#if 0
             prepare_read_bit_string3(&V);
             V.ll = read_bit_string(13L, &V);
+#endif
         }
+        fclose(lib_tape);
     }
     /*program loading completed:*/
     typ_address(mcpe, &V);
 } /*program_loader*/
+
+int word1(const char * ss) {
+    const unsigned char * s = (const unsigned char*)ss;
+    switch (strlen(ss)) {
+    case 1:
+        return ascii_table[s[0]] << 21;
+    case 2:
+        return ascii_table[s[1]] << 21 |
+               ascii_table[s[0]] << 15;
+    case 3:
+        return ascii_table[s[2]] << 21 |
+               ascii_table[s[1]] << 15 |
+               ascii_table[s[0]] << 9;
+    case 4:
+        return ascii_table[s[3]] << 21 |
+               ascii_table[s[2]] << 15 |
+               ascii_table[s[1]] << 9 |
+               ascii_table[s[0]] << 3;
+    default:
+        return ascii_table[s[4]] << 21 |
+               ascii_table[s[3]] << 15 |
+               ascii_table[s[2]] << 9 |
+               ascii_table[s[1]] << 3 |
+               ascii_table[s[0]] >> 3;
+    }
+}
+
+int word2(const char * ss) {
+    const unsigned char * s = (const unsigned char*)ss;
+    int c = ascii_table[s[0]] & 7;
+    switch (strlen(ss)) {
+    case 1: case 2: case 3: case 4:
+        printf("Must not request word2 for short names\n");
+        exit(1);
+    case 5:
+        return 0777777770 | c;
+    case 6:
+        return 0777777000 | c |
+            ascii_table[s[5]] << 3;
+    case 7:
+        return 0777700000 | c |
+            ascii_table[s[5]] << 3 |
+            ascii_table[s[6]] << 9;
+    case 8:
+        return 0770000000 | c |
+            ascii_table[s[5]] << 3 |
+            ascii_table[s[6]] << 9 |
+            ascii_table[s[7]] << 15;
+    default:
+        return c |
+            ascii_table[s[5]] << 3 |
+            ascii_table[s[6]] << 9 |
+            ascii_table[s[7]] << 15 |
+            ascii_table[s[8]] << 21;
+    }
+}
+
+static int prefill_cnt = 0;
+
+void prefill_op_proc(const char * name, int o) {
+    int n;
+    if (76 <= o && o <= 84)
+        n = 57;
+    else if (102 <= o && o <= 108)
+        n = 40;
+    else {
+        printf("Bad OPC %d for op proc\n", o);
+        exit(1);
+    }
+    if (strlen(name) >= 5)
+        Wstore(nlib + prefill_cnt++, word2(name));
+    Wstore(nlib + prefill_cnt++, word1(name));
+    Wstore(nlib + prefill_cnt++, d18 + 12*256 + n + o);
+}
+
+void prefill_lib_proc(const char * name, int m) {
+    if (strlen(name) >= 5)
+        Wstore(nlib + prefill_cnt++, word2(name));
+    Wstore(nlib + prefill_cnt++, word1(name));
+    Wstore(nlib + prefill_cnt++, d18 + d15 + m);
+}
 
 /*
  * main program
@@ -3389,8 +3335,48 @@ int main(int argc, char *argv[])
 {
     int FORLIM;
 
+    const char * prog_name = strrchr(argv[0], '/');
+    if (prog_name == NULL) {
+        prog_name = argv[0];
+    } else {
+        prog_name++;
+    }
+    for (;;) {
+        switch (getopt(argc, argv, "hb")) {
+        case EOF:
+            break;
+        case 'h':
+            printf("X1 Algol Compiler, converted from Pascal\n");
+            printf("Usage:\n");
+            printf("    %s [options...] [source [library]]\n", prog_name);
+            printf("Input files:\n");
+            printf("    source                  Algol-60 program source\n");
+            printf("    library                 Library tape\n");
+            printf("    (if no arguments are given, stdin is read as the source)\n");
+            printf("Options:\n");
+            printf("    -h                      Display available options\n"
+                   "    -b                      The library tape is raw binary (default: text decimal)\n");
+            exit(EXIT_SUCCESS);
+        case 'b':
+            binary_lib_tape = true;
+            continue;
+        }
+        break;
+    }
+    if (argc == optind) {
+        source_tape = stdin;
+    } else {
+        source_tape = fopen(argv[optind], "r");
+        if (source_tape == NULL) {
+            perror(argv[optind]);
+            exit(EXIT_FAILURE);
+        }
+        ++optind;
+    }
+
     PASCAL_MAIN(argc, argv);
     lib_tape = NULL;
+
     /*initialization of word_del_table*/
     /*HT*/
     word_del_table[0]  = 15086;
@@ -3513,7 +3499,8 @@ int main(int argc, char *argv[])
     ascii_table['|']  = 162;
     ascii_table['_']  = 163;
 
-    if (getline(&input_line, &input_line_len, stdin));
+    if (getline(&input_line, &input_line_len, source_tape))
+        ;
 
     /*preparation of prescan*/
     /*LE*/
@@ -3552,55 +3539,40 @@ int main(int argc, char *argv[])
     gvc  = gvc0;
     fill_t_list(161L);
     /*prefill of name list:*/
-    store[nlib]      = 27598040L;
-    store[nlib + 1]  = 265358L; /*read*/
-    store[nlib + 2]  = 134217721L;
-    store[nlib + 3]  = 61580507L;
-    store[nlib + 4]  = 265359L; /*print*/
-    store[nlib + 5]  = 80932864L;
-    store[nlib + 6]  = 265360L; /*TAB*/
-    store[nlib + 7]  = 114549136L;
-    store[nlib + 8]  = 265361L; /*NLCR*/
-    store[nlib + 9]  = 134217727L;
-    store[nlib + 10] = 87280550L;
-    store[nlib + 11] = 265363L; /*SPACE*/
-    store[nlib + 12] = 53230304L;
-    store[nlib + 13] = 265364L; /*stop*/
-    store[nlib + 14] = 59085824L;
-    store[nlib + 15] = 265349L; /*abs*/
-    store[nlib + 16] = 48768224L;
-    store[nlib + 17] = 265350L; /*sign*/
-    store[nlib + 18] = 61715680L;
-    store[nlib + 19] = 265351L; /*sqrt*/
-    store[nlib + 20] = 48838656L;
-    store[nlib + 21] = 265352L; /*sin*/
-    store[nlib + 22] = 59512832L;
-    store[nlib + 23] = 265353L; /*cos*/
-    store[nlib + 24] = 48922624L;
-    store[nlib + 25] = 265355L; /*ln*/
-    store[nlib + 26] = 53517312L;
-    store[nlib + 27] = 265356L; /*exp*/
-    store[nlib + 28] = 134217438L;
-    store[nlib + 29] = 29964985L;
-    store[nlib + 30] = 265357L; /*entier*/
+    prefill_op_proc("read", 102);
+    prefill_op_proc("print", 103);
+    prefill_op_proc("TAB", 104);
+    prefill_op_proc("NLCR", 105);
+    // XEEN 106 is missing
+    prefill_op_proc("SPACE", 107);
+    prefill_op_proc("stop", 108);
+    prefill_op_proc("abs", 76);
+    prefill_op_proc("sign", 77);
+    prefill_op_proc("sqrt", 78);
+    prefill_op_proc("sin", 79);
+    prefill_op_proc("cos", 80);
+    // arctan 81 was here, now it is in the library
+    prefill_op_proc("ln", 82);
+    prefill_op_proc("exp", 83);
+    prefill_op_proc("entier", 84);
 
-    store[nlib + 31] = 104656384L;
-    store[nlib + 32] = 294912L; /*SUM*/
-    store[nlib + 33] = 119428036L;
-    store[nlib + 34] = 119102390L;
-    store[nlib + 35] = 294913L; /*PRINTTEXT*/
-    store[nlib + 36] = 106231112L;
-    store[nlib + 37] = 294914L; /*EVEN*/
-    store[nlib + 38] = 134217402L;
-    store[nlib + 39] = 21928153L;
-    store[nlib + 40] = 294915L; /*arctan*/
-    store[nlib + 41] = 119136592L;
-    store[nlib + 42] = 294917L; /*FLOT*/
-    store[nlib + 43] = 119429968L;
-    store[nlib + 44] = 294918L; /*FIXT*/
-    store[nlib + 45] = 134214117L;
-    store[nlib + 46] = 95776564L;
-    store[nlib + 47] = 294936L; /*ABSFIXT*/
+    if (prefill_cnt != nlscop) {
+        printf("Internal error: nlscop = %d, should be %d\n", nlscop, prefill_cnt);
+        exit(EXIT_FAILURE);
+    }
+
+    prefill_lib_proc("SUM", 0);
+    prefill_lib_proc("PRINTTEXT", 1);
+    prefill_lib_proc("EVEN", 2);
+    prefill_lib_proc("arctan", 3);
+    prefill_lib_proc("FLOT", 5);
+    prefill_lib_proc("FIXT", 6);
+    prefill_lib_proc("ABSFIXT", 24);
+
+    if (prefill_cnt != nlsc0) {
+        printf("Internal error: nlsc0 = %d, should be %d\n", nlsc0, prefill_cnt);
+        exit(EXIT_FAILURE);
+    }
 
     intro_new_block2();
     bitcount = 0;
@@ -3689,8 +3661,6 @@ int main(int argc, char *argv[])
     FORLIM = rlib + rlsc + klsc;
     for (ii = mcpe; ii < FORLIM; ii++)
         printf("%5d%9d\n", ii, store[ii]);
-    if (lib_tape != NULL)
-        fclose(lib_tape);
     free(input_line);
     exit(EXIT_SUCCESS);
 }
