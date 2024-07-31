@@ -706,34 +706,34 @@ procedure main_scan;                                               {EL}
   end {offer_character_to_typewriter};
 
   procedure label_declaration;                                     {FY}
-  var id,id2,i,w: integer;
-  begin id:= store[nlib+nid];
-    if (id div d15) mod 2 = 0
+  var id1,id2,i,w: integer;
+  begin id1:= store[nlib+nid];
+    if (id1 div d15) mod 2 = 0
     then begin {preceding applied occurrences}
-           fill_future_list(flib+id mod d15,rlsc)
+           fill_future_list(flib+id1 mod d15,rlsc)
          end
     else {first occurrence}
-         store[nlib+nid]:= id - d15 + 1 * d24 + rlsc;
-    id:= store[nlib+nid-1];
-    if id mod d3 = 0
+         store[nlib+nid]:= id1 - d15 + 1 * d24 + rlsc;
+    id1:= store[nlib+nid-1];
+    if id1 mod d3 = 0
     then begin {at most 4 letters/digits}
-           i:= 4; id:= id div d3;
-           while (id mod d6) = 0{void} do
-           begin i:= i - 1; id:= id div d6 end;
-           repeat offer_character_to_typewriter(id);
-             i:= i - 1; id:= id div d6
+           i:= 4; id1:= id1 div d3;
+           while (id1 mod d6) = 0{void} do
+           begin i:= i - 1; id1:= id1 div d6 end;
+           repeat offer_character_to_typewriter(id1);
+             i:= i - 1; id1:= id1 div d6
            until i = 0
          end
     else begin id2:= store[nlib+nid-2];
            id2:= id2 div d3 + (id2 mod d3) * d24;
-           w:= (id2 mod d24) * d3 + id div d24;
-           id:= (id mod d24) * d3 + id2 div d24;
+           w:= (id2 mod d24) * d3 + id1 div d24;
+           id1:= (id1 mod d24) * d3 + id2 div d24;
            id2:= w;
            i:= 9;
-           repeat offer_character_to_typewriter(id);
+           repeat offer_character_to_typewriter(id1);
              i:= i - 1;
-             w:= id2 div d6 + (id mod d6) * d21;
-             id:= id div d6 + (id2 mod d6) * d21;
+             w:= id2 div d6 + (id1 mod d6) * d21;
+             id1:= id1 div d6 + (id2 mod d6) * d21;
              id2:= w
            until i = 0
          end;
@@ -1650,7 +1650,7 @@ begin {body of main scan}                                          {EL}
 end {main_scan};
 
 procedure program_loader;                                          {RZ}
-var i,j,ll,list_address,id,mcp_count,crfa: integer;
+var i,j,ll,list_address,idm,mcp_count,crfa: integer;
     heptade_count,parity_word,read_location,stock: integer;
     from_store: 0..1;
     use: boolean;
@@ -1886,14 +1886,14 @@ begin {of program loader}
 {determine primary need of MCP's from name list:}
   i:= nlsc0;
   while i > nlscop do
-  begin id:= store[nlib+i-1];
+  begin idm:= store[nlib+i-1];
     if store[nlib+i-2] mod d3 = 0
     then {at most 4 letter/digit identifier} i:= i - 2
     else {at least 5 letters or digits} i:= i - 3;
-    if (id div d15) mod 2 = 0
+    if (idm div d15) mod 2 = 0
     then begin {MCP is used} mcp_count:= mcp_count + 1;
-           store[mlib+(store[flib+id mod d15]-rlib) mod d15]:=
-             - (flib + id mod d15)
+           store[mlib+(store[flib+idm mod d15]-rlib) mod d15]:=
+             - (flib + idm mod d15)
          end
   end;
 {determine secondary need using the cross-reference list:}
