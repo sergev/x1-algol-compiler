@@ -37,6 +37,20 @@ execute_process(
     OUTPUT_VARIABLE GIT_REVCOUNT
 )
 
+#
+# Download GoogleTest
+#
+include(FetchContent)
+FetchContent_Declare(
+    googletest
+    GIT_REPOSITORY https://github.com/google/googletest.git
+    GIT_TAG release-1.12.1
+    EXCLUDE_FROM_ALL
+)
+FetchContent_MakeAvailable(googletest)
+include(GoogleTest)
+enable_testing()
+
 add_subdirectory(compiler)
 add_subdirectory(simulator)
 add_subdirectory(tests)
