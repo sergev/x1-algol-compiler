@@ -1,7 +1,9 @@
 # Build library
 add_library(simulator STATIC
+    x1_arch.cpp
     machine.cpp
     processor.cpp
+    trace.cpp
 )
 
 # Build executable
