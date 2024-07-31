@@ -264,7 +264,7 @@ _L1:
             input_eof_seen = true;
             return 123; /*space*/
         }
-        getline(&input_line, &input_line_len, stdin);
+        if (getline(&input_line, &input_line_len, stdin));
         input_pos = 0;
         /*writeln('---');*/
         /*for debug*/
@@ -2884,7 +2884,7 @@ Local Void complete_bitstock(struct LOC_program_loader *LINK)
             break;
 
         case 1: /*bit string read from tape:*/
-            fscanf(lib_tape, "%d", &w);
+            if (fscanf(lib_tape, "%d", &w));
             if (LINK->heptade_count > 0) {
                 /*test parity of the previous 4 heptades*/
                 bitcount++;
@@ -2956,7 +2956,7 @@ Local Void prepare_read_bit_string3(struct LOC_program_loader *LINK)
     bitstock         = 0;
     bitcount         = 21;
     do {
-        fscanf(lib_tape, "%d", &w);
+        if (fscanf(lib_tape, "%d", &w));
     } while (w == 0);
     if (w != 30) /*D*/
         stop(106L);
@@ -3034,7 +3034,7 @@ Local int address_decoding(struct LOC_program_loader *LINK)
 Local int read_mask(struct LOC_program_loader *LINK)
 {
     /*RN*/
-    int Result;
+    int Result = -1;
     char c;
 
     if (bitstock < d26) /*code starts with 0*/
@@ -3369,9 +3369,9 @@ Static Void program_loader()
             } else {
                 do {
                     do {
-                        fscanf(lib_tape, "%d", &V.ll);
+                        if (fscanf(lib_tape, "%d", &V.ll));
                     } while (V.ll != 0);
-                    fscanf(lib_tape, "%d", &V.ll);
+                    if (fscanf(lib_tape, "%d", &V.ll));
                 } while (V.ll != 0);
             }
             prepare_read_bit_string3(&V);
@@ -3513,7 +3513,7 @@ int main(int argc, char *argv[])
     ascii_table['|']  = 162;
     ascii_table['_']  = 163;
 
-    getline(&input_line, &input_line_len, stdin);
+    if (getline(&input_line, &input_line_len, stdin));
 
     /*preparation of prescan*/
     /*LE*/
