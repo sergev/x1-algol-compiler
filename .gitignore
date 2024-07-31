@@ -3,3 +3,5 @@ test-utf8-input
 x1algol
 x1algc
 *.o
+*.cout
+*.pasout
