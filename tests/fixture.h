@@ -18,17 +18,18 @@ class x1_machine : public ::testing::Test {
 protected:
     std::unique_ptr<Machine> machine;
 
+    // Name of current test, as specified in TEST() macro.
+    const std::string test_name{ ::testing::UnitTest::GetInstance()->current_test_info()->name() };
+
     void SetUp() override
     {
         // Allocate fresh new machine.
         machine = std::make_unique<Machine>();
     }
-};
 
-//
-// Get current test name, as specified in TEST() macro.
-//
-std::string get_test_name();
+    // Compile Algol sources and store binaries in memory.
+    void compile(const std::string &source_code);
+};
 
 //
 // Read file contents and return it as a string.

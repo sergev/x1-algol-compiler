@@ -4,18 +4,15 @@
 #include <cstring>
 
 //
-// Get current test name, as specified in TEST() macro.
+// Compile Algol sources and store binaries in memory.
 //
-std::string get_test_name()
+void x1_machine::compile(const std::string &source_code)
 {
-    std::string name = ::testing::UnitTest::GetInstance()->current_test_info()->name();
+    const auto algol_filename = test_name + ".a60";
+    const auto obj_filename   = test_name + ".x1";
 
-    // Remove the '/1' suffix.
-    auto pos = name.find_last_of('/');
-    if (pos != std::string::npos)
-        name.erase(pos);
-
-    return name;
+    machine->compile(algol_filename, obj_filename);
+    machine->load_object_program(obj_filename);
 }
 
 //
