@@ -2702,12 +2702,16 @@ Local int logical_sum(int n, int m)
 Local int read_byte_from_lib_tape()
 {
     int w;
-    if (binary_lib_tape)
-        return getc(lib_tape);   
-    else if (fscanf(lib_tape, "%d", &w) <= 0)
+    if (binary_lib_tape) {
+        w = getc(lib_tape);
+    } else if (fscanf(lib_tape, "%d", &w) <= 0) {
         return EOF;
-    else
-        return w;
+    }
+    if (w >= 128) {
+        printf("Stray punch on library tape, current offset is %d\n", (int)ftell(lib_tape));
+        exit(EXIT_FAILURE);
+    }
+    return w;
 }
 
 Local Void complete_bitstock(struct LOC_program_loader *LINK)
@@ -2734,6 +2738,10 @@ Local Void complete_bitstock(struct LOC_program_loader *LINK)
 
         case 1: /*bit string read from tape:*/
             w = read_byte_from_lib_tape();
+            if (w == EOF) {
+                printf("Unexpected end of library tape\n");
+                exit(EXIT_FAILURE);
+            }
             if (LINK->heptade_count > 0) {
                 /*test parity of the previous 4 heptades*/
                 bitcount++;
@@ -3215,6 +3223,15 @@ Static Void program_loader()
         V.ll = read_bit_string(13L, &V); /*for length or end marker*/
         while (V.ll < 7680) {
             i              = read_bit_string(13L, &V); /*for MCP number*/
+            printf("Reading MCP %d, length %d\n", i, V.ll);
+            if (i > 50) {
+                printf("Bad MCP number\n");
+                exit(EXIT_FAILURE);
+            }
+            if (V.ll == 0 || V.ll > 20) {
+                printf("Bad MCP length %d\n", V.ll);
+                exit(EXIT_FAILURE);
+            }
             V.list_address = Rstore(crfb + i);
             if (V.list_address != 0) {
                 read_list(&V);
