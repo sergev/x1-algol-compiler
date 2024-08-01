@@ -3,7 +3,7 @@
 #
 include_directories(BEFORE ../simulator)
 link_libraries(simulator gtest_main)
-add_definitions(-DTEST_DIR="${CMAKE_CURRENT_SOURCE_DIR}")
+add_definitions(-DBUILD_DIR="${CMAKE_BINARY_DIR}")
 
 #
 # Unit tests.

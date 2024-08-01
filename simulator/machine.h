@@ -31,8 +31,11 @@ private:
     // Count of instructions.
     static uint64_t simulated_instructions;
 
-    // A name of the file to run.
+    // Name of Algol file to run.
     std::string input_file;
+
+    // Compiler of choice.
+    std::string compiler_path;
 
     // Status of the simulation.
     int exit_status{ EXIT_SUCCESS };
@@ -52,9 +55,18 @@ public:
     void set_input_file(const std::string &filename) { set_input_file(filename.c_str()); }
     const std::string &get_input_file() const { return input_file; }
 
-    // Load Algol input into machine.
-    void load_algol(const std::string &filename);
-    void load_algol(std::istream &input);
+    // Set name of compiler.
+    void set_compiler(const std::string &filename);
+
+    // Compile Algol file to object format.
+    void compile(const std::string &algol_filename, const std::string &obj_filename);
+
+    // Load object file into memory.
+    void load_object_program(const std::string &obj_filename);
+
+    // Run external program with given input and output files.
+    void run_program(const std::string &prog_path, const std::string &input_filename,
+                     const std::string &output_filename);
 
     // Run simulation.
     void run();
