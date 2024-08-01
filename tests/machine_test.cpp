@@ -2,7 +2,7 @@
 
 #include "fixture.h"
 
-TEST_F(x1_machine, c_input_encoding)
+TEST_F(x1_machine, input_encoding)
 {
     // Technically it's a wrong program, as print() accepts only
     // a number on input. But for checking encoding it's all right.

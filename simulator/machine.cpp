@@ -1,5 +1,6 @@
 #include "machine.h"
 
+#include <fcntl.h>
 #include <unistd.h>
 
 #include <algorithm>
@@ -129,41 +130,121 @@ Word Machine::mem_load(unsigned addr)
     return val & BITS(27);
 }
 
+//
+// Set name of compiler.
+// For now it has to be a full path.
+//
+void Machine::set_compiler(const std::string &filename)
+{
+    compiler_path = filename;
+}
+
+//
+// Compile Algol file to object format.
+//
+void Machine::compile(const std::string &algol_filename, const std::string &obj_filename)
+{
+    run_program(compiler_path, algol_filename, obj_filename);
+}
+
+//
+// Run external program with given input and output files.
+// Throw exception in case of error.
+//
+void Machine::run_program(const std::string &prog_path, const std::string &input_filename,
+                          const std::string &output_filename)
+{
+    // A child process passes this status code to the parent.
+    enum {
+        STATUS_OK,
+        STATUS_CANNOT_READ_INPUT,
+        STATUS_CANNOT_WRITE_OUTPUT,
+        STATUS_CANNOT_RUN_PROGRAM,
+    };
+
+    pid_t pid = fork();
+    if (pid < 0) {
+        throw std::runtime_error("Cannot fork");
+    }
+
+    if (pid == 0) {
+        //
+        // Child process.
+        //
+
+        // Open input file.
+        int in_fd = open(input_filename.c_str(), O_RDONLY);
+        if (in_fd < 0) {
+            exit(STATUS_CANNOT_READ_INPUT);
+        }
+        dup2(in_fd, STDIN_FILENO);
+        close(in_fd);
+
+        // Create output file.
+        int out_fd = open(output_filename.c_str(), O_WRONLY | O_CREAT | O_TRUNC, 0644);
+        if (out_fd < 0) {
+            exit(STATUS_CANNOT_WRITE_OUTPUT);
+        }
+        dup2(out_fd, STDOUT_FILENO);
+        close(out_fd);
+
+        // Start compiler.
+        execlp(prog_path.c_str(), prog_path.c_str(), nullptr);
+        exit(STATUS_CANNOT_RUN_PROGRAM);
+    }
+
+    //
+    // Parent process.
+    //
+    int wait_status;
+    if (waitpid(pid, &wait_status, 0) < 0) {
+        throw std::runtime_error("Lost child process #" + std::to_string(pid));
+    }
+
+    int exit_code = WEXITSTATUS(wait_status);
+    switch (exit_code) {
+    case STATUS_OK:
+        return;
+    case STATUS_CANNOT_READ_INPUT:
+        throw std::runtime_error("Cannot read " + input_filename);
+    case STATUS_CANNOT_WRITE_OUTPUT:
+        throw std::runtime_error("Cannot write " + output_filename);
+    case STATUS_CANNOT_RUN_PROGRAM:
+        throw std::runtime_error("Cannot execute " + prog_path);
+    default:
+        throw std::runtime_error("Compiler failed with status " + std::to_string(exit_code));
+    }
+}
+
+//
+// Load object file into memory.
+//
+void Machine::load_object_program(const std::string &obj_filename)
+{
+    std::ifstream input(obj_filename);
+    if (!input.is_open()) {
+        throw std::runtime_error("Cannot read " + obj_filename);
+    }
+
+    std::string line;
+    while (std::getline(input, line)) {
+
+        // Import only lines which start with number.
+        // Ignore the rest.
+        if (std::isdigit(line[0])) {
+            unsigned addr, value;
+
+            if (std::sscanf(line.c_str(), "%u %u", &addr, &value) != 2) {
+                throw std::runtime_error("Bad line: '" + line + "'");
+            }
+            mem_store(addr, value);
+        }
+    }
+}
+
 #if 0
 //
-// Load algol source file.
-// Throw exception on failure.
-//
-void Machine::load_algol(const std::string &filename)
-{
-    if (trace_enabled()) {
-        std::cout << "Read '" << filename << "'\n";
-    }
-
-    // Open the input file.
-    std::ifstream input;
-    input.open(filename);
-    if (!input.is_open())
-        throw std::runtime_error(filename + ": " + std::strerror(errno));
-
-    load_algol(input);
-}
-
-//
-// Load algol source from stream.
-//
-void Machine::load_algol(std::istream &input)
-{
-    while (input.good()) {
-        // Get next line.
-        std::string line;
-        getline(input, line);
-        //TODO
-    }
-}
-
-//
-// Decode word to ASCII string.
+// Decode word to UTF-8 string.
 //
 std::string word_string(Word w)
 {
@@ -175,12 +256,8 @@ std::string word_string(Word w)
     return buf.str();
 }
 
-                   [](unsigned char c) { return std::tolower(c); });
-    return filename;
-}
-
 //
-// Send message to operator's console.
+// Print string from memory.
 //
 void Machine::print_string(std::ostream &out, unsigned addr)
 {
@@ -189,7 +266,7 @@ void Machine::print_string(std::ostream &out, unsigned addr)
         auto ch = bp.get_byte();
         if (ch == '\0')
             break;
-        iso_putc(ch, out);
+        algol_putc(ch, out);
     }
     out << '\n';
 }

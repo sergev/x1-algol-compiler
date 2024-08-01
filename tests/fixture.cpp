@@ -11,6 +11,7 @@ void x1_machine::compile(const std::string &source_code)
     const auto algol_filename = test_name + ".a60";
     const auto obj_filename   = test_name + ".x1";
 
+    create_file(algol_filename, source_code);
     machine->compile(algol_filename, obj_filename);
     machine->load_object_program(obj_filename);
 }

@@ -25,6 +25,9 @@ protected:
     {
         // Allocate fresh new machine.
         machine = std::make_unique<Machine>();
+
+        // Select compiler
+        machine->set_compiler(BUILD_DIR "/compiler/x1algc");
     }
 
     // Compile Algol sources and store binaries in memory.
