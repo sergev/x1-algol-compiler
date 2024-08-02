@@ -124,10 +124,11 @@ Static int input_pos;
 Static boolean input_eof_seen;
 Static boolean binary_lib_tape;
 
-Static Void stop(int n)
+Static Void stop(int n, const char * txt)
 {
     /*emulation of a machine instruction*/
-    printf("\n*** stop %d-%2d ***\n", n / d5, n & (d5 - 1));
+    printf("\n*** stop %d-%2d *** (%s)\n",
+           n / d5, n & (d5 - 1), txt ? txt : "yet unknown" );
     if (!P_eof(source_tape)) {
         printf("Line: %s\n", input_line);
         printf("      %*c\n", (int)input_pos, '^');
@@ -269,11 +270,11 @@ _L1:
         if (sym == 70) /*>*/
             sym = 103; /*|>*/
         else
-            stop(11L);
+            stop(11, "Bad char after |");
         return sym;
     }
     if (sym != 163) { /*_*/
-        stop(14L);
+        stop(14, "Unpermitted char, likely ? or ' or \"");
         /*? or " or '*/
         return sym;
     }
@@ -286,7 +287,7 @@ _L1:
         if (wdt1 >= 63)
             sym = wdt1;
         else if (wdt1 == 0)
-            stop(13L);
+            stop(13, "Unrecognized underlined word");
         else if (wdt1 == 1) { /*sym = c*/
             if (qc == 0)      /*outside string*/
             {                 /*skip comment*/
@@ -315,7 +316,7 @@ _L1:
                             else
                                 sym = 113; /*string*/
                         } else
-                            stop(12L);
+                            stop(12, "Partially underlined word");
                     } else {
                         wdt2 = word_del_table[sym - 10] / 128;
                         if (wdt2 == 0)
@@ -324,9 +325,9 @@ _L1:
                             sym = wdt2;
                     }
                 } else
-                    stop(13L);
+                    stop(13, "Unrecognized underlined word");
             } else
-                stop(12L);
+                stop(12, "Partially underlined word");
         }
         do {
             nas_stock = -read_utf8_symbol();
@@ -357,7 +358,7 @@ _L1:
     if (sym == 124) /*:*/
         sym = 68;   /*div*/
     else
-        stop(13L);
+        stop(13, "Unrecognized underlined char");
     return sym;
 } /*next_ALGOL_symbol*/
 
@@ -377,7 +378,7 @@ _L1:
             rnsb++;
             store[rnsb] = dl * rnsa;
             if (rnsb + 8 > plib)
-                stop(25L);
+                stop(25, "Exhausted source store");
         }
         break;
 
@@ -523,7 +524,7 @@ _L1:
         else
             dflag = dflag * 10 - dl + 9;
         if (labs(dflag) >= d26)
-            stop(3L);
+            stop(3, "Integer too large");
     }
     if (dflag < 0)
         dflag++;
@@ -580,7 +581,7 @@ _L3: /*float*/
         }
     }
     if ((unsigned long)bexp > 4095)
-        stop(4L);
+        stop(4, "Real too large");
     inw   = inw / 4096 * 4096 + bexp;
     dflag = 1;
 _L4:
@@ -693,9 +694,9 @@ _L3:
             V.bc = store[tlsc];
         }
         if (rht != 0)
-            stop(22L);
+            stop(22, "In prescan after ;");
         if (vht != 0)
-            stop(23L);
+            stop(23, "In prescan after ;");
         goto _L1;
     }
     if (dl <= 97) /*:=,step,until,while,comment*/
@@ -744,9 +745,9 @@ _L3:
             V.bc = store[tlsc];
         }
         if (rht != 0)
-            stop(22L);
+            stop(22, "In prescan after end");
         if (vht != 0)
-            stop(23L);
+            stop(23, "In prescan after end");
         tlsc--; /*remove corresponding begin from t_list*/
         if (tlsc > tlib)
             goto _L1;
@@ -778,7 +779,7 @@ _L4:
     }
     /*specificier*/
     if (dl > 117) /*false*/
-        stop(8L);
+        stop(8, "Unknown symbol");
 _L5:
     read_until_next_delimiter();
 _L6:
@@ -810,7 +811,7 @@ _L1:
         store[nlib + nlsc] = w;
         nlsc += 2;
         if (nlib + nlsc > i)
-            stop(15L);
+            stop(15, "intro_new_block2: Store capacity too small");
         store[nlib + nlsc - 1] = bn * d19 + inba;
     }
     if (inba != d18 + d15) {
@@ -859,7 +860,7 @@ Static Void bit_string_maker(int w)
     if (rnsb != rnsd)
         return;
     if (nlib + nlsc + 8 >= plib) { /*shift text, fli, kli and nli*/
-        stop(25L);
+        stop(25, "bit_string_maker: Stream overflow");
         return;
     }
     for (i = nlib + nlsc - rnsd - 1; i >= 0; i--)
@@ -1216,7 +1217,7 @@ Local Void fill_future_list(int place, int value, struct LOC_main_scan *LINK)
 
     if (place >= klib) {
         if (nlib + nlsc + 16 >= plib)
-            stop(6L);
+            stop(6, "fill_future_list: Store capacity too small");
         FORLIM = klib;
         for (i = nlib + nlsc - 1; i >= FORLIM; i--)
             store[i + 16] = store[i];
@@ -1233,7 +1234,7 @@ Local Void fill_constant_list(int n, struct LOC_main_scan *LINK)
 
     if (klib + klsc == nlib) {
         if (nlib + nlsc + 16 >= plib)
-            stop(18L);
+            stop(18, "Too many constants");
         FORLIM = nlib;
         for (i = nlib + nlsc - 1; i >= FORLIM; i--)
             store[i + 16] = store[i];
@@ -1387,7 +1388,7 @@ Local Void fill_name_list(struct LOC_main_scan *LINK)
     /*HN*/
     nlsc += dflag + 2;
     if (nlsc + nlib > plib)
-        stop(16L);
+        stop(16, "Too many names");
     store[nlib + nlsc - 1] = id;
     store[nlib + nlsc - 2] = inw;
     if ((inw & (d3 - 1)) > 0)
@@ -1598,7 +1599,7 @@ Local Void production_of_object_program(int opht, struct LOC_main_scan *LINK)
         else if (operator_ > 141 && operator_ <= 151)
             fill_result_list(operator_ - 40, 0L);
         else {
-            stop(22L);
+            stop(22, "Special function in object program");
             /*special function*/
         }
     }
@@ -1662,7 +1663,7 @@ _L1:
         i -= 3;
     if (i > nlib)
         goto _L1;
-    stop(7L);
+    stop(7, "Identifier not declared");
 _L2:
     nid   = i - nlib - 1;
     id    = store[i - 1];
@@ -1678,7 +1679,7 @@ Local Void look_for_constant(struct LOC_main_scan *LINK)
 
     if (klib + klsc + dflag >= nlib) { /*move name list*/
         if (nlib + nlsc + 16 >= plib)
-            stop(5L);
+            stop(5, "Exhausted constant pool");
         for (i = nlsc - 1; i >= 0; i--)
             store[nlib + i + 16] = store[nlib + i];
         nlib += 16;
@@ -2749,7 +2750,7 @@ Local Void complete_bitstock(struct LOC_program_loader *LINK)
                     logical_sum(LINK->parity_word, LINK->parity_word / d4) & (d4 - 1);
                 if ((unsigned long)LINK->parity_word < 32 &&
                     ((1L << LINK->parity_word) & 0x9669L) != 0)
-                    stop(105L);
+                    stop(105, "Parity error on library tape");
                 LINK->heptade_count = -3;
                 LINK->parity_word   = w;
                 w /= 2;
@@ -2817,7 +2818,7 @@ Local Void prepare_read_bit_string3(struct LOC_program_loader *LINK)
             break;
     } while (w == 0);
     if (w != 30) /*D*/
-        stop(106L);
+        stop(106, "Bad tape header, expecting D");
     LINK->heptade_count = 0;
     LINK->parity_word   = 1;
     complete_bitstock(LINK);
@@ -3069,7 +3070,7 @@ Local Void test_bit_stock(struct LOC_program_loader *LINK)
 {
     /*RH*/
     if (bitstock != d21 * 63)
-        stop(107L);
+        stop(107, "Bad tape terminator, expecting 77");
 } /*test_bit_stock*/
 
 Local Void typ_address(int a, struct LOC_program_loader *LINK)
@@ -3087,7 +3088,7 @@ Local Void read_list(struct LOC_program_loader *LINK)
         w = read_binary_word(LINK);
         if (LINK->list_address + i <= flib + flsc) { /*shift FLI downwards*/
             if (flib <= LINK->read_location)
-                stop(98L);
+                stop(98, "Store too small for the program");
             FORLIM1 = flsc;
             for (j = 0; j < FORLIM1; j++)
                 Wstore(LINK->read_location + j, Rstore(flib + j));
@@ -3163,7 +3164,7 @@ Static Void program_loader()
         if (use) {
             mcpe -= V.ll;
             if (mcpe <= mcpb)
-                stop(25L);
+                stop(25, "Corrupted cross-reference list?");
             if (store[mlib + i] < 0) /*primary need*/
                 store[-store[mlib + i]] = mcpe;
             else
@@ -3180,7 +3181,7 @@ Static Void program_loader()
     V.list_address = rlib;
     read_list(&V);
     if (store[rlib] != opc_table[89]) /*START*/
-        stop(101L);
+        stop(101, "Start OPC overwritten");
     typ_address(rlib, &V);
     /*copy MLI:*/
     for (i = 0; i <= 127; i++)
@@ -3550,7 +3551,7 @@ int main(int argc, char *argv[])
     klib      = flib + 16;
     nlib      = klib + 16;
     if (nlib + nlsc0 >= plib)
-        stop(25L);
+        stop(25, "Too many pre-fills desired");
     nlsc = nlsc0;
     tlsc = tlib;
     gvc  = gvc0;
