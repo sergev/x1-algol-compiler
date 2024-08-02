@@ -1,4 +1,4 @@
-program X1_ALGOL_60_compiler(input,output,lib_tape);
+program X1_ALGOL_60_compiler(input,output);
 
 const d2  =         4;
       d3  =         8;
@@ -1940,7 +1940,8 @@ begin {of program loader}
     prepare_read_bit_string2; ll:= read_bit_string(13)
   end;
 {load MCP's from tape:}
-  reset(lib_tape);
+  if paramCount > 0 then
+    reset(lib_tape, paramStr(1));
   while mcp_count <> 0 do
   begin writeln(output);
     writeln(output,'load (next) library tape into the tape reader');

@@ -122,7 +122,7 @@ Static char *input_line;
 size_t input_line_len;
 Static int input_pos;
 Static boolean input_eof_seen;
-Static boolean binary_lib_tape;
+Static boolean binary_lib_tape, verbose_tape;
 
 Static Void stop(int n, const char * txt)
 {
@@ -841,7 +841,6 @@ Static Void bit_string_maker(int w)
     /*LL*/
     int head = 0;
     int tail, i, FORLIM;
-
     tail   = w & (d10 - 1);
     FORLIM = bitcount;
     /*shift (head,tail) bitcount places to the left:*/
@@ -2686,18 +2685,7 @@ struct LOC_program_loader {
 
 Local int logical_sum(int n, int m)
 {
-    /*emulation of a machine instruction*/
-    int i;
-    int w = 0;
-
-    for (i = 0; i <= 26; i++) {
-        w /= 2;
-        if ((n & 1) == (m & 1))
-            w += d26;
-        n /= 2;
-        m /= 2;
-    }
-    return w;
+    return n ^ m;
 } /*logical_sum*/
 
 Local int read_byte_from_lib_tape()
@@ -2817,6 +2805,8 @@ Local Void prepare_read_bit_string3(struct LOC_program_loader *LINK)
         if ((w = read_byte_from_lib_tape()) == EOF)
             break;
     } while (w == 0);
+    if (w == EOF)
+        return;
     if (w != 30) /*D*/
         stop(106, "Bad tape header, expecting D");
     LINK->heptade_count = 0;
@@ -3218,18 +3208,23 @@ Static Void program_loader()
             }
         } else if (!lib_tape || P_eof(lib_tape)) {
             printf("bad library tape\n");
+            for (i = 0; i < 128; ++i)
+                if (store[crfb+i] != 0)
+                    printf("Need MCP %d\n", i);
             exit(EXIT_FAILURE);
         }
         prepare_read_bit_string3(&V);
         V.ll = read_bit_string(13L, &V); /*for length or end marker*/
         while (V.ll < 7680) {
             i              = read_bit_string(13L, &V); /*for MCP number*/
-            printf("Reading MCP %d, length %d\n", i, V.ll);
+            if (verbose_tape)
+                printf("Reading MCP %d, length %d\n", i, V.ll);
             if (i > 50) {
-                printf("Bad MCP number\n");
+                printf("Bad MCP number %d\n", i);
                 exit(EXIT_FAILURE);
             }
-            if (V.ll == 0 || V.ll > 20) {
+            // TODO: compare with the proper length in crf
+            if (V.ll == 0 || V.ll > 1024) {
                 printf("Bad MCP length %d\n", V.ll);
                 exit(EXIT_FAILURE);
             }
@@ -3240,9 +3235,10 @@ Static Void program_loader()
                 mcp_count--;
                 store[crfb + i] = 0;
             } else {
-                printf("Unneeded library tape: %s contains procedure %d\n",
-                       P_argv[optind-1], i);
-#if 0
+                if (verbose_tape) {
+                    printf("Tape %s: skipping unneeded procedure %d\n",
+                           P_argv[optind-1], i);
+                }
                 do {
                     do {
                         if (EOF == (V.ll = read_byte_from_lib_tape()))
@@ -3251,13 +3247,11 @@ Static Void program_loader()
                     if (EOF == (V.ll = read_byte_from_lib_tape()))
                         break;
                 } while (V.ll != 0);
-#endif
             }
-            break;              /* Reading library routines one per tape */
-#if 0
             prepare_read_bit_string3(&V);
+            if (feof(lib_tape))
+                break;          /* The tape has ended */
             V.ll = read_bit_string(13L, &V);
-#endif
         }
         fclose(lib_tape);
     }
@@ -3360,7 +3354,7 @@ int main(int argc, char *argv[])
         prog_name++;
     }
     for (;;) {
-        switch (getopt(argc, argv, "hb")) {
+        switch (getopt(argc, argv, "hbv")) {
         case EOF:
             break;
         case 'h':
@@ -3371,12 +3365,16 @@ int main(int argc, char *argv[])
             printf("    source                  Algol-60 program source\n");
             printf("    library                 Library tape\n");
             printf("    (if no arguments are given, stdin is read as the source)\n");
-            printf("Options:\n");
-            printf("    -h                      Display available options\n"
+            printf("Options:\n"
+                   "    -h                      Display available options\n"
+                   "    -v                      Verbose library tape actions\n"
                    "    -b                      The library tape is raw binary (default: text decimal)\n");
             exit(EXIT_SUCCESS);
         case 'b':
             binary_lib_tape = true;
+            continue;
+        case 'v':
+            verbose_tape = true;
             continue;
         }
         break;
@@ -3501,6 +3499,7 @@ int main(int argc, char *argv[])
     ascii_table['<']  = 74;
     ascii_table[',']  = 87;
     ascii_table['.']  = 88;
+    ascii_table['@']  = 89;
     ascii_table[';']  = 91;
     ascii_table['(']  = 98;
     ascii_table[')']  = 99;
