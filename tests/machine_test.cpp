@@ -12,7 +12,7 @@ TEST_F(x1_machine, input_encoding)
             print(|<0123456789|>);
             print(|<abcdefghijklmnopqrstuvwxyz|>);
             print(|<ABCDEFGHIJKLMNOPQRSTUVWXYZ|>);
-            print(|<+-*×/>=<¬∧∨,.⏨:; ()[]||||||>);
+            print(|<+-*×/>=<¬∧∨,.⏨@:; ()[]|||||>);
         _e_n_d
     )");
     // Note: symbols ' " ? _ are prohibited in strings.
@@ -53,10 +53,10 @@ TEST_F(x1_machine, input_encoding)
     EXPECT_EQ(machine->mem_load(10139), 0x46'43'42); // × / >
     EXPECT_EQ(machine->mem_load(10140), 0x4c'4a'48); // = < ¬
     EXPECT_EQ(machine->mem_load(10141), 0x57'4e'4d); // ∧ ∨ ,
-    EXPECT_EQ(machine->mem_load(10142), 0x5a'59'58); // . ⏨ :
-    EXPECT_EQ(machine->mem_load(10143), 0x62'5d'5b); // ; space (
-    EXPECT_EQ(machine->mem_load(10144), 0x65'64'63); // ) [ ]
-    EXPECT_EQ(machine->mem_load(10145), 0x00'00'ff); // \377
+    EXPECT_EQ(machine->mem_load(10142), 0x59'59'58); // . ⏨ @
+    EXPECT_EQ(machine->mem_load(10143), 0x5d'5b'5a); // : ; space
+    EXPECT_EQ(machine->mem_load(10144), 0x64'63'62); // ( ) [
+    EXPECT_EQ(machine->mem_load(10145), 0x00'ff'65); // ] \377
     EXPECT_EQ(machine->mem_load(10146), 103);        // print
 
     EXPECT_EQ(machine->mem_load(10147), 97);         // STOP
