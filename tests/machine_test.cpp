@@ -16,7 +16,7 @@ TEST_F(x1_machine, input_encoding)
         _e_n_d
     )");
     // Note: symbols ' " ? _ are prohibited in strings.
-    // Symbol | is ignored by itself.
+    // Repeated symbols | are ignored.
 
     // Check result in memory.
     EXPECT_EQ(machine->mem_load(10112), 96);         // START
@@ -60,4 +60,31 @@ TEST_F(x1_machine, input_encoding)
     EXPECT_EQ(machine->mem_load(10146), 103);        // print
 
     EXPECT_EQ(machine->mem_load(10147), 97);         // STOP
+}
+
+TEST_F(x1_machine, digraph_encoding)
+{
+    compile(R"(
+        _b_e_g_i_n
+            print(|< := |>);
+            print(|< |∧ |>);
+            print(|< |= |>);
+            print(|< _> |>);
+            print(|< _= |>);
+            print(|< _< |>);
+            print(|< _¬ |>);
+            print(|< _: |>);
+        _e_n_d
+    )");
+
+    EXPECT_EQ(machine->mem_load(10112), 96);         // START
+    EXPECT_EQ(machine->mem_load(10113), 0x5d'5c'5d); // := ≔
+    EXPECT_EQ(machine->mem_load(10116), 0x5d'45'5d); // |∧ ↑
+    EXPECT_EQ(machine->mem_load(10119), 0x5d'4b'5d); // |= ≠
+    EXPECT_EQ(machine->mem_load(10122), 0x5d'47'5d); // _> ≥
+    EXPECT_EQ(machine->mem_load(10125), 0x5d'50'5d); // _= ≡
+    EXPECT_EQ(machine->mem_load(10128), 0x5d'49'5d); // _< ≤
+    EXPECT_EQ(machine->mem_load(10131), 0x5d'4f'5d); // _¬ ⊐
+    EXPECT_EQ(machine->mem_load(10134), 0x5d'44'5d); // _: ÷
+    EXPECT_EQ(machine->mem_load(10137), 97);         // STOP
 }
