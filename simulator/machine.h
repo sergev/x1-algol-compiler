@@ -3,6 +3,7 @@
 
 #include <array>
 #include <chrono>
+#include <map>
 #include <memory>
 #include <vector>
 
@@ -40,9 +41,16 @@ private:
     // Status of the simulation.
     int exit_status{ EXIT_SUCCESS };
 
-public:
     // 32K words of memory.
     std::array<Word, MEMORY_NWORDS> memory{};
+
+    // Table of symbol addresses from object program.
+    std::map<std::string, unsigned> symbol_table;
+
+    // Table of entry addresses from object program.
+    std::vector<unsigned> entry_table;
+
+public:
 
     // Electrologica X1 processor.
     Processor cpu{ *this };
@@ -72,10 +80,10 @@ public:
     void run();
 
     // Get address by name from symbol table.
-    unsigned get_symbol(const std::string &name);
+    unsigned get_symbol(const std::string &name) { return symbol_table.at(name); }
 
     // Get entry address by index.
-    unsigned get_entry(unsigned index);
+    unsigned get_entry(unsigned index) { return entry_table[index]; }
 
     // Get status of simulation: either EXIT_SUCCESS (0) or
     // EXIT_FAILURE in case of errors.

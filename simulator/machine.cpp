@@ -229,36 +229,39 @@ void Machine::load_object_program(const std::string &obj_filename)
 
     std::string line;
     while (std::getline(input, line)) {
+        if (line[0] == 0) {
+            // Ignore empty lines.
+            continue;
+        }
 
-        // Import only lines which start with number.
-        // Ignore the rest.
-        if (std::isdigit(line[0])) {
-            unsigned addr, value;
+        char name[16];
+        unsigned addr, value, a, b, c;
+        if (std::sscanf(line.c_str(), "%9s %u %u %u", name, &a, &b, &c) == 4) {
+            //
+            // Symbol definition, for example:
+            // "A       00 00 02"
+            //
+            addr = (a * 32 + b) * 32 + c;
+            symbol_table[name] = addr;
 
-            if (std::sscanf(line.c_str(), "%u %u", &addr, &value) != 2) {
-                throw std::runtime_error("Bad line: '" + line + "'");
-            }
+        } else if (std::sscanf(line.c_str(), "%u %u %u", &a, &b, &c) == 3) {
+            //
+            // Entry address, for example:
+            // " 9 26  0"
+            //
+            addr = (a * 32 + b) * 32 + c;
+            entry_table.push_back(addr);
+
+        } else if (std::sscanf(line.c_str(), "%u %u", &addr, &value) == 2) {
+            //
+            // One word of object code, for example:
+            // "10048       96"
+            //
             mem_store(addr, value);
+        } else {
+            throw std::runtime_error("Bad line: '" + line + "'");
         }
     }
-}
-
-//
-// Get address by name from symbol table.
-//
-unsigned Machine::get_symbol(const std::string &name)
-{
-    //TODO
-    return 0;
-}
-
-//
-// Get entry address by index.
-//
-unsigned Machine::get_entry(unsigned index)
-{
-    //TODO
-    return 0;
 }
 
 #if 0
