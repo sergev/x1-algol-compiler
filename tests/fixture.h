@@ -32,6 +32,10 @@ protected:
 
     // Compile Algol sources and store binaries in memory.
     void compile(const std::string &source_code);
+
+    // Compile and run Algol code.
+    // Return captured output.
+    std::string compile_and_run(const std::string &input);
 };
 
 //

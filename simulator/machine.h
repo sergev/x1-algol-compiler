@@ -71,6 +71,12 @@ public:
     // Run simulation.
     void run();
 
+    // Get address by name from symbol table.
+    unsigned get_symbol(const std::string &name);
+
+    // Get entry address by index.
+    unsigned get_entry(unsigned index);
+
     // Get status of simulation: either EXIT_SUCCESS (0) or
     // EXIT_FAILURE in case of errors.
     int get_exit_status() const { return exit_status; }

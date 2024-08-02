@@ -17,6 +17,27 @@ void x1_machine::compile(const std::string &source_code)
 }
 
 //
+// Compile and run Algol code.
+// Return captured output.
+//
+std::string x1_machine::compile_and_run(const std::string &source_code)
+{
+    compile(source_code);
+
+    // Redirect stdout.
+    std::streambuf *save_cout = std::cout.rdbuf();
+    std::ostringstream output;
+    std::cout.rdbuf(output.rdbuf());
+
+    // Run the program.
+    machine->run();
+
+    // Return output.
+    std::cout.rdbuf(save_cout);
+    return output.str();
+}
+
+//
 // Read file contents and return it as a string.
 //
 std::string file_contents(const std::string &filename)

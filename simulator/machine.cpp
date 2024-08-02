@@ -243,6 +243,24 @@ void Machine::load_object_program(const std::string &obj_filename)
     }
 }
 
+//
+// Get address by name from symbol table.
+//
+unsigned Machine::get_symbol(const std::string &name)
+{
+    //TODO
+    return 0;
+}
+
+//
+// Get entry address by index.
+//
+unsigned Machine::get_entry(unsigned index)
+{
+    //TODO
+    return 0;
+}
+
 #if 0
 //
 // Decode word to UTF-8 string.
