@@ -137,7 +137,16 @@ bool Processor::call_opc(unsigned opc)
     //TODO: case OPC_CAC: // copy boolean acc. into condition
 
     //TODO: case OPC_TRRD: // take real result dynamic
-    //TODO: case OPC_TRRS: // take real result static
+    case OPC_TRRS: {
+        // Take real result static.
+        // Read two words from memory at address in register B.
+        // Push them in stack as real value.
+        Word hi    = machine.mem_load(core.B);
+        Word lo    = machine.mem_load(core.B + 1);
+        Real value = x1_words_to_real(hi, lo);
+        stack.push_real_value(value);
+        break;
+    }
     //TODO: case OPC_TIRD: // take integer result dynamic
 
     case OPC_TIRS: {

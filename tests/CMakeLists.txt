@@ -10,6 +10,7 @@ add_definitions(-DBUILD_DIR="${CMAKE_BINARY_DIR}")
 #
 add_executable(x1test EXCLUDE_FROM_ALL
     fixture.cpp
+    arch_test.cpp
     cli_test.cpp
     machine_test.cpp
 )

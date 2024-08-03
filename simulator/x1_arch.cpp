@@ -6,6 +6,14 @@
 #include <sstream>
 
 //
+// Create real value from two words.
+//
+Real x1_words_to_real(Word hi, Word lo)
+{
+    return ((Real)hi << 27) | lo;
+}
+
+//
 // Convert real value into X1 format.
 //
 Real ieee_to_x1(const double input)

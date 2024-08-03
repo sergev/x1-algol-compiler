@@ -140,6 +140,26 @@ TEST_F(x1_machine, print_integers)
     EXPECT_EQ(output, expect);
 }
 
+TEST_F(x1_machine, print_reals)
+{
+    auto output = compile_and_run(R"(
+        _b_e_g_i_n
+            print(123.456);
+            print(-123.456, 1.615850303565@616);
+            print;
+            print(-1.615850303565@616, 0.0, -0.0);
+            print(1.547173023691@-617, -1.547173023691@-617);
+        _e_n_d
+    )");
+    const std::string expect = R"(123.456
+-123.456
+
+0.0
+-0.0
+)";
+    EXPECT_EQ(output, expect);
+}
+
 TEST_F(x1_machine, man_or_boy)
 {
     // Only compile for now.

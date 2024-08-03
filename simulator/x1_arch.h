@@ -42,7 +42,12 @@ const char *x1_opname(unsigned opcode);
 bool x1_opcode(const char *opname, unsigned &opcode);
 
 //
-// Convert float value between IEEE and X1 formats.
+// Create real value from two words.
+//
+Real x1_words_to_real(Word hi, Word lo);
+
+//
+// Convert real value between IEEE and X1 formats.
 //
 Real ieee_to_x1(double d);
 double x1_to_ieee(Real word);
