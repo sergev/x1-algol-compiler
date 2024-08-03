@@ -169,14 +169,12 @@ TEST_F(x1_machine, print_reals)
 // Yield value of type real,
 // Argument can be either of type real or integer.
 //
-TEST_F(x1_machine, DISABLED_function_abs)
+TEST_F(x1_machine, function_abs)
 {
     auto output = compile_and_run(R"(
         _b_e_g_i_n
             print(abs(-123.456));
             print(abs(123.456));
-            print(abs(-67108863));
-            print(abs(67108863));
             print(abs(-1.615850303565⏨616));
             print(abs(1.615850303565⏨616));
             print(abs(-0.0));

@@ -226,7 +226,20 @@ bool Processor::call_opc(unsigned opc)
     //TODO: case OPC_IMP: // implies →
     //TODO: case OPC_QVL: // equivalent ≡
 
-    //TODO: case OPC_abs:
+    case OPC_abs: {
+        // Function abs(E) - the modulus (absolute value) of the value of the expression E.
+        // Yield value of type real.
+        // Argument can be either of type real or integer.
+        auto item = stack.pop();
+        if (item.is_int_value()) {
+            stack.push_real_value(ieee_to_x1(x1_abs_int(item.get_int())));
+        } else if (item.is_real_value()) {
+            stack.push_real_value(x1_abs_real(item.get_real()));
+        } else {
+            throw std::runtime_error("Cannot get absolute value of address");
+        }
+        break;
+    }
     //TODO: case OPC_sign:
     //TODO: case OPC_sqrt:
     //TODO: case OPC_sin:

@@ -82,6 +82,12 @@ Word x1_negate_int(Word value);
 Real x1_negate_real(Real value);
 
 //
+// Standard function: absolute value.
+//
+Word x1_abs_int(Word value);
+Real x1_abs_real(Real value);
+
+//
 // Print a number.
 //
 void x1_print_integer(std::ostream &out, Word value);

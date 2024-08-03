@@ -199,3 +199,25 @@ void x1_print_real(std::ostream &out, Real value)
     std::snprintf(buf, nbytes, fmt, native);
     out << buf;
 }
+
+//
+// Absolute value of integer number.
+//
+Word x1_abs_int(Word value)
+{
+    if (value & ONEBIT(26)) {
+        value ^= BITS(27);
+    }
+    return value & BITS(27);
+}
+
+//
+// Absolute value of real number.
+//
+Real x1_abs_real(Real value)
+{
+    if (value & ONEBIT(53)) {
+        value ^= BITS(54);
+    }
+    return value & BITS(54);
+}
