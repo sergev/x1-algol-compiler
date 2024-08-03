@@ -228,6 +228,26 @@ TEST_F(x1_machine, function_sign)
     EXPECT_EQ(output, expect);
 }
 
+TEST_F(x1_machine, function_sqrt)
+{
+    auto output = compile_and_run(R"(
+        _b_e_g_i_n
+            print(sqrt(2.0));
+            print(sqrt(99999.0));
+            print(sqrt(1.01));
+            print(sqrt(0.99));
+            print(sqrt(0.0003));
+        _e_n_d
+    )");
+    const std::string expect = R"(1.414213562373
+316.2261848738
+1.004987562112
+0.9949874371068
+0.0173205080757
+)";
+    EXPECT_EQ(output, expect);
+}
+
 TEST_F(x1_machine, man_or_boy)
 {
     // Only compile for now.

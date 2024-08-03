@@ -260,7 +260,25 @@ bool Processor::call_opc(unsigned opc)
         stack.push_int_value(result);
         break;
     }
-    //TODO: case OPC_sqrt:
+    case OPC_sqrt: {
+        // Function sqrt(E) - square root of the value of E
+        // Yield value of type real.
+        // Argument can be either of type real or integer.
+        auto item = stack.pop();
+        long double input;
+        if (item.is_int_value()) {
+            input = x1_to_integer(item.get_int());
+        } else if (item.is_real_value()) {
+            input = x1_to_ieee(item.get_real());
+        } else {
+            throw std::runtime_error("Cannot get square root of address");
+        }
+        if (input < 0) {
+            throw std::runtime_error("Cannot get square root of negative value " + std::to_string(input));
+        }
+        stack.push_real_value(ieee_to_x1(std::sqrtl(input)));
+        break;
+    }
     //TODO: case OPC_sin:
     //TODO: case OPC_cos:
     //TODO: case OPC_ln:
