@@ -192,11 +192,10 @@ void x1_print_integer(std::ostream &out, Word value)
 //
 void x1_print_real(std::ostream &out, Real value)
 {
-    //TODO
-    if (value & ONEBIT(26)) {
-        out << '-';
-        value ^= BITS(54);
-    }
-    value &= BITS(54);
-    out << value;
+    auto native = x1_to_ieee(value);
+    auto fmt = "%.13Lg";
+    int nbytes = 1 + std::snprintf(nullptr, 0, fmt, native);
+    char buf[nbytes];
+    std::snprintf(buf, nbytes, fmt, native);
+    out << buf;
 }

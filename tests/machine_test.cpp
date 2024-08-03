@@ -153,9 +153,13 @@ TEST_F(x1_machine, print_reals)
     )");
     const std::string expect = R"(123.456
 -123.456
+1.615850303564e+616
 
-0.0
--0.0
+-1.615850303564e+616
+0
+-0
+1.547173023691e-617
+-1.547173023691e-617
 )";
     EXPECT_EQ(output, expect);
 }
