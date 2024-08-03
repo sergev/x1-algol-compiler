@@ -248,6 +248,89 @@ TEST_F(x1_machine, function_sqrt)
     EXPECT_EQ(output, expect);
 }
 
+TEST_F(x1_machine, function_sin)
+{
+    auto output = compile_and_run(R"(
+        _b_e_g_i_n
+            print(sin(0.0001));
+            print(sin(-0.0001));
+            print(sin(0.7854));
+            print(sin(-0.7854));
+            print(sin(1.5));
+            print(sin(-1.6));
+            print(sin(3141.6));
+            print(sin(-3141.6));
+        _e_n_d
+    )");
+    const std::string expect = R"(9.999999983334e-05
+-9.999999983334e-05
+0.7071080798596
+-0.7071080798596
+0.9974949866037
+-0.9995736030414
+0.007346345616369
+-0.007346345616369
+)";
+    EXPECT_EQ(output, expect);
+}
+
+TEST_F(x1_machine, function_cos)
+{
+    auto output = compile_and_run(R"(
+        _b_e_g_i_n
+            print(cos(0.01));
+            print(cos(-0.01));
+            print(cos(0.7854));
+            print(cos(-0.7854));
+            print(cos(1.5));
+            print(cos(-1.6));
+            print(cos(3141.6));
+            print(cos(-3141.6));
+        _e_n_d
+    )");
+    const std::string expect = R"(0.9999500004169
+0.9999500004169
+0.707105482511
+0.707105482511
+0.07073720166773
+-0.02919952230164
+0.9999730152385
+0.9999730152385
+)";
+    EXPECT_EQ(output, expect);
+}
+
+//
+// Cannot compile this program: it wants a library tape.
+// "Need MCP 3"
+// "Need MCP 4"
+//
+TEST_F(x1_machine, DISABLED_function_arctan)
+{
+    auto output = compile_and_run(R"(
+        _b_e_g_i_n
+            print(arctan(0.0001));
+            print(arctan(-0.0001));
+            print(arctan(0.5));
+            print(arctan(-0.5));
+            print(arctan(2));
+            print(arctan(-2));
+            print(arctan(999.9));
+            print(arctan(-999.9));
+        _e_n_d
+    )");
+    const std::string expect = R"(0.000100
+-0.000100
+0.463648
+-0.463648
+1.107149
+-1.107149
+1.569796
+-1.569796
+)";
+    EXPECT_EQ(output, expect);
+}
+
 TEST_F(x1_machine, man_or_boy)
 {
     // Only compile for now.

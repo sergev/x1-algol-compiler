@@ -264,23 +264,23 @@ bool Processor::call_opc(unsigned opc)
         // Function sqrt(E) - square root of the value of E
         // Yield value of type real.
         // Argument can be either of type real or integer.
-        auto item = stack.pop();
-        long double input;
-        if (item.is_int_value()) {
-            input = x1_to_integer(item.get_int());
-        } else if (item.is_real_value()) {
-            input = x1_to_ieee(item.get_real());
-        } else {
-            throw std::runtime_error("Cannot get square root of address");
-        }
-        if (input < 0) {
-            throw std::runtime_error("Cannot get square root of negative value " + std::to_string(input));
-        }
-        stack.push_real_value(ieee_to_x1(std::sqrtl(input)));
+        stack.push_ieee(std::sqrtl(stack.pop_ieee()));
         break;
     }
-    //TODO: case OPC_sin:
-    //TODO: case OPC_cos:
+    case OPC_sin: {
+        // Function sin(E) - sine of the value of E
+        // Yield value of type real.
+        // Argument can be either of type real or integer.
+        stack.push_ieee(std::sinl(stack.pop_ieee()));
+        break;
+    }
+    case OPC_cos: {
+        // Function sin(E) - cosine of the value of E
+        // Yield value of type real.
+        // Argument can be either of type real or integer.
+        stack.push_ieee(std::cosl(stack.pop_ieee()));
+        break;
+    }
     //TODO: case OPC_ln:
     //TODO: case OPC_exp:
     //TODO: case OPC_entier:
