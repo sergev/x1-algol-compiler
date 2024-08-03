@@ -308,7 +308,26 @@ bool Processor::call_opc(unsigned opc)
         stack.push_ieee(result);
         break;
     }
-    //TODO: case OPC_entier:
+    case OPC_entier: {
+        // Function entier(E) - largest integer not greater than the value of E.
+        // Yield value of type integer.
+        // Argument can be either of type real or integer.
+        auto item = stack.pop();
+        Word result;
+        if (item.is_int_value()) {
+            result = item.get_int();
+        } else if (item.is_real_value()) {
+            long double input = x1_to_ieee(item.get_real());
+            if (input < -(int)BITS(26) || input >= (int)BITS(26) + 1) {
+                throw std::runtime_error("Overflow in entier of value " + std::to_string(input));
+            }
+            result = integer_to_x1((int) std::floorl(input));
+        } else {
+            throw std::runtime_error("Cannot get entier of address");
+        }
+        stack.push_int_value(result);
+        break;
+    }
 
     //TODO: case OPC_ST: // store
     //TODO: case OPC_STA: // store also

@@ -377,6 +377,32 @@ TEST_F(x1_machine, function_exp)
     EXPECT_EQ(output, expect);
 }
 
+TEST_F(x1_machine, function_entier)
+{
+    auto output = compile_and_run(R"(
+        _b_e_g_i_n
+            print(entier(-98.7777));
+            print(entier(98.7777));
+            print(entier(-5.4444));
+            print(entier(5.4444));
+            print(entier(-0.9999));
+            print(entier(0.9999));
+            print(entier(-0.1111));
+            print(entier(0.1111));
+        _e_n_d
+    )");
+    const std::string expect = R"(-99
+98
+-6
+5
+-1
+0
+-1
+0
+)";
+    EXPECT_EQ(output, expect);
+}
+
 TEST_F(x1_machine, man_or_boy)
 {
     // Only compile for now.
