@@ -49,8 +49,8 @@ Real x1_words_to_real(Word hi, Word lo);
 //
 // Convert real value between IEEE and X1 formats.
 //
-Real ieee_to_x1(double d);
-double x1_to_ieee(Real word);
+Real ieee_to_x1(long double d);
+long double x1_to_ieee(Real word);
 
 //
 // Print X1 word.

@@ -1,5 +1,6 @@
 #include "x1_arch.h"
 
+#include <bitset>
 #include <cmath>
 #include <iomanip>
 #include <iostream>
@@ -14,15 +15,73 @@ Real x1_words_to_real(Word hi, Word lo)
 }
 
 //
-// Convert real value into X1 format.
+// Convert long double value into X1 format.
+// Always return normalized number (when non-zero).
 //
-Real ieee_to_x1(const double input)
+// Representation of real numbers in Electrologica X1:
+//  First word:
+//              26   25————————————————0
+//             sign  mantissa upper bits
+//  Second word:
+//              26   25——————12 11—————0
+//             sign   mantissa  exponent
+//         (ignored) lower bits  +04000
+//
+Real ieee_to_x1(long double input)
 {
-    //TODO
-    return 0;
+    const bool negate_flag = std::signbit(input);
+    if (negate_flag) {
+        input = -input;
+    }
+
+    // Split into mantissa and exponent.
+    int exponent;
+    long double mantissa = frexpl(input, &exponent);
+    if (mantissa == 0.0) {
+        // Either -0.0 or +0.0.
+        return negate_flag ? BITS(54) : 0;
+    }
+
+    // Multiply mantissa by 2^40.
+    mantissa = ldexpl(mantissa, 40);
+
+    // Positive value in range [0.5, 1) * 2⁴⁰
+    // Get 40 bits of mantissa.
+    auto result = (Real)mantissa;
+    if (mantissa - result >= 0.5) {
+        // Rounding.
+        result += 1;
+        if (result == 1ull << 40) {
+            // Normalize.
+            result >>= 1;
+            exponent += 1;
+        }
+    }
+    if (exponent > 03777) {
+        // Overflow: return maxreal.
+        return negate_flag ? 0'40'00'00000'40'00'00000ull :
+                             0'37'77'77777'37'77'77777ull;
+    }
+    if (exponent < -04000) {
+        // Underflow: return -0.0 or +0.0.
+        return negate_flag ? BITS(54) : 0;
+    }
+
+    // Put mantissa in place.
+    result = (result >> 14 << 27) | ((result & BITS(14)) << 12);
+
+    // Add exponent with offset.
+    result |= exponent + 04000;
+    if (negate_flag) {
+        result ^= BITS(54);
+    }
+    return result;
 }
 
-double x1_to_ieee(Real word)
+//
+// Convert real value from X1 format to long double.
+//
+long double x1_to_ieee(Real word)
 {
     //TODO
     return 0.0;
