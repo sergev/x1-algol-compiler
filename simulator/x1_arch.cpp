@@ -8,13 +8,13 @@
 //
 // Convert real value into X1 format.
 //
-Word ieee_to_x1(const double input)
+Real ieee_to_x1(const double input)
 {
     //TODO
     return 0;
 }
 
-double x1_to_ieee(Word word)
+double x1_to_ieee(Real word)
 {
     //TODO
     return 0.0;
@@ -23,25 +23,10 @@ double x1_to_ieee(Word word)
 //
 // Print CPU instruction with mnemonics.
 //
-void x1_print_instruction_mnemonics(std::ostream &out, unsigned cmd)
+void x1_print_instruction(std::ostream &out, unsigned cmd)
 {
     //TODO
-    x1_print_instruction_octal(out, cmd);
-}
-
-//
-// Print CPU instruction as octal number.
-//
-void x1_print_instruction_octal(std::ostream &out, unsigned cmd)
-{
-    auto save_flags = out.flags();
-
-    out << std::oct << std::setfill('0') << std::setw(2) << (cmd >> 21) << ' ';
-    out << std::setfill('0') << std::setw(2) << ((cmd >> 15) & 077) << ' ';
-    out << std::setfill('0') << std::setw(5) << (cmd & BITS(15));
-
-    // Restore.
-    out.flags(save_flags);
+    x1_print_word_octal(out, cmd);
 }
 
 //
@@ -51,9 +36,9 @@ void x1_print_word_octal(std::ostream &out, Word value)
 {
     auto save_flags = out.flags();
 
-    out << std::oct << ((int)(value >> 24) & BITS(3)) << ' ';
-    out << std::setfill('0') << std::setw(4) << ((int)(value >> 12) & BITS(12)) << ' ';
-    out << std::setfill('0') << std::setw(4) << ((int)value & BITS(12));
+    out << std::oct << std::setfill('0') << std::setw(2) << ((int)(value >> 21) & BITS(6)) << ' ';
+    out << std::setfill('0') << std::setw(2) << ((int)(value >> 15) & BITS(6)) << ' ';
+    out << std::setfill('0') << std::setw(5) << ((int)value & BITS(15));
 
     // Restore.
     out.flags(save_flags);
@@ -83,4 +68,49 @@ std::string to_octal(unsigned val)
     std::ostringstream buf;
     buf << std::oct << val;
     return buf.str();
+}
+
+//
+// Negate integer value.
+//
+Word x1_negate_int(Word value)
+{
+    value ^= BITS(27);
+    return value & BITS(27);
+}
+
+//
+// Negate real value.
+//
+Real x1_negate_real(Real value)
+{
+    value ^= BITS(54);
+    return value & BITS(54);
+}
+
+//
+// Print integer value.
+//
+void x1_print_integer(std::ostream &out, Word value)
+{
+    if (value & ONEBIT(26)) {
+        out << '-';
+        value ^= BITS(27);
+    }
+    value &= BITS(26);
+    out << value;
+}
+
+//
+// Print real value.
+//
+void x1_print_real(std::ostream &out, Real value)
+{
+    //TODO
+    if (value & ONEBIT(26)) {
+        out << '-';
+        value ^= BITS(54);
+    }
+    value &= BITS(54);
+    out << value;
 }

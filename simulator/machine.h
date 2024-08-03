@@ -76,6 +76,9 @@ public:
     void run_program(const std::string &prog_path, const std::string &input_filename,
                      const std::string &output_filename);
 
+    // Compile the input Algol file and simulate it.
+    void compile_and_run();
+
     // Run simulation.
     void run();
 
@@ -120,12 +123,6 @@ public:
             print_exception(message);
     }
 
-    static void trace_fetch(unsigned addr, Word val)
-    {
-        if (debug_flag)
-            print_fetch(addr, val);
-    }
-
     static void trace_memory_write(unsigned addr, Word val)
     {
         if (debug_flag)
@@ -151,7 +148,6 @@ public:
     }
 
     static void print_exception(const char *message);
-    static void print_fetch(unsigned addr, Word val);
     static void print_memory_access(unsigned addr, Word val, const char *opname);
 };
 

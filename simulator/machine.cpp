@@ -66,33 +66,44 @@ void Machine::show_progress()
 }
 
 //
+// Compile the input Algol file and simulate it.
+//
+void Machine::compile_and_run()
+{
+    const auto input_stem   = std::filesystem::path(input_file).stem();
+    const auto obj_filename = input_stem.string() + ".x1";
+
+    compile(input_file, obj_filename);
+    load_object_program(obj_filename);
+    run();
+}
+
+//
 // Run the machine until completion.
 //
 void Machine::run()
 {
+    // Jump to the first entry.
+    cpu.set_ot(get_entry(0));
+
     // Show initial state.
     trace_registers();
 
-    try {
-        for (;;) {
-            bool done = cpu.step();
+    for (;;) {
+        bool done = cpu.step();
 
-            // Show changed registers.
-            trace_registers();
+        // Show changed registers.
+        trace_registers();
 
-            if (progress_message_enabled) {
-                show_progress();
-            }
-            simulated_instructions++;
-
-            if (done) {
-                // Halted by 'стоп' instruction.
-                return;
-            }
+        if (progress_message_enabled) {
+            show_progress();
         }
-    } catch (std::exception &ex) {
-        std::cerr << "Error: " << ex.what() << std::endl;
-        exit_status = EXIT_FAILURE;
+        simulated_instructions++;
+
+        if (done) {
+            // Halted by 'стоп' instruction.
+            return;
+        }
     }
 }
 
@@ -103,7 +114,6 @@ Word Machine::mem_fetch(unsigned addr)
 {
     Word val = memory[addr];
 
-    trace_fetch(addr, val);
     return val & BITS(27);
 }
 
@@ -145,6 +155,9 @@ void Machine::set_compiler(const std::string &filename)
 //
 void Machine::compile(const std::string &algol_filename, const std::string &obj_filename)
 {
+    if (compiler_path.empty()) {
+        throw std::runtime_error("Compiler is not selected");
+    }
     run_program(compiler_path, algol_filename, obj_filename);
 }
 

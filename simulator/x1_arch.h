@@ -16,6 +16,12 @@ static const unsigned MEMORY_NWORDS = 32 * 1024;
 using Word = uint32_t;
 
 //
+// Real values are represented by two 27-bit words.
+// We combine them into a single 54-bit value.
+//
+using Real = uint64_t;
+
+//
 // Array of words.
 //
 using Words = std::vector<Word>;
@@ -38,8 +44,8 @@ bool x1_opcode(const char *opname, unsigned &opcode);
 //
 // Convert float value between IEEE and X1 formats.
 //
-Word ieee_to_x1(double d);
-double x1_to_ieee(Word word);
+Real ieee_to_x1(double d);
+double x1_to_ieee(Real word);
 
 //
 // Print X1 word.
@@ -48,10 +54,9 @@ void x1_print_word_octal(std::ostream &out, Word value);
 void x1_print_word_bytes(std::ostream &out, Word value);
 
 //
-// Print X1 instruction.
+// Print X1 instruction with mnemonics.
 //
-void x1_print_instruction_octal(std::ostream &out, unsigned cmd);
-void x1_print_instruction_mnemonics(std::ostream &out, unsigned cmd);
+void x1_print_instruction(std::ostream &out, unsigned cmd);
 
 //
 // Convert numbers to strings.
@@ -61,8 +66,20 @@ std::string to_octal(unsigned val);
 //
 // Bits of memory word, from right to left, starting from 1.
 //
-#define ONEBIT(n)      (1U << (n))                   // one bit set, from 0 to 31
-#define BITS(n)        ((uint32_t)~0ULL >> (32 - n)) // bitmask of bits from 0 to n
-#define ADDR(x)        ((x) & BITS(15))              // address of word
+#define ONEBIT(n) (1ULL << (n))       // one bit set, from 0 to 31
+#define BITS(n)   (~0ULL >> (64 - n)) // bitmask of bits from 0 to n
+#define ADDR(x)   ((x) & BITS(15))    // address of word
+
+//
+// Negate a number.
+//
+Word x1_negate_int(Word value);
+Real x1_negate_real(Real value);
+
+//
+// Print a number.
+//
+void x1_print_integer(std::ostream &out, Word value);
+void x1_print_real(std::ostream &out, Real value);
 
 #endif // X1_ARCH_H

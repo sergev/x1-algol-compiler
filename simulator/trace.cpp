@@ -65,24 +65,6 @@ void Machine::print_exception(const char *message)
 }
 
 //
-// Print instruction fetch.
-//
-void Machine::print_fetch(unsigned addr, Word val)
-{
-    auto &out       = Machine::get_trace_stream();
-    auto save_flags = out.flags();
-
-    out << "      Fetch [" << std::oct << std::setfill('0') << std::setw(5) << addr << "] = ";
-    x1_print_instruction_octal(out, (val >> 24) & BITS(24));
-    out << ' ';
-    x1_print_instruction_octal(out, val & BITS(24));
-    out << std::endl;
-
-    // Restore.
-    out.flags(save_flags);
-}
-
-//
 // Print memory read/write.
 //
 void Machine::print_memory_access(unsigned addr, Word val, const char *opname)
@@ -108,7 +90,7 @@ void Processor::print_instruction()
     auto save_flags = out.flags();
 
     out << std::oct << std::setfill('0') << std::setw(5) << OT << ": ";
-    x1_print_instruction_octal(out, OR);
+    x1_print_instruction(out, OR);
     out << std::endl;
 
     // Restore.

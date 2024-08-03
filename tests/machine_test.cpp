@@ -86,7 +86,40 @@ TEST_F(x1_machine, digraph_encoding)
     EXPECT_EQ(machine->mem_load(start+25), 97);         // STOP
 }
 
-TEST_F(x1_machine, DISABLED_print_integers)
+TEST_F(x1_machine, virtual_stack)
+{
+    // Check stack of OPC arguments.
+    auto &stack = machine->cpu.stack;
+
+    EXPECT_EQ(stack.count(), 0);
+    stack.push_int_value(12345678);
+    stack.push_int_addr(12345);
+    stack.push_real_value(012'37'64007'36'67'22743ull);
+    stack.push_real_addr(23456);
+    EXPECT_EQ(stack.count(), 4);
+
+    EXPECT_TRUE(stack.back().is_real_addr());
+    EXPECT_EQ(stack.back().get_addr(), 23456);
+    stack.pop();
+    EXPECT_EQ(stack.count(), 3);
+
+    EXPECT_TRUE(stack.back().is_real_value());
+    EXPECT_EQ(stack.back().get_real(), 012'37'64007'36'67'22743ull);
+    stack.pop();
+    EXPECT_EQ(stack.count(), 2);
+
+    EXPECT_TRUE(stack.back().is_int_addr());
+    EXPECT_EQ(stack.back().get_addr(), 12345);
+    stack.pop();
+    EXPECT_EQ(stack.count(), 1);
+
+    EXPECT_TRUE(stack.back().is_int_value());
+    EXPECT_EQ(stack.back().get_int(), 12345678);
+    stack.pop();
+    EXPECT_EQ(stack.count(), 0);
+}
+
+TEST_F(x1_machine, print_integers)
 {
     auto output = compile_and_run(R"(
         _b_e_g_i_n

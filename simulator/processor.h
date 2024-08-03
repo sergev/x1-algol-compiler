@@ -5,6 +5,7 @@
 #include <string>
 
 #include "x1_arch.h"
+#include "virtual_stack.h"
 
 class Machine;
 
@@ -36,15 +37,8 @@ private:
     unsigned OR{}; // order register
 
 public:
-    // Exception for unexpected situations.
-    class Exception : public std::exception {
-    private:
-        std::string message;
-
-    public:
-        explicit Exception(const std::string &m) : message(m) {}
-        const char *what() const noexcept override { return message.c_str(); }
-    };
+    // Stack of arguments for OPC.
+    Virtual_Stack stack;
 
     // Constructor.
     explicit Processor(Machine &mach) : machine(mach) { reset(); }
@@ -73,6 +67,11 @@ public:
     // Print trace info.
     void print_instruction();
     void print_registers();
+
+private:
+    // Invoke run-time routine.
+    // Return true when the processor is stopped.
+    bool call_opc(unsigned opc);
 };
 
 #endif // X1_PROCESSOR_H

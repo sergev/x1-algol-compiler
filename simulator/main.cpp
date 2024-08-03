@@ -50,8 +50,10 @@ int main(int argc, char *argv[])
     }
 
     // Instantiate the machine.
-    // Enable wall clock by default.
     Machine machine;
+
+    // Use C version of the Algol compiler by default.
+    machine.set_compiler("x1algc");
 
     // Parse command line options.
     for (;;) {
@@ -95,14 +97,19 @@ int main(int argc, char *argv[])
         break;
     }
 
-    // Must specify a file to run.
+    // Must specify an Algol file.
     if (machine.get_input_file().empty()) {
         print_usage(std::cerr, prog_name);
         exit(EXIT_FAILURE);
     }
 
-    // Simulate the last machine.
-    machine.run();
+    try {
+        machine.compile_and_run();
+
+    } catch (std::exception &ex) {
+        std::cerr << "Error: " << ex.what() << std::endl;
+        exit(EXIT_FAILURE);
+    }
 
     return machine.get_exit_status();
 }
