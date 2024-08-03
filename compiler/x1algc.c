@@ -3059,8 +3059,11 @@ Local int read_binary_word(struct LOC_program_loader *LINK)
 Local Void test_bit_stock(struct LOC_program_loader *LINK)
 {
     /*RH*/
-    if (bitstock != d21 * 63)
+    if (bitstock != d21 * 63) {
+        if (verbose_tape)
+            printf("Terminator: %09o\n", bitstock);
         stop(107, "Bad tape terminator, expecting 77");
+    }
 } /*test_bit_stock*/
 
 Local Void typ_address(int a, struct LOC_program_loader *LINK)
@@ -3677,7 +3680,7 @@ int main(int argc, char *argv[])
     printf("\n\n\n");
     FORLIM = rlib + rlsc + klsc;
     for (ii = mcpe; ii < FORLIM; ii++)
-        printf("%5d%9d\n", ii, store[ii]);
+        printf("%5d%10d\n", ii, store[ii]);
     free(input_line);
     exit(EXIT_SUCCESS);
 }

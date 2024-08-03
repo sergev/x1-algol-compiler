@@ -113,7 +113,7 @@ $opc[109] ='P21';
 
 while (my $line = <>) {
     # print $line;    
-    if ($line =~ /^([0-9]+)\s+([0-9]+)/) {
+    if ($line =~ /^\s*([0-9]+)\s+([0-9]+)$/) {
 	my $code = $2;
 	printf "%#8o: %#10o  ", $1, $code;
 	if ($code < 110) {

@@ -2202,5 +2202,5 @@ begin
 
   writeln(output); writeln(output); writeln(output);
   for ii:= mcpe to rlib + rlsc + klsc - 1 do
-     writeln(output,ii:5,store[ii]:9);
+     writeln(output,ii:5, store[ii]:10);
 end.
