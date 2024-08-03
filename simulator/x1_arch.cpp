@@ -81,10 +81,29 @@ Real ieee_to_x1(long double input)
 //
 // Convert real value from X1 format to long double.
 //
-long double x1_to_ieee(Real word)
+long double x1_to_ieee(Real input)
 {
-    //TODO
-    return 0.0;
+    const bool negate_flag = input >> 53 & 1;
+    if (negate_flag) {
+        input ^= BITS(54);
+    }
+
+    // Rearrange so that sign bit becomes a sign of int64.
+    // So mantissa equals real mantissa multiplied by 2**63.
+    //
+    const auto mantissa = (long double) (int64_t) (
+        (input >> 27 << (64 - 27)) |
+        (((input >> 12) & BITS(14)) << (37 - 14))
+    );
+    const int exponent = input & BITS(12);
+
+    // Add exponent with offset.
+    // Compensate for 63 bits in mantissa.
+    auto result = ldexpl(mantissa, exponent - 04000 - 63);
+    if (negate_flag) {
+        result = -result;
+    }
+    return result;
 }
 
 //
