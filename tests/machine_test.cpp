@@ -164,11 +164,6 @@ TEST_F(x1_machine, print_reals)
     EXPECT_EQ(output, expect);
 }
 
-//
-// Function abs(E) - the modulus (absolute value) of the value of the expression E.
-// Yield value of type real,
-// Argument can be either of type real or integer.
-//
 TEST_F(x1_machine, function_abs)
 {
     auto output = compile_and_run(R"(
@@ -193,6 +188,40 @@ TEST_F(x1_machine, function_abs)
 0
 67108863
 67108863
+0
+0
+)";
+    EXPECT_EQ(output, expect);
+}
+
+TEST_F(x1_machine, function_sign)
+{
+    auto output = compile_and_run(R"(
+        _b_e_g_i_n
+            print(sign(-123.456));
+            print(sign(123.456));
+            print(sign(-1.615850303565⏨616));
+            print(sign(1.615850303565⏨616));
+            print(sign(-0.0));
+            print(sign(0.0));
+            print(sign(-1));
+            print(sign(1));
+            print(sign(-67108863));
+            print(sign(67108863));
+            print(sign(-0));
+            print(sign(0));
+        _e_n_d
+    )");
+    const std::string expect = R"(-1
+1
+-1
+1
+0
+0
+-1
+1
+-1
+1
 0
 0
 )";

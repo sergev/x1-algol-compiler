@@ -107,6 +107,41 @@ long double x1_to_ieee(Real input)
 }
 
 //
+// Convert integer value between native and X1 formats.
+//
+Word integer_to_x1(int input)
+{
+    const bool negate_flag = input < 0;
+    if (negate_flag) {
+        input = -input;
+    }
+
+    Word result;
+    if (input > BITS(26)) {
+        // Overflow: return maxint.
+        result = BITS(26);
+    } else {
+        result = input;
+    }
+
+    if (negate_flag) {
+        result ^= BITS(27);
+    }
+    return result;
+}
+
+int x1_to_integer(Word input)
+{
+    if (input & ONEBIT(26)) {
+        // Negative.
+        return - (input ^ BITS(27));
+    } else {
+        // Positive.
+        return input & BITS(27);
+    }
+}
+
+//
 // Print CPU instruction with mnemonics.
 //
 void x1_print_instruction(std::ostream &out, unsigned cmd)

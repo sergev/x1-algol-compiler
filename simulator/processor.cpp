@@ -231,16 +231,35 @@ bool Processor::call_opc(unsigned opc)
         // Yield value of type real.
         // Argument can be either of type real or integer.
         auto item = stack.pop();
+        Real result;
         if (item.is_int_value()) {
-            stack.push_real_value(ieee_to_x1(x1_abs_int(item.get_int())));
+            result = ieee_to_x1(x1_abs_int(item.get_int()));
         } else if (item.is_real_value()) {
-            stack.push_real_value(x1_abs_real(item.get_real()));
+            result = x1_abs_real(item.get_real());
         } else {
             throw std::runtime_error("Cannot get absolute value of address");
         }
+        stack.push_real_value(result);
         break;
     }
-    //TODO: case OPC_sign:
+    case OPC_sign: {
+        // Function sign(E) - the sign of the value of E (+1 for E > 0, 0 for E = 0, −1 for E < 0)
+        // Yield value of type integer.
+        // Argument can be either of type real or integer.
+        auto item = stack.pop();
+        Word result;
+        if (item.is_int_value()) {
+            auto value = x1_to_integer(item.get_int());
+            result = (value > 0) ? 1 : (value < 0) ? x1_negate_int(1) : 0;
+        } else if (item.is_real_value()) {
+            auto value = x1_to_ieee(item.get_real());
+            result = (value > 0.0) ? 1 : (value < 0.0) ? x1_negate_int(1) : 0;
+        } else {
+            throw std::runtime_error("Cannot get sign of address");
+        }
+        stack.push_int_value(result);
+        break;
+    }
     //TODO: case OPC_sqrt:
     //TODO: case OPC_sin:
     //TODO: case OPC_cos:

@@ -53,6 +53,12 @@ Real ieee_to_x1(long double d);
 long double x1_to_ieee(Real word);
 
 //
+// Convert integer value between native and X1 formats.
+//
+Word integer_to_x1(int d);
+int x1_to_integer(Word word);
+
+//
 // Print X1 word.
 //
 void x1_print_word_octal(std::ostream &out, Word value);
