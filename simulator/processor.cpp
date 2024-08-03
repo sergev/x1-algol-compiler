@@ -84,8 +84,16 @@ bool Processor::step()
         done_flag = call_opc(addr);
         break;
 
+    case 002'20:
+        core.A = addr;
+        break;
+
     case 042'20:
         core.B = addr;
+        break;
+
+    case 052'20:
+        OT = addr;
         break;
 
     //TODO: process other instructions
