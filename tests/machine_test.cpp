@@ -124,16 +124,15 @@ TEST_F(x1_machine, print_integers)
     auto output = compile_and_run(R"(
         _b_e_g_i_n
             print(123);
-            print(-123);
-            print(67108863);
-            print(-67108863);
-            print(0);
-            print(-0);
+            print(-123, 67108863);
+            print;
+            print(-67108863, 0, -0);
         _e_n_d
     )");
     const std::string expect = R"(123
 -123
 67108863
+
 -67108863
 0
 -0

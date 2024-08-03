@@ -67,8 +67,8 @@ bool Processor::step()
     //      \    /
     //       \  /
     //        42 20 23627  B := addr
-    //          /| \
-    //         / |  \
+    //          /| \.
+    //         / |  \.
     // address/  |   \condition
     //  mode     |    reaction
     //  2-A      |      U-1
@@ -247,16 +247,25 @@ bool Processor::call_opc(unsigned opc)
     //TODO: case OPC_read:
 
     case OPC_print: {
-        // Print number.
-        auto item = stack.pop();
-        if (item.is_int_value()) {
-            x1_print_integer(std::cout, item.get_int());
-        } else if (item.is_real_value()) {
-            x1_print_real(std::cout, item.get_real());
+        // Print number(s).
+        auto arg_count = stack.count();
+        if (arg_count == 0) {
+            // Emit empty line.
+            std::cout << '\n';
         } else {
-            throw std::runtime_error("Cannot negate address");
+            for (unsigned i = 0; i < arg_count; i++) {
+                auto item = stack.get(i);
+                if (item.is_int_value()) {
+                    x1_print_integer(std::cout, item.get_int());
+                } else if (item.is_real_value()) {
+                    x1_print_real(std::cout, item.get_real());
+                } else {
+                    throw std::runtime_error("Cannot negate address");
+                }
+                std::cout << '\n';
+            }
+            stack.erase();
         }
-        std::cout << '\n';
         break;
     }
     //TODO: case OPC_TAB:

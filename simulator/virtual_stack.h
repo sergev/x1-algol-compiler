@@ -56,6 +56,14 @@ public:
         return item;
     }
 
+    Stack_Cell get(unsigned index) const
+    {
+        if (index >= storage.size()) {
+            throw std::runtime_error("No item #" + std::to_string(index) + " in stack");
+        }
+        return storage[index];
+    }
+
     void push_int_value(Word value)
     {
         storage.push_back({});
