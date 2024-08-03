@@ -81,7 +81,7 @@ TEST_F(x1_machine, digraph_encoding)
     EXPECT_EQ(machine->mem_load(start+10), 0x5d'47'5d); // _> ≥
     EXPECT_EQ(machine->mem_load(start+13), 0x5d'50'5d); // _= ≡
     EXPECT_EQ(machine->mem_load(start+16), 0x5d'49'5d); // _< ≤
-    EXPECT_EQ(machine->mem_load(start+19), 0x5d'4f'5d); // _¬ ⊐
+    EXPECT_EQ(machine->mem_load(start+19), 0x5d'4f'5d); // _¬ ⊃
     EXPECT_EQ(machine->mem_load(start+22), 0x5d'44'5d); // _: ÷
     EXPECT_EQ(machine->mem_load(start+25), 97);         // STOP
 }
@@ -164,6 +164,43 @@ TEST_F(x1_machine, print_reals)
     EXPECT_EQ(output, expect);
 }
 
+//
+// Function abs(E) - the modulus (absolute value) of the value of the expression E.
+// Yield value of type real,
+// Argument can be either of type real or integer.
+//
+TEST_F(x1_machine, DISABLED_function_abs)
+{
+    auto output = compile_and_run(R"(
+        _b_e_g_i_n
+            print(abs(-123.456));
+            print(abs(123.456));
+            print(abs(-67108863));
+            print(abs(67108863));
+            print(abs(-1.615850303565⏨616));
+            print(abs(1.615850303565⏨616));
+            print(abs(-0.0));
+            print(abs(0.0));
+            print(abs(-67108863));
+            print(abs(67108863));
+            print(abs(-0));
+            print(abs(0));
+        _e_n_d
+    )");
+    const std::string expect = R"(123.456
+123.456
+1.615850303564e+616
+1.615850303564e+616
+0
+0
+67108863
+67108863
+0
+0
+)";
+    EXPECT_EQ(output, expect);
+}
+
 TEST_F(x1_machine, man_or_boy)
 {
     // Only compile for now.
@@ -190,4 +227,6 @@ TEST_F(x1_machine, man_or_boy)
 
     // Check entry address.
     EXPECT_EQ(machine->get_entry(0), 10048);
+
+    //TODO: run and check result
 }
