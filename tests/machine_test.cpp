@@ -232,8 +232,8 @@ TEST_F(x1_machine, function_sqrt)
 {
     auto output = compile_and_run(R"(
         _b_e_g_i_n
-            print(sqrt(2.0));
-            print(sqrt(99999.0));
+            print(sqrt(2));
+            print(sqrt(99999));
             print(sqrt(1.01));
             print(sqrt(0.99));
             print(sqrt(0.0003));
@@ -327,6 +327,52 @@ TEST_F(x1_machine, DISABLED_function_arctan)
 -1.107149
 1.569796
 -1.569796
+)";
+    EXPECT_EQ(output, expect);
+}
+
+TEST_F(x1_machine, function_ln)
+{
+    auto output = compile_and_run(R"(
+        _b_e_g_i_n
+            print(ln(0.0001));
+            print(ln(0.5));
+            print(ln(0.9999));
+            print(ln(1.0001));
+            print(ln(2));
+            print(ln(4));
+            print(ln(8));
+            print(ln(99999));
+        _e_n_d
+    )");
+    const std::string expect = R"(-9.210340371981
+-0.6931471805601
+-0.0001000050005356
+9.999499962621e-05
+0.6931471805601
+1.38629436112
+2.079441541679
+11.51291546492
+)";
+    EXPECT_EQ(output, expect);
+}
+
+TEST_F(x1_machine, function_exp)
+{
+    auto output = compile_and_run(R"(
+        _b_e_g_i_n
+            print(exp(-6));
+            print(exp(-1));
+            print(exp(0.0001));
+            print(exp(1));
+            print(exp(6));
+        _e_n_d
+    )");
+    const std::string expect = R"(0.002478752176668
+0.3678794411712
+1.000100005
+2.71828182846
+403.4287934927
 )";
     EXPECT_EQ(output, expect);
 }

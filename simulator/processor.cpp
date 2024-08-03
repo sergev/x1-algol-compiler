@@ -264,7 +264,11 @@ bool Processor::call_opc(unsigned opc)
         // Function sqrt(E) - square root of the value of E
         // Yield value of type real.
         // Argument can be either of type real or integer.
-        stack.push_ieee(std::sqrtl(stack.pop_ieee()));
+        long double input = stack.pop_ieee();
+        if (input < 0) {
+            throw std::runtime_error("Cannot get square root of negative value " + std::to_string(input));
+        }
+        stack.push_ieee(std::sqrtl(input));
         break;
     }
     case OPC_sin: {
@@ -275,14 +279,35 @@ bool Processor::call_opc(unsigned opc)
         break;
     }
     case OPC_cos: {
-        // Function sin(E) - cosine of the value of E
+        // Function cos(E) - cosine of the value of E
         // Yield value of type real.
         // Argument can be either of type real or integer.
         stack.push_ieee(std::cosl(stack.pop_ieee()));
         break;
     }
-    //TODO: case OPC_ln:
-    //TODO: case OPC_exp:
+    case OPC_ln: {
+        // Function ln(E) - natural logarithm of the value of E
+        // Yield value of type real.
+        // Argument can be either of type real or integer.
+        long double input = stack.pop_ieee();
+        if (input <= 0) {
+            throw std::runtime_error("Cannot get logarithm of non-positive value " + std::to_string(input));
+        }
+        stack.push_ieee(std::logl(input));
+        break;
+    }
+    case OPC_exp: {
+        // Function exp(E) - exponential function of the value of E (e**E)
+        // Yield value of type real.
+        // Argument can be either of type real or integer.
+        long double input = stack.pop_ieee();
+        long double result = std::expl(input);
+        if (result == HUGE_VALL) {
+            throw std::runtime_error("Overflow in exponential function of value " + std::to_string(input));
+        }
+        stack.push_ieee(result);
+        break;
+    }
     //TODO: case OPC_entier:
 
     //TODO: case OPC_ST: // store
