@@ -1,7 +1,7 @@
-all:    test-utf8-input
+all:    test-utf8-input objfile
 
 clean:
-	rm -f *.o test-utf8-input
+	rm -f *.o test-utf8-input objfile
 
 test:   test-utf8-input utf8-input.txt
 	./test-utf8-input < utf8-input.txt
