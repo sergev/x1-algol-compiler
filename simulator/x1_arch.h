@@ -82,6 +82,14 @@ std::string to_octal(unsigned val);
 #define ADDR(x)   ((x) & BITS(15))    // address of word
 
 //
+// Boolean constants.
+//
+enum {
+    X1_TRUE = 0,
+    X1_FALSE = 1,
+};
+
+//
 // Negate a number.
 //
 Word x1_negate_int(Word value);

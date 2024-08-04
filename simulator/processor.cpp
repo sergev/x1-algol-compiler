@@ -116,18 +116,18 @@ bool Processor::step()
 bool Processor::call_opc(unsigned opc)
 {
     switch (opc) {
-    //TODO: case OPC_ETMR: //  extransmark result
-    //TODO: case OPC_ETMP: //  extransmark procedure
+    //TODO: case OPC_ETMR: // extransmark result
+    //TODO: case OPC_ETMP: // extransmark procedure
     //TODO: case OPC_FTMR: // formtransmark result
     //TODO: case OPC_FTMP: // formtransmark procedure
-    //TODO: case OPC_RET: // return
-    //TODO: case OPC_EIS: // end of implicit subroutine
+    //TODO: case OPC_RET:  // return
+    //TODO: case OPC_EIS:  // end of implicit subroutine
 
     //TODO: case OPC_TRAD: // take real address dynamic
     //TODO: case OPC_TRAS: // take real address static
     //TODO: case OPC_TIAD: // take integer address dynamic
     //TODO: case OPC_TIAS: // take integer address static
-    //TODO: case OPC_TFA: // take formal address
+    //TODO: case OPC_TFA:  // take formal address
 
     //TODO: case OPC_FOR0:
     //TODO: case OPC_FOR1:
@@ -171,25 +171,25 @@ bool Processor::call_opc(unsigned opc)
     //TODO: case OPC_ADRS: // add real static
     //TODO: case OPC_ADID: // add integer dynamic
     //TODO: case OPC_ADIS: // add integer static
-    //TODO: case OPC_ADF: // add formal
+    //TODO: case OPC_ADF:  // add formal
 
     //TODO: case OPC_SURD: // subtract real dynamic
     //TODO: case OPC_SURS: // subtract real static
     //TODO: case OPC_SUID: // subtract integer dynamic
     //TODO: case OPC_SUIS: // subtract integer static
-    //TODO: case OPC_SUF: // subtract formal
+    //TODO: case OPC_SUF:  // subtract formal
 
     //TODO: case OPC_MURD: // multiply real dynamic
     //TODO: case OPC_MURS: // multiply real static
     //TODO: case OPC_MUID: // multiply integer dynamic
     //TODO: case OPC_MUIS: // multiply integer
-    //TODO: case OPC_MUF: // static multiply formal
+    //TODO: case OPC_MUF:  // static multiply formal
 
     //TODO: case OPC_DIRD: // divide real dynamic
     //TODO: case OPC_DIRS: // divide real static
     //TODO: case OPC_DIID: // divide integer dynamic
     //TODO: case OPC_DIIS: // divide integer static
-    //TODO: case OPC_DIF: // divide formal
+    //TODO: case OPC_DIF:  // divide formal
 
     //TODO: case OPC_IND: // indexer
 
@@ -220,10 +220,21 @@ bool Processor::call_opc(unsigned opc)
     //TODO: case OPC_LES: // less <
     //TODO: case OPC_UQU: // unequal ̸=
 
-    //TODO: case OPC_NON: // non ¬
-    //TODO: case OPC_AND: // and ∧
-    //TODO: case OPC_OR: // or ∨
-    //TODO: case OPC_IMP: // implies →
+    case OPC_NON: {
+        // non ¬
+        bool input = stack.pop_boolean();
+        stack.push_int_value(input ? X1_FALSE : X1_TRUE);
+        break;
+    }
+    case OPC_AND: {
+        // and ∧
+        bool b = stack.pop_boolean();
+        bool a = stack.pop_boolean();
+        stack.push_int_value((a & b) ? X1_TRUE : X1_FALSE);
+        break;
+    }
+    //TODO: case OPC_OR:  // or ∨
+    //TODO: case OPC_IMP: // implies ⊃
     //TODO: case OPC_QVL: // equivalent ≡
 
     case OPC_abs: {
@@ -329,9 +340,9 @@ bool Processor::call_opc(unsigned opc)
         break;
     }
 
-    //TODO: case OPC_ST: // store
-    //TODO: case OPC_STA: // store also
-    //TODO: case OPC_STP: // store procedure value
+    //TODO: case OPC_ST:   // store
+    //TODO: case OPC_STA:  // store also
+    //TODO: case OPC_STP:  // store procedure value
     //TODO: case OPC_STAP: // store also procedure value
 
     //TODO: case OPC_SCC: // short circuit
@@ -351,8 +362,8 @@ bool Processor::call_opc(unsigned opc)
         // End of the object program.
         return true;
 
-    //TODO: case OPC_TFP: // take formal parameter
-    //TODO: case OPC_TAS: // type algol symbol
+    //TODO: case OPC_TFP:  // take formal parameter
+    //TODO: case OPC_TAS:  // type algol symbol
     //TODO: case OPC_OBC6: // output buffer class 6
     //TODO: case OPC_FLOATER:
     //TODO: case OPC_read:

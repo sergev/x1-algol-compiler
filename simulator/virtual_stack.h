@@ -72,6 +72,22 @@ public:
         }
     }
 
+    bool pop_boolean()
+    {
+        if (storage.size() == 0) {
+            throw std::runtime_error("Cannot pop empty stack");
+        }
+        auto item = storage.back();
+        storage.pop_back();
+        if (item.is_int_value()) {
+            return item.get_int() == X1_TRUE;
+        } else if (item.is_real_value()) {
+            return item.get_real() == X1_TRUE;
+        } else {
+            throw std::runtime_error("Cannot convert address to boolean");
+        }
+    }
+
     Stack_Cell get(unsigned index) const
     {
         if (index >= storage.size()) {
