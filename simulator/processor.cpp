@@ -168,13 +168,37 @@ bool Processor::call_opc(unsigned opc)
     //TODO: case OPC_TFR: // take formal result
 
     //TODO: case OPC_ADRD: // add real dynamic
-    //TODO: case OPC_ADRS: // add real static
+    case OPC_ADRS: {
+        // add real static
+        Word hi   = machine.mem_load(core.B);
+        Word lo   = machine.mem_load(core.B + 1);
+        auto b    = x1_to_ieee(x1_words_to_real(hi, lo));
+        auto item = stack.pop();
+        if (item.is_int_value()) {
+            auto a = x1_to_integer(item.get_int());
+            stack.push_real_value(ieee_to_x1(a + b));
+        } else if (item.is_real_value()) {
+            auto a = x1_to_ieee(item.get_real());
+            stack.push_real_value(ieee_to_x1(a + b));
+        } else {
+            throw std::runtime_error("Cannot add real to address");
+        }
+        break;
+    }
     //TODO: case OPC_ADID: // add integer dynamic
     case OPC_ADIS: {
         // add integer static
         auto b = x1_to_integer(machine.mem_load(core.B));
-        auto a = stack.pop_integer();
-        stack.push_int_value(integer_to_x1(a + b));
+        auto item = stack.pop();
+        if (item.is_int_value()) {
+            auto a = x1_to_integer(item.get_int());
+            stack.push_int_value(integer_to_x1(a + b));
+        } else if (item.is_real_value()) {
+            auto a = x1_to_ieee(item.get_real());
+            stack.push_real_value(ieee_to_x1(a + b));
+        } else {
+            throw std::runtime_error("Cannot add integer to address");
+        }
         break;
     }
     //TODO: case OPC_ADF:  // add formal
