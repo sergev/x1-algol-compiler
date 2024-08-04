@@ -204,9 +204,39 @@ bool Processor::call_opc(unsigned opc)
     //TODO: case OPC_ADF:  // add formal
 
     //TODO: case OPC_SURD: // subtract real dynamic
-    //TODO: case OPC_SURS: // subtract real static
+    case OPC_SURS: {
+        // subtract real static
+        Word hi   = machine.mem_load(core.B);
+        Word lo   = machine.mem_load(core.B + 1);
+        auto b    = x1_to_ieee(x1_words_to_real(hi, lo));
+        auto item = stack.pop();
+        if (item.is_int_value()) {
+            auto a = x1_to_integer(item.get_int());
+            stack.push_real_value(ieee_to_x1(a - b));
+        } else if (item.is_real_value()) {
+            auto a = x1_to_ieee(item.get_real());
+            stack.push_real_value(ieee_to_x1(a - b));
+        } else {
+            throw std::runtime_error("Cannot subtract real from address");
+        }
+        break;
+    }
     //TODO: case OPC_SUID: // subtract integer dynamic
-    //TODO: case OPC_SUIS: // subtract integer static
+    case OPC_SUIS: {
+        // subtract integer static
+        auto b = x1_to_integer(machine.mem_load(core.B));
+        auto item = stack.pop();
+        if (item.is_int_value()) {
+            auto a = x1_to_integer(item.get_int());
+            stack.push_int_value(integer_to_x1(a - b));
+        } else if (item.is_real_value()) {
+            auto a = x1_to_ieee(item.get_real());
+            stack.push_real_value(ieee_to_x1(a - b));
+        } else {
+            throw std::runtime_error("Cannot subtract integer from address");
+        }
+        break;
+    }
     //TODO: case OPC_SUF:  // subtract formal
 
     //TODO: case OPC_MURD: // multiply real dynamic
