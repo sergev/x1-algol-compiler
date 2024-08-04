@@ -13,6 +13,7 @@ add_executable(x1test EXCLUDE_FROM_ALL
     arch_test.cpp
     boolean_test.cpp
     cli_test.cpp
+    function_test.cpp
     machine_test.cpp
 )
 add_dependencies(x1test x1sim)
