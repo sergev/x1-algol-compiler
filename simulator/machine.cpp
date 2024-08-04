@@ -170,7 +170,8 @@ void Machine::run_program(const std::string &prog_path, const std::string &input
 {
     // A child process passes this status code to the parent.
     enum {
-        STATUS_OK,
+        STATUS_OK = EXIT_SUCCESS,
+        STATUS_COMPILER_FAILED = EXIT_FAILURE,
         STATUS_CANNOT_READ_INPUT,
         STATUS_CANNOT_WRITE_OUTPUT,
         STATUS_CANNOT_RUN_PROGRAM,
@@ -225,6 +226,8 @@ void Machine::run_program(const std::string &prog_path, const std::string &input
         throw std::runtime_error("Cannot write " + output_filename);
     case STATUS_CANNOT_RUN_PROGRAM:
         throw std::runtime_error("Cannot execute " + prog_path);
+    case STATUS_COMPILER_FAILED:
+        throw std::runtime_error("Fatal error in Algol compiler");
     default:
         throw std::runtime_error("Compiler failed with status " + std::to_string(exit_code));
     }
