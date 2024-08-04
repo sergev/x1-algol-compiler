@@ -96,6 +96,12 @@ bool Processor::step()
         OT = addr;
         break;
 
+    case 052'23:
+        if (!core.C) {
+            OT = addr;
+        }
+        break;
+
     //TODO: process other instructions
 
     default:
@@ -142,7 +148,10 @@ bool Processor::call_opc(unsigned opc)
 
     //TODO: case OPC_GTA: // goto adjustment
     //TODO: case OPC_SSI: // store switch index
-    //TODO: case OPC_CAC: // copy boolean acc. into condition
+    case OPC_CAC:
+        // copy boolean acc. into condition
+        core.C = stack.pop_boolean();
+        break;
 
     //TODO: case OPC_TRRD: // take real result dynamic
     case OPC_TRRS: {

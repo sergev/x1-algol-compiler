@@ -112,4 +112,20 @@ TEST_F(x1_machine, arith_exponent)
     EXPECT_EQ(output, expect);
 }
 
-//TODO: (if a then b else c)
+TEST_F(x1_machine, arith_if_clause)
+{
+    auto output = compile_and_run(R"(
+        _b_e_g_i_n
+            print(_i_f _t_r_u_e   _t_h_e_n 1.5 _e_l_s_e 2);
+            print(_i_f _f_a_l_s_e _t_h_e_n 3.5 _e_l_s_e 4);
+            print(_i_f _t_r_u_e   _t_h_e_n 5   _e_l_s_e 6.5);
+            print(_i_f _f_a_l_s_e _t_h_e_n 7   _e_l_s_e 8.5);
+        _e_n_d
+)");
+    const std::string expect = R"(1.5
+4
+5
+8.5
+)";
+    EXPECT_EQ(output, expect);
+}
