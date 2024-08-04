@@ -98,23 +98,23 @@ TEST_F(x1_machine, virtual_stack)
     stack.push_real_addr(23456);
     EXPECT_EQ(stack.count(), 4);
 
-    EXPECT_TRUE(stack.back().is_real_addr());
-    EXPECT_EQ(stack.back().get_addr(), 23456);
+    EXPECT_TRUE(stack.top().is_real_addr());
+    EXPECT_EQ(stack.top().get_addr(), 23456);
     stack.pop();
     EXPECT_EQ(stack.count(), 3);
 
-    EXPECT_TRUE(stack.back().is_real_value());
-    EXPECT_EQ(stack.back().get_real(), 012'37'64007'36'67'22743ull);
+    EXPECT_TRUE(stack.top().is_real_value());
+    EXPECT_EQ(stack.top().get_real(), 012'37'64007'36'67'22743ull);
     stack.pop();
     EXPECT_EQ(stack.count(), 2);
 
-    EXPECT_TRUE(stack.back().is_int_addr());
-    EXPECT_EQ(stack.back().get_addr(), 12345);
+    EXPECT_TRUE(stack.top().is_int_addr());
+    EXPECT_EQ(stack.top().get_addr(), 12345);
     stack.pop();
     EXPECT_EQ(stack.count(), 1);
 
-    EXPECT_TRUE(stack.back().is_int_value());
-    EXPECT_EQ(stack.back().get_int(), 12345678);
+    EXPECT_TRUE(stack.top().is_int_value());
+    EXPECT_EQ(stack.top().get_int(), 12345678);
     stack.pop();
     EXPECT_EQ(stack.count(), 0);
 }

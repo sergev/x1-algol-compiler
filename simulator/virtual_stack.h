@@ -34,8 +34,13 @@ struct Stack_Cell {
     Real get_real() const { return value & BITS(54); }
 
     // Compare this item and another one.
-    bool is_less(const Stack_Cell &another);
-    bool is_equal(const Stack_Cell &another);
+    bool is_less(const Stack_Cell &another) const;
+    bool is_equal(const Stack_Cell &another) const;
+
+    // Raise this item to the power given by another cell.
+    void exponentiate(const Stack_Cell &another);
+    void exponentiate_int(int a, const Stack_Cell &another);
+    void exponentiate_real(long double a, const Stack_Cell &another);
 };
 
 class Virtual_Stack {
@@ -47,7 +52,7 @@ public:
     unsigned count() const { return storage.size(); }
 
     // Get the top of the stack.
-    const Stack_Cell &back() { return storage.back(); }
+    Stack_Cell &top() { return storage.back(); }
 
     // Remove all items (but don't deallocate).
     void erase() { storage.erase(storage.begin(), storage.end()); }

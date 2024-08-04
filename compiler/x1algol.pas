@@ -126,7 +126,10 @@ begin
         if i = 183 then exit(68); {÷}
     end else if i = 226 then begin
         i := read_next_byte;
-        if i = 136 then begin
+        if i = 134 then begin
+            i := read_next_byte;
+            if i = 145 then exit(69); {↑}
+        end else if i = 136 then begin
             i := read_next_byte;
             if i = 167 then exit(77); {∧}
             if i = 168 then exit(78); {∨}

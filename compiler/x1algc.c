@@ -202,7 +202,12 @@ _L1:
         }
     } else if (i == 226) {
         i = read_next_byte();
-        if (i == 136) {
+        if (i == 134) {
+            i = read_next_byte();
+            if (i == 145) {
+                return 69; /* ↑ */
+            }
+        } else if (i == 136) {
             i = read_next_byte();
             if (i == 167) {
                 return 77; /* ∧ */

@@ -3,7 +3,7 @@
 //
 // Compare (relatively) this item and another one.
 //
-bool Stack_Cell::is_less(const Stack_Cell &another)
+bool Stack_Cell::is_less(const Stack_Cell &another) const
 {
     switch (type) {
     case Cell_Type::INTEGER_VALUE: {
@@ -36,7 +36,7 @@ bool Stack_Cell::is_less(const Stack_Cell &another)
 //
 // Compare (strictly) this item and another one.
 //
-bool Stack_Cell::is_equal(const Stack_Cell &another)
+bool Stack_Cell::is_equal(const Stack_Cell &another) const
 {
     switch (type) {
     case Cell_Type::INTEGER_VALUE: {
@@ -81,6 +81,171 @@ bool Stack_Cell::is_equal(const Stack_Cell &another)
     }
     default:
         throw std::runtime_error("Bad cell type");
+    }
+}
+
+//
+// Raise this item to the power given by another cell.
+//
+// Writing i for a number of integer type, r for a number of real type,
+// and a for a number of either integer or real type,
+// the result is given by the following rules:
+//
+// a↑i  if i>0:  a×a×...×a (i times), of the same type as a.
+//      if i=0:  if a≠0: 1, of the same type as a.
+//               if a=0: undefined.
+//      if i<0,  if a≠0: 1/(a×a×a×...×a) (the denominator has
+//                       −i factors), of type real.
+//               if a=0: undefined.
+// a↑r  if a>0:  exp(r × ln(a)), of type real.
+//      if a=0,  if r>0: 0.0, of type real.
+//               if r≤0: undefined.
+//      if a<0:  always undefined.
+//
+void Stack_Cell::exponentiate(const Stack_Cell &another)
+{
+    switch (type) {
+    case Cell_Type::INTEGER_VALUE:
+        exponentiate_int(x1_to_integer(get_int()), another);
+        break;
+    case Cell_Type::REAL_VALUE:
+        exponentiate_real(x1_to_ieee(get_real()), another);
+        break;
+    default:
+        throw std::runtime_error("Cannot exponentiate address");
+    }
+}
+
+//
+// Iterative function to calculate integer pow(x, n).
+//
+static int power(int x, unsigned n)
+{
+    int result = 1;
+    while (n) {
+        if (n & 1) {
+            result *= x;
+        }
+        n = n >> 1;
+        x *= x;
+    }
+    return result;
+}
+
+//
+// Iterative function to calculate real pow(x, n).
+//
+static long double power(long double x, unsigned n)
+{
+    long double result = 1;
+    while (n) {
+        if (n & 1) {
+            result *= x;
+        }
+        n = n >> 1;
+        x *= x;
+    }
+    return result;
+}
+
+void Stack_Cell::exponentiate_int(int a, const Stack_Cell &another)
+{
+    switch (another.type) {
+    case Cell_Type::INTEGER_VALUE: {
+        int i = x1_to_integer(another.get_int());
+        if (i > 0) {
+            // a×a×...×a (i times), of the same type as a.
+            value = integer_to_x1(power(a, i));
+        } else if (i == 0) {
+            // if a≠0: 1, of the same type as a.
+            // if a=0: undefined.
+            if (a == 0) {
+                throw std::runtime_error("Exponent 0↑0 is undefined");
+            }
+            value = 1;
+        } else {
+            // if a≠0: 1/(a×a×a×...×a) (the denominator has
+            //         −i factors), of type real.
+            // if a=0: undefined.
+            if (a == 0) {
+                throw std::runtime_error("Division by zero");
+            }
+            type = Cell_Type::REAL_VALUE;
+            value = ieee_to_x1(power(1.0L/a, -i));
+        }
+        break;
+    }
+    case Cell_Type::REAL_VALUE: {
+        auto r = x1_to_ieee(another.get_real());
+        if (a > 0) {
+            // exp(r × ln(a)), of type real.
+            type = Cell_Type::REAL_VALUE;
+            value = ieee_to_x1(std::expl(r * std::logl(a)));
+        } else if (a == 0) {
+            // if r>0: 0.0, of type real.
+            // if r≤0: undefined.
+            if (r <= 0) {
+                throw std::runtime_error("Cannot raise zero to negative or zero power");
+            }
+            type = Cell_Type::REAL_VALUE;
+            value = 0;
+        } else {
+            // always undefined.
+            throw std::runtime_error("Cannot raise negative value to real power");
+        }
+        break;
+    }
+    default:
+        throw std::runtime_error("Cannot exponentiate to the address");
+    }
+}
+
+void Stack_Cell::exponentiate_real(long double a, const Stack_Cell &another)
+{
+    switch (another.type) {
+    case Cell_Type::INTEGER_VALUE: {
+        int i = x1_to_integer(another.get_int());
+        if (i > 0) {
+            // a×a×...×a (i times), of the same type as a.
+            value = ieee_to_x1(power(a, i));
+        } else if (i == 0) {
+            // if a≠0: 1, of the same type as a.
+            // if a=0: undefined.
+            if (a == 0) {
+                throw std::runtime_error("Exponent 0↑0 is undefined");
+            }
+            value = ieee_to_x1(1.0);
+        } else {
+            // if a≠0: 1/(a×a×a×...×a) (the denominator has
+            //         −i factors), of type real.
+            // if a=0: undefined.
+            if (a == 0) {
+                throw std::runtime_error("Division by zero");
+            }
+            value = ieee_to_x1(power(1/a, -i));
+        }
+        break;
+    }
+    case Cell_Type::REAL_VALUE: {
+        auto r = x1_to_ieee(another.get_real());
+        if (a > 0) {
+            // exp(r × ln(a)), of type real.
+            value = ieee_to_x1(std::expl(r * std::logl(a)));
+        } else if (a == 0) {
+            // if r>0: 0.0, of type real.
+            // if r≤0: undefined.
+            if (r <= 0) {
+                throw std::runtime_error("Cannot raise zero to negative or zero power");
+            }
+            value = 0;
+        } else {
+            // always undefined.
+            throw std::runtime_error("Cannot raise negative value to real power");
+        }
+        break;
+    }
+    default:
+        throw std::runtime_error("Cannot exponentiate to the address");
     }
 }
 

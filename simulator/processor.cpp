@@ -346,7 +346,12 @@ bool Processor::call_opc(unsigned opc)
         stack.push_int_value(integer_to_x1(a / b));
         break;
     }
-    //TODO: case OPC_TTP: // to the power
+    case OPC_TTP: {
+        // to the power
+        auto b = stack.pop();
+        stack.top().exponentiate(b);
+        break;
+    }
 
     case OPC_MOR: {
         // more >

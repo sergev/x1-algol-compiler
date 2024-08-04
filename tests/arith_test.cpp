@@ -94,6 +94,22 @@ TEST_F(x1_machine, arith_integer_divide)
     EXPECT_EQ(output, expect);
 }
 
-//TODO: ↑
+TEST_F(x1_machine, arith_exponent)
+{
+    auto output = compile_and_run(R"(
+        _b_e_g_i_n
+            print(3 ↑ 4);
+            print((-2.5) ↑ (-4));
+            print(3 ↑ 4.625);
+            print(2.5 ↑ (-4.625));
+        _e_n_d
+)");
+    const std::string expect = R"(81
+0.0256
+160.9480810601
+0.01443867895348
+)";
+    EXPECT_EQ(output, expect);
+}
 
 //TODO: (if a then b else c)
