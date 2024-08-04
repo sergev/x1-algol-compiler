@@ -90,6 +90,8 @@ void Processor::print_instruction()
     auto save_flags = out.flags();
 
     out << std::oct << std::setfill('0') << std::setw(5) << OT << ": ";
+    x1_print_word_octal(out, OR);
+    out << ' ';
     x1_print_instruction(out, OR);
     out << std::endl;
 

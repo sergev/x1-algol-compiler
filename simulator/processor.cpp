@@ -170,7 +170,13 @@ bool Processor::call_opc(unsigned opc)
     //TODO: case OPC_ADRD: // add real dynamic
     //TODO: case OPC_ADRS: // add real static
     //TODO: case OPC_ADID: // add integer dynamic
-    //TODO: case OPC_ADIS: // add integer static
+    case OPC_ADIS: {
+        // add integer static
+        auto b = x1_to_integer(machine.mem_load(core.B));
+        auto a = stack.pop_integer();
+        stack.push_int_value(integer_to_x1(a + b));
+        break;
+    }
     //TODO: case OPC_ADF:  // add formal
 
     //TODO: case OPC_SURD: // subtract real dynamic

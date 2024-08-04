@@ -1,4 +1,5 @@
 #include "x1_arch.h"
+#include "opc.h"
 
 #include <bitset>
 #include <cmath>
@@ -58,9 +59,7 @@ Real ieee_to_x1(long double input)
         }
     }
     if (exponent > 03777) {
-        // Overflow: return maxreal.
-        return negate_flag ? 0'40'00'00000'40'00'00000ull :
-                             0'37'77'77777'37'77'77777ull;
+        throw std::runtime_error("Overflow in real arithmetic");
     }
     if (exponent < -04000) {
         // Underflow: return -0.0 or +0.0.
@@ -116,14 +115,11 @@ Word integer_to_x1(int input)
         input = -input;
     }
 
-    Word result;
     if (input > BITS(26)) {
-        // Overflow: return maxint.
-        result = BITS(26);
-    } else {
-        result = input;
+        throw std::runtime_error("Overflow in integer arithmetic");
     }
 
+    Word result = input;
     if (negate_flag) {
         result ^= BITS(27);
     }
@@ -146,8 +142,132 @@ int x1_to_integer(Word input)
 //
 void x1_print_instruction(std::ostream &out, unsigned cmd)
 {
-    //TODO
-    x1_print_word_octal(out, cmd);
+    unsigned opcode = (cmd >> 15) & BITS(12);
+    unsigned addr   = cmd & BITS(15);
+
+    switch (opcode) {
+    case 002'20:
+        out << "A := " << addr;
+        break;
+    case 042'20:
+        out << "B := " << addr;
+        break;
+    case 052'20:
+        out << "T := " << addr;
+        break;
+    //TODO: process other instructions
+    case 0:
+        switch (addr) {
+        // clang-format off
+        case OPC_ETMR: out << "ETMR extransmark result"; break;
+        case OPC_ETMP: out << "ETMP extransmark procedure"; break;
+        case OPC_FTMR: out << "FTMR formtransmark result"; break;
+        case OPC_FTMP: out << "FTMP formtransmark procedure"; break;
+        case OPC_RET:  out << "RET return"; break;
+        case OPC_EIS:  out << "EIS end of implicit subroutine"; break;
+        case OPC_TRAD: out << "TRAD take real address dynamic"; break;
+        case OPC_TRAS: out << "TRAS take real address static"; break;
+        case OPC_TIAD: out << "TIAD take integer address dynamic"; break;
+        case OPC_TIAS: out << "TIAS take integer address static"; break;
+        case OPC_TFA:  out << "TFA take formal address"; break;
+        case OPC_FOR0: out << "FOR0"; break;
+        case OPC_FOR1: out << "FOR1"; break;
+        case OPC_FOR2: out << "FOR2"; break;
+        case OPC_FOR3: out << "FOR3"; break;
+        case OPC_FOR4: out << "FOR4"; break;
+        case OPC_FOR5: out << "FOR5"; break;
+        case OPC_FOR6: out << "FOR6"; break;
+        case OPC_FOR7: out << "FOR7"; break;
+        case OPC_FOR8: out << "FOR8"; break;
+        case OPC_GTA:  out << "GTA goto adjustment"; break;
+        case OPC_SSI:  out << "SSI store switch index"; break;
+        case OPC_CAC:  out << "CAC copy boolean acc. into condition"; break;
+        case OPC_TRRD: out << "TRRD take real result dynamic"; break;
+        case OPC_TRRS: out << "TRRS take real result static"; break;
+        case OPC_TIRD: out << "TIRD take integer result dynamic"; break;
+        case OPC_TIRS: out << "TIRS take integer result static"; break;
+        case OPC_TFR:  out << "TFR take formal result"; break;
+        case OPC_ADRD: out << "ADRD add real dynamic"; break;
+        case OPC_ADRS: out << "ADRS add real static"; break;
+        case OPC_ADID: out << "ADID add integer dynamic"; break;
+        case OPC_ADIS: out << "ADIS add integer static"; break;
+        case OPC_ADF:  out << "ADF add formal"; break;
+        case OPC_SURD: out << "SURD subtract real dynamic"; break;
+        case OPC_SURS: out << "SURS subtract real static"; break;
+        case OPC_SUID: out << "SUID subtract integer dynamic"; break;
+        case OPC_SUIS: out << "SUIS subtract integer static"; break;
+        case OPC_SUF:  out << "SUF subtract formal"; break;
+        case OPC_MURD: out << "MURD multiply real dynamic"; break;
+        case OPC_MURS: out << "MURS multiply real static"; break;
+        case OPC_MUID: out << "MUID multiply integer dynamic"; break;
+        case OPC_MUIS: out << "MUIS multiply integer"; break;
+        case OPC_MUF:  out << "MUF static multiply formal"; break;
+        case OPC_DIRD: out << "DIRD divide real dynamic"; break;
+        case OPC_DIRS: out << "DIRS divide real static"; break;
+        case OPC_DIID: out << "DIID divide integer dynamic"; break;
+        case OPC_DIIS: out << "DIIS divide integer static"; break;
+        case OPC_DIF:  out << "DIF divide formal"; break;
+        case OPC_IND:  out << "IND indexer"; break;
+        case OPC_NEG:  out << "NEG Invert sign accumulator"; break;
+        case OPC_TAR:  out << "TAR take result"; break;
+        case OPC_ADD:  out << "ADD add"; break;
+        case OPC_SUB:  out << "SUB subtract"; break;
+        case OPC_MUL:  out << "MUL multiply"; break;
+        case OPC_DIV:  out << "DIV divide"; break;
+        case OPC_IDI:  out << "IDI integer division"; break;
+        case OPC_TTP:  out << "TTP to the power"; break;
+        case OPC_MOR:  out << "MOR more >"; break;
+        case OPC_LST:  out << "LST at least ≥"; break;
+        case OPC_EQU:  out << "EQU equal ="; break;
+        case OPC_MST:  out << "MST at most ≤"; break;
+        case OPC_LES:  out << "LES less <"; break;
+        case OPC_UQU:  out << "UQU unequal ≠"; break;
+        case OPC_NON:  out << "NON non ¬"; break;
+        case OPC_AND:  out << "AND and ∧"; break;
+        case OPC_OR:   out << "OR or ∨"; break;
+        case OPC_IMP:  out << "IMP implies ⊃"; break;
+        case OPC_QVL:  out << "QVL equivalent ≡"; break;
+        case OPC_abs:  out << "abs"; break;
+        case OPC_sign: out << "sign"; break;
+        case OPC_sqrt: out << "sqrt"; break;
+        case OPC_sin:  out << "sin"; break;
+        case OPC_cos:  out << "cos"; break;
+        case OPC_ln:   out << "ln"; break;
+        case OPC_exp:  out << "exp"; break;
+        case OPC_entier: out << "entier"; break;
+        case OPC_ST:   out << "ST  store"; break;
+        case OPC_STA:  out << "STA store also"; break;
+        case OPC_STP:  out << "STP store procedure value"; break;
+        case OPC_STAP: out << "STAP store also procedure value"; break;
+        case OPC_SCC:  out << "SCC short circuit"; break;
+        case OPC_RSF:  out << "RSF real arrays storage function frame"; break;
+        case OPC_ISF:  out << "ISF integer arrays storage function frame"; break;
+        case OPC_RVA:  out << "RVA real value array storage function frame"; break;
+        case OPC_IVA:  out << "IVA integer value array storage function frame"; break;
+        case OPC_LAP:  out << "LAP local array positioning"; break;
+        case OPC_VAP:  out << "VAP value array positioning"; break;
+        case OPC_START: out << "START"; break;
+        case OPC_STOP: out << "STOP"; break;
+        case OPC_TFP:  out << "TFP take formal parameter"; break;
+        case OPC_TAS:  out << "TAS type algol symbol"; break;
+        case OPC_OBC6: out << "OBC6 output buffer class 6"; break;
+        case OPC_FLOATER: out << "FLOATER"; break;
+        case OPC_read: out << "read"; break;
+        case OPC_print: out << "print"; break;
+        case OPC_TAB:  out << "TAB"; break;
+        case OPC_NLCR: out << "NLCR"; break;
+        case OPC_XEEN: out << "XEEN"; break;
+        case OPC_SPACE: out << "SPACE"; break;
+        case OPC_stop: out << "stop"; break;
+        case OPC_P21:  out << "P21"; break;
+        default: out << "OPC #" << addr; break;
+        // clang-format on
+        }
+        break;
+    default:
+        out << "???";
+        break;
+    }
 }
 
 //
