@@ -197,6 +197,9 @@ _L1:
         if (i == 151) {
             return 66; /* × */
         }
+        if (i == 183) {
+            return 68; /* ÷ */
+        }
     } else if (i == 226) {
         i = read_next_byte();
         if (i == 136) {

@@ -276,9 +276,45 @@ bool Processor::call_opc(unsigned opc)
     //TODO: case OPC_MUF:  // static multiply formal
 
     //TODO: case OPC_DIRD: // divide real dynamic
-    //TODO: case OPC_DIRS: // divide real static
+    case OPC_DIRS: {
+        // divide real static
+        Word hi = machine.mem_load(core.B);
+        Word lo = machine.mem_load(core.B + 1);
+        auto b  = x1_to_ieee(x1_words_to_real(hi, lo));
+        if (b == 0) {
+            throw std::runtime_error("Division by zero");
+        }
+        auto item = stack.pop();
+        if (item.is_int_value()) {
+            auto a = (long double) x1_to_integer(item.get_int());
+            stack.push_real_value(ieee_to_x1(a / b));
+        } else if (item.is_real_value()) {
+            auto a = x1_to_ieee(item.get_real());
+            stack.push_real_value(ieee_to_x1(a / b));
+        } else {
+            throw std::runtime_error("Cannot multiply address by real");
+        }
+        break;
+    }
     //TODO: case OPC_DIID: // divide integer dynamic
-    //TODO: case OPC_DIIS: // divide integer static
+    case OPC_DIIS: {
+        // divide integer static
+        auto b = x1_to_integer(machine.mem_load(core.B));
+        if (b == 0) {
+            throw std::runtime_error("Division by zero");
+        }
+        auto item = stack.pop();
+        if (item.is_int_value()) {
+            auto a = (long double) x1_to_integer(item.get_int());
+            stack.push_real_value(ieee_to_x1(a / b));
+        } else if (item.is_real_value()) {
+            auto a = x1_to_ieee(item.get_real());
+            stack.push_real_value(ieee_to_x1(a / b));
+        } else {
+            throw std::runtime_error("Cannot divide address by integer");
+        }
+        break;
+    }
     //TODO: case OPC_DIF:  // divide formal
 
     //TODO: case OPC_IND: // indexer
@@ -300,7 +336,16 @@ bool Processor::call_opc(unsigned opc)
     //TODO: case OPC_SUB: // subtract
     //TODO: case OPC_MUL: // multiply
     //TODO: case OPC_DIV: // divide
-    //TODO: case OPC_IDI: // integer division
+    case OPC_IDI: {
+        // integer division
+        auto b = stack.pop_integer();
+        if (b == 0) {
+            throw std::runtime_error("Division by zero");
+        }
+        auto a = stack.pop_integer();
+        stack.push_int_value(integer_to_x1(a / b));
+        break;
+    }
     //TODO: case OPC_TTP: // to the power
 
     case OPC_MOR: {
