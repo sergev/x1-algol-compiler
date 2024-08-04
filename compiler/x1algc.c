@@ -190,28 +190,33 @@ _L1:
     if (i == 194) {
         i = read_next_byte();
         if (i == 172) {
-            return 76;
-        } /*¬*/
+            return 76; /* ¬ */
+        }
     } else if (i == 195) {
         i = read_next_byte();
         if (i == 151) {
-            return 66;
-        } /*×*/
+            return 66; /* × */
+        }
     } else if (i == 226) {
         i = read_next_byte();
         if (i == 136) {
             i = read_next_byte();
             if (i == 167) {
-                return 77;
-            } /*∧*/
+                return 77; /* ∧ */
+            }
             if (i == 168) {
-                return 78;
-            } /*∨*/
+                return 78; /* ∨ */
+            }
+        } else if (i == 138) {
+            i = read_next_byte();
+            if (i == 131) {
+                return 79; /* ⊃ */
+            }
         } else if (i == 143) {
             i = read_next_byte();
             if (i == 168) {
-                return 89;
-            } /*⏨*/
+                return 89; /* ⏨ */
+            }
         }
     }
     printf("Bad input: %s\n", input_line);
