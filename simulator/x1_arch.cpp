@@ -350,9 +350,9 @@ void x1_print_real(std::ostream &out, Real value)
     auto native = x1_to_ieee(value);
     auto fmt = "%.13Lg";
     int nbytes = 1 + std::snprintf(nullptr, 0, fmt, native);
-    char buf[nbytes];
-    std::snprintf(buf, nbytes, fmt, native);
-    out << buf;
+    std::vector<char> buf(nbytes);
+    std::snprintf(buf.data(), nbytes, fmt, native);
+    out << buf.data();
 }
 
 //
