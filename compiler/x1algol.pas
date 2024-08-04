@@ -129,6 +129,12 @@ begin
             i := read_next_byte;
             if i = 167 then exit(77); {∧}
             if i = 168 then exit(78); {∨}
+        end else if i = 137 then begin
+            i := read_next_byte;
+            if i = 160 then exit(75); {≠}
+            if i = 161 then exit(80); {≡}
+            if i = 164 then exit(73); {≤}
+            if i = 165 then exit(71); {≥}
         end else if i = 138 then begin
             i := read_next_byte;
             if i = 131 then exit(79); {⊃}

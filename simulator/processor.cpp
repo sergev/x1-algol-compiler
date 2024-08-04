@@ -213,12 +213,48 @@ bool Processor::call_opc(unsigned opc)
     //TODO: case OPC_IDI: // integer division
     //TODO: case OPC_TTP: // to the power
 
-    //TODO: case OPC_MOR: // more >
-    //TODO: case OPC_LST: // at least ≥
-    //TODO: case OPC_EQU: // equal =
-    //TODO: case OPC_MST: // at most ≤
-    //TODO: case OPC_LES: // less <
-    //TODO: case OPC_UQU: // unequal ̸=
+    case OPC_MOR: {
+        // more >
+        auto b = stack.pop();
+        auto a = stack.pop();
+        stack.push_int_value(b.is_less(a) ? X1_TRUE : X1_FALSE);
+        break;
+    }
+    case OPC_LST: {
+        // at least ≥
+        auto b = stack.pop();
+        auto a = stack.pop();
+        stack.push_int_value(!a.is_less(b) ? X1_TRUE : X1_FALSE);
+        break;
+    }
+    case OPC_EQU: {
+        // equal =
+        auto b = stack.pop();
+        auto a = stack.pop();
+        stack.push_int_value(a.is_equal(b) ? X1_TRUE : X1_FALSE);
+        break;
+    }
+    case OPC_MST: {
+        // at most ≤
+        auto b = stack.pop();
+        auto a = stack.pop();
+        stack.push_int_value(!b.is_less(a) ? X1_TRUE : X1_FALSE);
+        break;
+    }
+    case OPC_LES: {
+        // less <
+        auto b = stack.pop();
+        auto a = stack.pop();
+        stack.push_int_value(a.is_less(b) ? X1_TRUE : X1_FALSE);
+        break;
+    }
+    case OPC_UQU: {
+        // unequal ≠
+        auto b = stack.pop();
+        auto a = stack.pop();
+        stack.push_int_value(!a.is_equal(b) ? X1_TRUE : X1_FALSE);
+        break;
+    }
 
     case OPC_NON: {
         // non ¬
@@ -247,7 +283,13 @@ bool Processor::call_opc(unsigned opc)
         stack.push_int_value((!a || b) ? X1_TRUE : X1_FALSE);
         break;
     }
-    //TODO: case OPC_QVL: // equivalent ≡
+    case OPC_QVL: {
+        // equivalent ≡
+        bool b = stack.pop_boolean();
+        bool a = stack.pop_boolean();
+        stack.push_int_value((a == b) ? X1_TRUE : X1_FALSE);
+        break;
+    }
 
     case OPC_abs: {
         // Function abs(E) - the modulus (absolute value) of the value of the expression E.

@@ -207,6 +207,20 @@ _L1:
             if (i == 168) {
                 return 78; /* ∨ */
             }
+        } else if (i == 137) {
+            i = read_next_byte();
+            if (i == 160) {
+                return 75; /* ≠ */
+            }
+            if (i == 161) {
+                return 80; /* ≡ */
+            }
+            if (i == 164) {
+                return 73; /* ≤ */
+            }
+            if (i == 165) {
+                return 71; /* ≥ */
+            }
         } else if (i == 138) {
             i = read_next_byte();
             if (i == 131) {
