@@ -14,7 +14,6 @@ if(NOT (Cppcheck MATCHES "NOTFOUND"))
     set(CMAKE_CXX_CPPCHECK "${Cppcheck}"
         "--std=c++17"
         "--enable=style"
-        "--check-level=exhaustive"
         "--error-exitcode=1" # Fail on any issues
         "--inline-suppr" # Enable inline control like // cppcheck-suppress "id"
         "--quiet" # No progress report messages

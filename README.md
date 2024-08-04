@@ -1,3 +1,5 @@
+![build status](https://github.com/sergev/x1-algol-compiler/actions/workflows/c-cpp.yml/badge.svg)
+
 The goal of this project is to revive the historic Algol compiler written by Edsger Dijkstra in 1960 for the Electrologica X1 computer.
 
 Sources downloaded from: https://gtoal.com/languages/algol60/x1algol/
