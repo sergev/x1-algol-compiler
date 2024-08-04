@@ -1,5 +1,7 @@
 #include "virtual_stack.h"
 
+#include <cmath>
+
 //
 // Compare (relatively) this item and another one.
 //
@@ -48,7 +50,7 @@ bool Stack_Cell::is_equal(const Stack_Cell &another) const
             return this_int == x1_to_ieee(another.get_real());
         case Cell_Type::INTEGER_ADDRESS:
         case Cell_Type::REAL_ADDRESS:
-            return this_int == another.get_addr();
+            return this_int == (int) another.get_addr();
         default:
             throw std::runtime_error("Bad cell type");
         }
@@ -69,7 +71,7 @@ bool Stack_Cell::is_equal(const Stack_Cell &another) const
         auto this_addr = get_addr();
         switch (another.type) {
         case Cell_Type::INTEGER_VALUE:
-            return this_addr == x1_to_integer(another.get_int());
+            return (int) this_addr == x1_to_integer(another.get_int());
         case Cell_Type::REAL_VALUE:
             throw std::runtime_error("Cannot compare address with real");
         case Cell_Type::INTEGER_ADDRESS:
@@ -180,7 +182,7 @@ void Stack_Cell::exponentiate_int(int a, const Stack_Cell &another)
         if (a > 0) {
             // exp(r × ln(a)), of type real.
             type = Cell_Type::REAL_VALUE;
-            value = ieee_to_x1(std::expl(r * std::logl(a)));
+            value = ieee_to_x1(expl(r * logl(a)));
         } else if (a == 0) {
             // if r>0: 0.0, of type real.
             // if r≤0: undefined.
@@ -230,7 +232,7 @@ void Stack_Cell::exponentiate_real(long double a, const Stack_Cell &another)
         auto r = x1_to_ieee(another.get_real());
         if (a > 0) {
             // exp(r × ln(a)), of type real.
-            value = ieee_to_x1(std::expl(r * std::logl(a)));
+            value = ieee_to_x1(expl(r * logl(a)));
         } else if (a == 0) {
             // if r>0: 0.0, of type real.
             // if r≤0: undefined.

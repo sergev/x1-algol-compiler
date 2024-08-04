@@ -1,6 +1,7 @@
 #include "machine.h"
 #include "opc.h"
 
+#include <cmath>
 #include <iostream>
 
 //
@@ -482,21 +483,21 @@ bool Processor::call_opc(unsigned opc)
         if (input < 0) {
             throw std::runtime_error("Cannot get square root of negative value " + std::to_string(input));
         }
-        stack.push_ieee(std::sqrtl(input));
+        stack.push_ieee(sqrtl(input));
         break;
     }
     case OPC_sin: {
         // Function sin(E) - sine of the value of E
         // Yield value of type real.
         // Argument can be either of type real or integer.
-        stack.push_ieee(std::sinl(stack.pop_ieee()));
+        stack.push_ieee(sinl(stack.pop_ieee()));
         break;
     }
     case OPC_cos: {
         // Function cos(E) - cosine of the value of E
         // Yield value of type real.
         // Argument can be either of type real or integer.
-        stack.push_ieee(std::cosl(stack.pop_ieee()));
+        stack.push_ieee(cosl(stack.pop_ieee()));
         break;
     }
     case OPC_ln: {
@@ -507,7 +508,7 @@ bool Processor::call_opc(unsigned opc)
         if (input <= 0) {
             throw std::runtime_error("Cannot get logarithm of non-positive value " + std::to_string(input));
         }
-        stack.push_ieee(std::logl(input));
+        stack.push_ieee(logl(input));
         break;
     }
     case OPC_exp: {
@@ -515,7 +516,7 @@ bool Processor::call_opc(unsigned opc)
         // Yield value of type real.
         // Argument can be either of type real or integer.
         long double input = stack.pop_ieee();
-        long double result = std::expl(input);
+        long double result = expl(input);
         if (result == HUGE_VALL) {
             throw std::runtime_error("Overflow in exponential function of value " + std::to_string(input));
         }
@@ -535,7 +536,7 @@ bool Processor::call_opc(unsigned opc)
             if (input < -(int)BITS(26) || input >= (int)BITS(26) + 1) {
                 throw std::runtime_error("Overflow in entier of value " + std::to_string(input));
             }
-            result = integer_to_x1((int) std::floorl(input));
+            result = integer_to_x1((int) floorl(input));
         } else {
             throw std::runtime_error("Cannot get entier of address");
         }

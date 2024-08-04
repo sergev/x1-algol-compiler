@@ -115,7 +115,7 @@ Word integer_to_x1(int input)
         input = -input;
     }
 
-    if (input > BITS(26)) {
+    if (input > (int)BITS(26)) {
         throw std::runtime_error("Overflow in integer arithmetic");
     }
 
