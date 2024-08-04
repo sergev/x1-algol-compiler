@@ -20,6 +20,9 @@ if(NOT (Cppcheck MATCHES "NOTFOUND"))
         "--suppress=*:*/_deps/*" # Ignore issues in Googletest
         "--library=${CMAKE_SOURCE_DIR}/tests/googletest.xml" # Parse TEST() macro properly
     )
+    if(APPLE)
+        list(APPEND CMAKE_CXX_CPPCHECK "--check-level=exhaustive")
+    endif()
 endif()
 
 # Get git commit hash and revision count
