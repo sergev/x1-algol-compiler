@@ -158,7 +158,7 @@ begin sym:= - nas_stock;
   if sym >= 0 {symbol in stock}
   then nas_stock:= sym + 1{stock empty now}
   else sym:= read_utf8_symbol;
-1: if sym > 101 {analysis required}
+1: if sym > 103 {analysis required}
   then begin if sym = 123 {space symbol} then sym:= 93;
          if sym <= 119 {space symbol, tab, or nlcr}
          then if qc = 0
@@ -2081,6 +2081,7 @@ begin
   ascii_table[ord(')')] := 99;
   ascii_table[ord('[')] := 100;
   ascii_table[ord(']')] := 101;
+  ascii_table[ord('`')] := 102;
   ascii_table[ord('''')] := 103; {'}
   ascii_table[ord(' ')] := 119;
   ascii_table[9]        := 118; {tab}

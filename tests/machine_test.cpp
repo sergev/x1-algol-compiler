@@ -9,10 +9,10 @@ TEST_F(x1_machine, input_encoding)
     // We are not going to run it.
     compile(R"(
         _b_e_g_i_n
-            print(|<0123456789');
-            print(|<abcdefghijklmnopqrstuvwxyz');
-            print(|<ABCDEFGHIJKLMNOPQRSTUVWXYZ');
-            print(|<+-*×/>=<¬∧∨,.⏨@:; ()[]');
+            print(`0123456789');
+            print(`abcdefghijklmnopqrstuvwxyz');
+            print(`ABCDEFGHIJKLMNOPQRSTUVWXYZ');
+            print(`+-*×/>=<¬∧∨,.⏨@:; ()[]');
         _e_n_d
     )");
     // Note: symbols " ? _ are prohibited in strings.
@@ -62,14 +62,15 @@ TEST_F(x1_machine, digraph_encoding)
 {
     compile(R"(
         _b_e_g_i_n
-            print(|< := ');
-            print(|< |∧ ');
-            print(|< |= ');
-            print(|< _> ');
-            print(|< _= ');
-            print(|< _< ');
-            print(|< _¬ ');
-            print(|< _: ');
+            print(` := ');
+            print(` |∧ ');
+            print(` |= ');
+            print(` |<|> ');
+            print(` _> ');
+            print(` _= ');
+            print(` _< ');
+            print(` _¬ ');
+            print(` _: ');
         _e_n_d
     )");
 
@@ -78,19 +79,20 @@ TEST_F(x1_machine, digraph_encoding)
     EXPECT_EQ(machine->mem_load(start+1), 0x5d'5c'5d);  // := ≔
     EXPECT_EQ(machine->mem_load(start+4), 0x5d'45'5d);  // |∧ ↑
     EXPECT_EQ(machine->mem_load(start+7), 0x5d'4b'5d);  // |= ≠
-    EXPECT_EQ(machine->mem_load(start+10), 0x5d'47'5d); // _> ≥
-    EXPECT_EQ(machine->mem_load(start+13), 0x5d'50'5d); // _= ≡
-    EXPECT_EQ(machine->mem_load(start+16), 0x5d'49'5d); // _< ≤
-    EXPECT_EQ(machine->mem_load(start+19), 0x5d'4f'5d); // _¬ ⊃
-    EXPECT_EQ(machine->mem_load(start+22), 0x5d'44'5d); // _: ÷
-    EXPECT_EQ(machine->mem_load(start+25), 97);         // STOP
+    EXPECT_EQ(machine->mem_load(start+10), 0x67'66'5d); // |< |> ` '
+    EXPECT_EQ(machine->mem_load(start+13), 0x5d'47'5d); // _> ≥
+    EXPECT_EQ(machine->mem_load(start+16), 0x5d'50'5d); // _= ≡
+    EXPECT_EQ(machine->mem_load(start+19), 0x5d'49'5d); // _< ≤
+    EXPECT_EQ(machine->mem_load(start+22), 0x5d'4f'5d); // _¬ ⊃
+    EXPECT_EQ(machine->mem_load(start+25), 0x5d'44'5d); // _: ÷
+    EXPECT_EQ(machine->mem_load(start+28), 97);         // STOP
 }
 
 TEST_F(x1_machine, string_quotes)
 {
     compile(R"(
         _b_e_g_i_n
-            print(|<This is a |<string'');
+            print(`This is a `string'');
         _e_n_d
     )");
 

@@ -257,7 +257,7 @@ Static int next_ALGOL_symbol()
     else
         sym = read_utf8_symbol();
 _L1:
-    if (sym <= 101) /*analysis required*/
+    if (sym <= 103) /*analysis required*/
         return sym;
     if (sym == 123) /*space symbol*/
         sym = 93;
@@ -3535,6 +3535,7 @@ int main(int argc, char *argv[])
     ascii_table[')']  = 99;
     ascii_table['[']  = 100;
     ascii_table[']']  = 101;
+    ascii_table['`']  = 102;
     ascii_table['\''] = 103; /*'*/
     ascii_table[' ']  = 119;
     ascii_table[9]    = 118; /*tab*/
