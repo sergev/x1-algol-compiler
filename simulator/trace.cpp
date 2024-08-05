@@ -112,6 +112,16 @@ void Processor::print_registers()
         x1_print_word_octal(out, core.A);
         out << std::endl;
     }
+    if (core.B != prev.B) {
+        out << "      B = ";
+        x1_print_word_octal(out, core.B);
+        out << std::endl;
+    }
+    if (core.C != prev.C) {
+        out << "      C = ";
+        x1_print_word_octal(out, core.C);
+        out << std::endl;
+    }
     if (core.S != prev.S) {
         out << "      S = ";
         x1_print_word_octal(out, core.S);

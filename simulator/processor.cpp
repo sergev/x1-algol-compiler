@@ -89,6 +89,10 @@ bool Processor::step()
         core.A = addr;
         break;
 
+    case 012'20:
+        core.S = addr;
+        break;
+
     case 042'20:
         core.B = addr;
         break;
@@ -124,10 +128,23 @@ bool Processor::call_opc(unsigned opc)
 {
     switch (opc) {
     //TODO: case OPC_ETMR: // extransmark result
-    //TODO: case OPC_ETMP: // extransmark procedure
+    case OPC_ETMP:
+        // extransmark procedure
+        // Invoke a procedure which address is located in register B.
+        // Number of arguments is present in register A.
+        // Save return address on stack.
+        frame_create(OT, 0, core.A);
+        OT = core.B;
+        break;
+
     //TODO: case OPC_FTMR: // formtransmark result
     //TODO: case OPC_FTMP: // formtransmark procedure
-    //TODO: case OPC_RET:  // return
+    case OPC_RET:
+        // return from procedure
+        // Jump to address from stack.
+        OT = frame_release();
+        //TODO: display.pop();
+        break;
     //TODO: case OPC_EIS:  // end of implicit subroutine
 
     //TODO: case OPC_TRAD: // take real address dynamic
@@ -549,7 +566,11 @@ bool Processor::call_opc(unsigned opc)
     //TODO: case OPC_STP:  // store procedure value
     //TODO: case OPC_STAP: // store also procedure value
 
-    //TODO: case OPC_SCC: // short circuit
+    case OPC_SCC:
+        // short circuit
+        //TODO: display.push(frame_ptr);
+        stack_base = stack.count();
+        break;
     //TODO: case OPC_RSF: // real arrays storage function frame
     //TODO: case OPC_ISF: // integer arrays storage function frame
     //TODO: case OPC_RVA: // real value array storage function frame
@@ -559,7 +580,6 @@ bool Processor::call_opc(unsigned opc)
 
     case OPC_START:
         // Start of the object program.
-        stack.erase();
         break;
 
     case OPC_STOP:
@@ -574,23 +594,22 @@ bool Processor::call_opc(unsigned opc)
 
     case OPC_print: {
         // Print number(s).
-        auto arg_count = stack.count();
-        if (arg_count == 0) {
+        if (stack.count() == stack_base) {
             // Emit empty line.
             std::cout << '\n';
         } else {
-            for (unsigned i = 0; i < arg_count; i++) {
+            for (auto i = stack_base; i < stack.count(); i++) {
                 auto item = stack.get(i);
                 if (item.is_int_value()) {
                     x1_print_integer(std::cout, item.get_int());
                 } else if (item.is_real_value()) {
                     x1_print_real(std::cout, item.get_real());
                 } else {
-                    throw std::runtime_error("Cannot negate address");
+                    throw std::runtime_error("Cannot print address");
                 }
                 std::cout << '\n';
             }
-            stack.erase();
+            stack.erase(stack_base);
         }
         break;
     }
@@ -605,4 +624,38 @@ bool Processor::call_opc(unsigned opc)
         throw std::runtime_error("Unknown OPC " + std::to_string(opc));
     }
     return false;
+}
+
+//
+// Create frame in stack for new procedure block.
+//
+void Processor::frame_create(unsigned ret_addr, unsigned result_addr, unsigned num_args)
+{
+    auto new_frame_ptr = stack.count();
+
+    stack.push_int_addr(frame_ptr);   // offset 0: previos frame pointer
+    stack.push_int_addr(ret_addr);    // offset 1: return address
+    stack.push_int_addr(result_addr); // offset 2: address to store result
+    stack.push_int_addr(stack_base);  // offset 3: base of the stack
+
+    if (num_args != 0) {
+        //TODO: allocate formal parameters
+        throw std::runtime_error("Procedures with arguments not supported yet");
+    }
+    frame_ptr = new_frame_ptr;
+}
+
+//
+// Deallocate frame in stack when leaving the procedure.
+// Return address is returned.
+//
+unsigned Processor::frame_release()
+{
+    if (frame_ptr >= stack.count()) {
+        throw std::runtime_error("No frame stack to release");
+    }
+    auto ret_addr = stack.get(frame_ptr + 1).get_addr();
+    stack_base    = stack.get(frame_ptr + 3).get_addr();
+    frame_ptr     = stack.get(frame_ptr).get_addr();
+    return ret_addr;
 }

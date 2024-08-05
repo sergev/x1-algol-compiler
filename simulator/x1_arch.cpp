@@ -149,6 +149,9 @@ void x1_print_instruction(std::ostream &out, unsigned cmd)
     case 002'20:
         out << "A := " << addr;
         break;
+    case 012'20:
+        out << "S := " << addr;
+        break;
     case 042'20:
         out << "B := " << addr;
         break;

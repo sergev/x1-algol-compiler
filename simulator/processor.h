@@ -36,6 +36,12 @@ private:
     unsigned OT{}; // order counter
     unsigned OR{}; // order register
 
+    // Pointer to a procedure frame in stack.
+    unsigned frame_ptr{};
+
+    // Base of stack in current block.
+    unsigned stack_base{};
+
 public:
     // Stack of arguments for OPC.
     Virtual_Stack stack;
@@ -72,6 +78,13 @@ private:
     // Invoke run-time routine.
     // Return true when the processor is stopped.
     bool call_opc(unsigned opc);
+
+    // Create frame in stack for new procedure block.
+    void frame_create(unsigned ret_addr, unsigned result_addr, unsigned num_args);
+
+    // Deallocate frame in stack when leaving the procedure.
+    // Return address is returned.
+    unsigned frame_release();
 };
 
 #endif // X1_PROCESSOR_H

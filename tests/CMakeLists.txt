@@ -16,6 +16,7 @@ add_executable(x1test EXCLUDE_FROM_ALL
     cli_test.cpp
     function_test.cpp
     machine_test.cpp
+    procedure_test.cpp
 )
 add_dependencies(x1test x1sim)
 gtest_discover_tests(x1test EXTRA_ARGS --gtest_repeat=1 PROPERTIES TIMEOUT 120)

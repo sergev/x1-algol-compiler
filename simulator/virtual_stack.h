@@ -55,7 +55,7 @@ public:
     Stack_Cell &top() { return storage.back(); }
 
     // Remove all items (but don't deallocate).
-    void erase() { storage.erase(storage.begin(), storage.end()); }
+    void erase(unsigned ptr) { storage.erase(storage.begin() + ptr, storage.end()); }
 
     // Remove one item from stack, and return it as cell.
     Stack_Cell pop();
