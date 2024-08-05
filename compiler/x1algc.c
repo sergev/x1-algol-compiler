@@ -301,8 +301,8 @@ _L1:
         return sym;
     }
     if (sym != 163) { /*_*/
-        stop(14, "Unpermitted char, likely ? or ' or \"");
-        /*? or " or '*/
+        stop(14, "Unpermitted char, likely ? or \"");
+        /*? or "*/
         return sym;
     }
     do {
@@ -3535,10 +3535,10 @@ int main(int argc, char *argv[])
     ascii_table[')']  = 99;
     ascii_table['[']  = 100;
     ascii_table[']']  = 101;
+    ascii_table['\''] = 103; /*'*/
     ascii_table[' ']  = 119;
     ascii_table[9]    = 118; /*tab*/
     ascii_table[10]   = 119; /*newline*/
-    ascii_table['\''] = 120; /*'*/
     ascii_table['"']  = 121;
     ascii_table['?']  = 122;
     ascii_table[' ']  = 123; /*space*/

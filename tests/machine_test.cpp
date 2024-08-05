@@ -9,14 +9,14 @@ TEST_F(x1_machine, input_encoding)
     // We are not going to run it.
     compile(R"(
         _b_e_g_i_n
-            print(|<0123456789|>);
-            print(|<abcdefghijklmnopqrstuvwxyz|>);
-            print(|<ABCDEFGHIJKLMNOPQRSTUVWXYZ|>);
-            print(|<+-*×/>=<¬∧∨,.⏨@:; ()[]|||||>);
+            print(|<0123456789');
+            print(|<abcdefghijklmnopqrstuvwxyz');
+            print(|<ABCDEFGHIJKLMNOPQRSTUVWXYZ');
+            print(|<+-*×/>=<¬∧∨,.⏨@:; ()[]');
         _e_n_d
     )");
-    // Note: symbols ' " ? _ are prohibited in strings.
-    // Repeated symbols | are ignored.
+    // Note: symbols " ? _ are prohibited in strings.
+    // Symbols | can be used only in digraphs.
 
     // Check result in memory.
     unsigned start = machine->get_entry(0);
@@ -62,14 +62,14 @@ TEST_F(x1_machine, digraph_encoding)
 {
     compile(R"(
         _b_e_g_i_n
-            print(|< := |>);
-            print(|< |∧ |>);
-            print(|< |= |>);
-            print(|< _> |>);
-            print(|< _= |>);
-            print(|< _< |>);
-            print(|< _¬ |>);
-            print(|< _: |>);
+            print(|< := ');
+            print(|< |∧ ');
+            print(|< |= ');
+            print(|< _> ');
+            print(|< _= ');
+            print(|< _< ');
+            print(|< _¬ ');
+            print(|< _: ');
         _e_n_d
     )");
 
@@ -84,6 +84,27 @@ TEST_F(x1_machine, digraph_encoding)
     EXPECT_EQ(machine->mem_load(start+19), 0x5d'4f'5d); // _¬ ⊃
     EXPECT_EQ(machine->mem_load(start+22), 0x5d'44'5d); // _: ÷
     EXPECT_EQ(machine->mem_load(start+25), 97);         // STOP
+}
+
+TEST_F(x1_machine, string_quotes)
+{
+    compile(R"(
+        _b_e_g_i_n
+            print(|<This is a |<string'');
+        _e_n_d
+    )");
+
+    unsigned start = machine->get_entry(0);
+    EXPECT_EQ(machine->mem_load(start), 96);           // START
+    EXPECT_EQ(machine->mem_load(start+1), 0x12'11'38); // T h i
+    EXPECT_EQ(machine->mem_load(start+2), 0x12'5d'1c); // s ␣ i
+    EXPECT_EQ(machine->mem_load(start+3), 0x0a'5d'1c); // s ␣ a
+    EXPECT_EQ(machine->mem_load(start+4), 0x1c'66'5d); // ␣ ` s
+    EXPECT_EQ(machine->mem_load(start+5), 0x12'1b'1d); // t r i
+    EXPECT_EQ(machine->mem_load(start+6), 0x67'10'17); // n g '
+    EXPECT_EQ(machine->mem_load(start+7), 0x00'00'ff); // \377
+    EXPECT_EQ(machine->mem_load(start+8), 103);        // print
+    EXPECT_EQ(machine->mem_load(start+9), 97);         // STOP
 }
 
 TEST_F(x1_machine, virtual_stack)

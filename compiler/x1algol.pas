@@ -243,7 +243,7 @@ begin sym:= - nas_stock;
                   else if sym = 124 {:} then sym:= 68 {div}
                   else stop(13)
                 end
-         else stop(14) {? or " or '}
+         else stop(14) {? or "}
        end;
   next_ALGOL_symbol:= sym
 end {next_ALGOL_symbol};
@@ -2081,10 +2081,10 @@ begin
   ascii_table[ord(')')] := 99;
   ascii_table[ord('[')] := 100;
   ascii_table[ord(']')] := 101;
+  ascii_table[ord('''')] := 103; {'}
   ascii_table[ord(' ')] := 119;
   ascii_table[9]        := 118; {tab}
   ascii_table[10]       := 119; {newline}
-  ascii_table[ord('''')] := 120; {'}
   ascii_table[ord('"')] := 121;
   ascii_table[ord('?')] := 122;
   ascii_table[ord(' ')] := 123; {space}
