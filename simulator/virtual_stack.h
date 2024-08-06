@@ -66,6 +66,9 @@ public:
     // Remove one item from stack, and return it as standard integer value.
     int pop_integer();
 
+    // Remove one item from stack, and return it as memory address.
+    unsigned pop_addr();
+
     // Remove one item from stack, and return it as standard boolean value.
     bool pop_boolean();
 

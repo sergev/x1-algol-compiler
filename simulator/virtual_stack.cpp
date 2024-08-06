@@ -303,6 +303,25 @@ int Virtual_Stack::pop_integer()
 }
 
 //
+// Remove one item from stack, and return it as memory address.
+//
+unsigned Virtual_Stack::pop_addr()
+{
+    if (storage.size() == 0) {
+        throw std::runtime_error("Cannot pop empty stack");
+    }
+    auto item = storage.back();
+    storage.pop_back();
+    if (item.is_int_value()) {
+        throw std::runtime_error("Need address, got integer");
+    } else if (item.is_real_value()) {
+        throw std::runtime_error("Need address, got real");
+    } else {
+        return item.get_addr();
+    }
+}
+
+//
 // Remove one item from stack, and return it as standard boolean value.
 //
 bool Virtual_Stack::pop_boolean()

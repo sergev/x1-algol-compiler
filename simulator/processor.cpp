@@ -133,6 +133,8 @@ bool Processor::call_opc(unsigned opc)
         // Invoke a procedure which address is located in register B.
         // Number of arguments is present in register A.
         // Save return address on stack.
+        // Note: descriptors of procedure arguments are located
+        // in memory 3 words before the return address.
         frame_create(OT, 0, core.A);
         OT = core.B;
         break;
@@ -149,7 +151,17 @@ bool Processor::call_opc(unsigned opc)
 
     //TODO: case OPC_TRAD: // take real address dynamic
     //TODO: case OPC_TRAS: // take real address static
-    //TODO: case OPC_TIAD: // take integer address dynamic
+    case OPC_TIAD:
+        // take integer address dynamic
+        // Dynamic address is present in register S.
+        // Split it into block index and memory offset.
+        // For example, S=0241=161 means 5*32+1.
+        // Here 1 is the block index, and 5 is offset.
+        // Get frame pointer of required block from display[block_index].
+        // Add offset (plus some correction).
+        // This is static address - push it on stack.
+std::cout << "--- take integer address dynamic\n";
+        break;
     //TODO: case OPC_TIAS: // take integer address static
     //TODO: case OPC_TFA:  // take formal address
 
@@ -182,7 +194,17 @@ bool Processor::call_opc(unsigned opc)
         stack.push_real_value(value);
         break;
     }
-    //TODO: case OPC_TIRD: // take integer result dynamic
+    case OPC_TIRD:
+        // take integer result dynamic
+        // Dynamic address is present in register S.
+        // Split it into block index and memory offset.
+        // For example, S=0241=161 means 5*32+1.
+        // Here 1 is the block index, and 5 is offset.
+        // Get frame pointer of required block from display[block_index].
+        // Add offset (plus some correction).
+        // This is static address - read integer value and push on stack.
+std::cout << "--- take integer result dynamic\n";
+        break;
 
     case OPC_TIRS: {
         // Take integer result static.
@@ -192,7 +214,19 @@ bool Processor::call_opc(unsigned opc)
         stack.push_int_value(value);
         break;
     }
-    //TODO: case OPC_TFR: // take formal result
+    case OPC_TFR:
+        // take formal result
+        // Dynamic address is present in register S.
+        // Split it into block index and memory offset.
+        // For example, S=0241=161 means 5*32+1.
+        // Here 1 is the block index, and 5 is offset.
+        // Get frame pointer of required block from display[block_index].
+        // Get return address from it, add offset (5) and subtract 8.
+        // Read word from memory at this address - it contains address
+        // of actual argument passed to the procedure.
+        // Read it's value and push on stack.
+std::cout << "--- take formal result\n";
+        break;
 
     //TODO: case OPC_ADRD: // add real dynamic
     case OPC_ADRS: {
@@ -561,14 +595,27 @@ bool Processor::call_opc(unsigned opc)
         break;
     }
 
-    //TODO: case OPC_ST:   // store
+    case OPC_ST: {
+        // store
+        auto item = stack.pop();
+        auto addr = stack.pop_addr();
+        Word result;
+        if (item.is_int_value()) {
+            result = item.get_int();
+        } else {
+            throw std::runtime_error("Cannot store non-integer value");
+        }
+        machine.mem_store(addr, result);
+        break;
+    }
     //TODO: case OPC_STA:  // store also
     //TODO: case OPC_STP:  // store procedure value
     //TODO: case OPC_STAP: // store also procedure value
 
     case OPC_SCC:
         // short circuit
-        //TODO: display.push(frame_ptr);
+        // Numeric argument is present in register B.
+        //TODO: display.push(frame_ptr, core.B);
         stack_base = stack.count();
         break;
     //TODO: case OPC_RSF: // real arrays storage function frame
@@ -638,9 +685,9 @@ void Processor::frame_create(unsigned ret_addr, unsigned result_addr, unsigned n
     stack.push_int_addr(result_addr); // offset 2: address to store result
     stack.push_int_addr(stack_base);  // offset 3: base of the stack
 
-    if (num_args != 0) {
-        //TODO: allocate formal parameters
-        throw std::runtime_error("Procedures with arguments not supported yet");
+    for (unsigned i = 0; i < num_args; i++) {
+        // Allocate formal parameters: offset 4, 5 and so on/
+        stack.push_int_value(0);
     }
     frame_ptr = new_frame_ptr;
 }

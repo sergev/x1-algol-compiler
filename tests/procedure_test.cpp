@@ -17,16 +17,16 @@ TEST_F(x1_machine, procedure_arg0)
     EXPECT_EQ(output, expect);
 }
 
-TEST_F(x1_machine, DISABLED_procedure_arg1)
+TEST_F(x1_machine, DISABLED_procedure_arg1_integer_by_value)
 {
     auto output = compile_and_run(R"(
         _b_e_g_i_n
             _p_r_o_c_e_d_u_r_e print int(num);
-            _v_a_l_u_e num; _i_n_t_e_g_e_r num;
+                _v_a_l_u_e num;
+                _i_n_t_e_g_e_r num;
             _b_e_g_i_n
                 print(num);
             _e_n_d;
-            print int(123);
             print int(-123);
             print int(67108863);
             print int(-67108863);
@@ -41,6 +41,24 @@ TEST_F(x1_machine, DISABLED_procedure_arg1)
 0
 -0
 )";
+    EXPECT_EQ(output, expect);
+}
+
+TEST_F(x1_machine, DISABLED_procedure_arg1_integer_by_name)
+{
+    auto output = compile_and_run(R"(
+        _b_e_g_i_n
+            _i_n_t_e_g_e_r i;
+            _p_r_o_c_e_d_u_r_e get int(num);
+                _i_n_t_e_g_e_r num;
+            _b_e_g_i_n
+                num := -123;
+            _e_n_d;
+            get int(i);
+            print(i);
+        _e_n_d
+    )");
+    const std::string expect = "123\n";
     EXPECT_EQ(output, expect);
 }
 
