@@ -471,8 +471,8 @@ Static Void read_until_next_delimiter()
 { /*body of read_until_next_delimiter*/
     /*FT*/
     struct LOC_read_until_next_delimiter V;
-    int marker;
-    int elsc = 0, bexp = 2100;
+    volatile int marker;
+    volatile int elsc = 0, bexp = 2100;
 
     if (setjmp(V._JL1))
         goto _L1;
