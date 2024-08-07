@@ -437,45 +437,40 @@ _L1:
     }
 } /*read_next_symbol*/
 
-/* Local variables for read_until_next_delimiter: */
-struct LOC_read_until_next_delimiter {
-    jmp_buf _JL1;
-};
+typedef enum { retFALSE, retTRUE, retGOTO } retType;
 
-Local boolean test1(struct LOC_read_until_next_delimiter *LINK)
+Local retType test1()
 {
     if (dl == 88) { /*.*/
         dflag = 1;
         read_next_symbol();
-        return (test1(LINK));
+        return test1();
     }
     if (dl != 89) /*ten*/
-        return (dl > 9);
-    longjmp(LINK->_JL1, 1);
+        return (dl > 9) ? retTRUE : retFALSE;
+    return retGOTO;
 } /*test1*/
 
-Local boolean test2(struct LOC_read_until_next_delimiter *LINK)
+Local retType test2()
 {
     if (dl == 89) /*ten*/
         inw = 1;
-    return (test1(LINK));
+    return test1();
 } /*test2*/
 
-Local boolean test3(struct LOC_read_until_next_delimiter *LINK)
+Local boolean test3()
 {
     read_next_symbol();
-    return (test1(LINK));
+    return test1();
 } /*test3*/
 
 Static Void read_until_next_delimiter()
 { /*body of read_until_next_delimiter*/
     /*FT*/
-    struct LOC_read_until_next_delimiter V;
-    volatile int marker;
-    volatile int elsc = 0, bexp = 2100;
+    retType rt;
+    int marker;
+    int elsc = 0, bexp = 2100;
 
-    if (setjmp(V._JL1))
-        goto _L1;
     read_next_symbol();
     nflag = 1;
     if (dl > 9 && dl < 63) { /*letter*/
@@ -509,7 +504,7 @@ Static Void read_until_next_delimiter()
     fnw   = 0;
     inw   = 0;
     dflag = 0;
-    if (test2(&V)) { /*not (dl in [0..9,88,89])*/
+    if ((rt = test2()) == retTRUE) { /*not (dl in [0..9,88,89])*/
         nflag = 0;
         if (dl == 116 || dl == 117) { /*true*/
             inw   = dl - 116;
@@ -521,6 +516,8 @@ Static Void read_until_next_delimiter()
         }
         /*false*/
         goto _L5;
+    } else if (rt == retGOTO) {
+        goto _L1;
     }
     do {
         if (fnw < d22) {
@@ -530,12 +527,15 @@ Static Void read_until_next_delimiter()
             elsc -= dflag;
         } else
             elsc += 1 - dflag;
-    } while (!test3(&V));
+    } while ((rt = test3()) == retFALSE);
+    if (rt == retGOTO)
+        goto _L1;
     if (dflag == 0 && fnw == 0)
         goto _L4;
     goto _L3;
 _L1:
-    if (test3(&V)) {    /*not (dl in [0..9,88,89]*/
+    switch (test3()) {    /*not (dl in [0..9,88,89]*/
+    case retTRUE:
         if (dl == 64) { /*plus*/
             read_next_symbol();
             dflag = dl;
@@ -543,9 +543,14 @@ _L1:
             read_next_symbol();
             dflag = -dl - 1;
         }
-    } else
+        break;
+    case retFALSE:
         dflag = dl;
-    while (!test3(&V)) { /*dl in [0..9,88,89]*/
+        break;
+    case retGOTO:
+        goto _L1;
+    }
+    while ((rt = test3()) == retFALSE) { /*dl in [0..9,88,89]*/
         if (dflag >= 0)
             dflag = dflag * 10 + dl;
         else
@@ -553,6 +558,8 @@ _L1:
         if (labs(dflag) >= d26)
             stop(3, "Integer too large");
     }
+    if (rt == retGOTO)
+        goto _L1;
     if (dflag < 0)
         dflag++;
     elsc += dflag;
