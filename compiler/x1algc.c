@@ -3,6 +3,7 @@
 
 #include <getopt.h>
 #include <setjmp.h>
+#include <stdarg.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -3139,6 +3140,26 @@ Local int read_crf_item(struct LOC_program_loader *LINK)
     return Result;
 } /*read_crf_item*/
 
+Local void put_crf_item(int addr, int val)
+{
+    if ((addr & 1) == 0)
+        store[addr/2] = val << 13;
+    else
+        store[addr/2] |= val;
+}
+
+Local void put_crf_entry(int * addr, ...)
+{
+    va_list ap;
+    int val;
+    va_start(ap, addr);
+    do {
+        val = va_arg(ap, int);
+        put_crf_item((*addr)++, val);
+    } while (val != 7680);
+    va_end(ap);
+}
+
 Static Void program_loader()
 { /*program loader*/
     /*RZ*/
@@ -3692,20 +3713,18 @@ int main(int argc, char *argv[])
     for (ii = 55; ii <= 102; ii++)
         opc_table[ii] = ii + 7;
 
-    store[crfb]      = d13 * 30;
-    store[crfb + 1]  = d13 * 7680 + 20;
-    store[crfb + 2]  = d13 + 7680;
-    store[crfb + 3]  = d13 * 12 + 2;
-    store[crfb + 4]  = d13 * 7680 + 63;
-    store[crfb + 5]  = d13 * 3 + 7680;
-    store[crfb + 6]  = d13 * 15 + 4;
-    store[crfb + 7]  = d13 * 3 + 7680;
-    store[crfb + 8]  = d13 * 100 + 5;
-    store[crfb + 9]  = d13 * 7680 + 134;
-    store[crfb + 10] = d13 * 6 + 24;
-    store[crfb + 11] = d13 * 7680 + 21;
-    store[crfb + 12] = d13 * 24 + 7680;
-    store[crfb + 13] = d13 * 7680 + 7680;
+    ii = crfb*2;
+    /* Length of MCP0 is 30, not needed by any other MCP, etc. */
+    put_crf_entry(&ii, 30, 0, 7680);
+    put_crf_entry(&ii, 20, 1, 7680);
+    put_crf_entry(&ii, 12, 2, 7680);
+    put_crf_entry(&ii, 63, 3, 7680);
+    put_crf_entry(&ii, 15, 4, 3, 7680); /* MCP4 is needed by MCP3 */
+    put_crf_entry(&ii, 100, 5, 7680);
+    put_crf_entry(&ii, 134, 6, 24, 7680); /* MCP6 is needed by MCP24 */
+    put_crf_entry(&ii, 21, 24, 7680);
+    put_crf_entry(&ii, 7680);
+    put_crf_entry(&ii, 7680);
 
     store[mcpb]     = d21 * 63;
     store[mcpb + 1] = d21 * 63;
