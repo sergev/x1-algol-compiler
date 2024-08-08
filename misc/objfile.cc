@@ -108,43 +108,43 @@ Void fill_result_list(int opc, int w)
     if (opc < 8) {
         address_coder(w);
         w = w / d15 * d15 + opc;
-        if (w == 21495808L) /*  2S   0 A  */
+        if (w == 21495808) /*  2S   0 A  */
             w = 3076;       /*3*1024 +   4*/
-        else if (w == 71827459L) /*  2B   3 A  */
+        else if (w == 71827459) /*  2B   3 A  */
             w = 3077;       /*3*1024 +   5*/
-        else if (w == 88080386L) /*  2T 2X0    */
+        else if (w == 88080386) /*  2T 2X0    */
             w = 4108;       /*4*1024 +  12*/
-        else if (w == 71827456L) /*  2B   0 A  */
+        else if (w == 71827456) /*  2B   0 A  */
             w = 4109;       /*4*1024 +  13*/
-        else if (w == 4718592L) /*  2A   0 A  */
+        else if (w == 4718592) /*  2A   0 A  */
             w = 7280;       /*7*1024 + 112*/
-        else if (w == 71303170L) /*  2B 2X0    */
+        else if (w == 71303170) /*  2B 2X0    */
             w = 7281;       /*7*1024 + 113*/
-        else if (w == 88604673L) /*  2T   1 A  */
+        else if (w == 88604673) /*  2T   1 A  */
             w = 7282;       /*7*1024 + 114*/
         else if (w == 0)    /*  0A 0X0    */
             w = 7283;       /*7*1024 + 115*/
-        else if (w == 524291L)  /*  0A   3 A  */
+        else if (w == 524291)  /*  0A   3 A  */
             w = 7284;       /*7*1024 + 116*/
-        else if (w == 88178690L) /*N 2T 2X0    */
+        else if (w == 88178690) /*N 2T 2X0    */
             w = 7285;       /*7*1024 + 117*/
-        else if (w == 71827457L) /*  2B   1 A  */
+        else if (w == 71827457) /*  2B   1 A  */
             w = 7286;       /*7*1024 + 118*/
-        else if (w == 1048577L) /*  0A 1X0 B  */
+        else if (w == 1048577) /*  0A 1X0 B  */
             w = 7287;       /*7*1024 + 119*/
-        else if (w == 20971522L) /*  2S 2X0    */
+        else if (w == 20971522) /*  2S 2X0    */
             w = 7288;       /*7*1024 + 120*/
-        else if (w == 4784128L) /*Y 2A   0 A  */
+        else if (w == 4784128) /*Y 2A   0 A  */
             w = 7289;       /*7*1024 + 121*/
-        else if (w == 8388608L) /*  4A 0X0    */
+        else if (w == 8388608) /*  4A 0X0    */
             w = 7290;       /*7*1024 + 122*/
-        else if (w == 4390912L) /*Y 2A 0X0   P*/
+        else if (w == 4390912) /*Y 2A 0X0   P*/
             w = 7291;       /*7*1024 + 123*/
-        else if (w == 13172736L) /*Y 6A   0 A */
+        else if (w == 13172736) /*Y 6A   0 A */
             w = 7292;       /*7*1024 + 124*/
-        else if (w == 1572865L) /*  0A 1X0 C  */
+        else if (w == 1572865) /*  0A 1X0 C  */
             w = 7293;       /*7*1024 + 125*/
-        else if (w == 524288L)  /*  0A     0 A */
+        else if (w == 524288)  /*  0A     0 A */
             w = 7294;       /*7*1024 + 126*/
         else  {             /*7*1024 + 127*/
             address_coder(w / d15 + opc * d12);
@@ -381,7 +381,7 @@ Void fill_result_list(int opc, int w)
 void usage(const char * prog_name) {
     printf("X1 object file generator\n");
     printf("Usage:\n");
-    printf("    %s [options...] MCP# source\n", prog_name);
+    printf("    %s [options...] MCP# [source]\n", prog_name);
     printf("Input files:\n");
     printf("    source                  Source text (\"offset OPC [word]\" per line)\n");
     printf("Options:\n"
@@ -416,12 +416,15 @@ int main(int argc, char*argv[]) {
         break;
     }
 
-    if (argc != optind + 2) {
+    if (argc != optind + 1 && argc != optind + 2) {
         usage(prog_name);
         exit(EXIT_FAILURE);
     }
     num = atoi(argv[optind]);
-    src = fopen(argv[optind+1], "r");
+    if (optind + 1 < argc)
+        src = fopen(argv[optind+1], "r");
+    else
+        src = stdin;
     if (!src) {
         perror("Could not open source file");
         exit(EXIT_FAILURE);

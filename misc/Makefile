@@ -1,4 +1,4 @@
-all:    test-utf8-input objfile
+all:    test-utf8-input objfile from5track
 
 clean:
 	rm -f *.o test-utf8-input objfile

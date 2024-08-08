@@ -1,0 +1,17 @@
+Entered from
+https://t-lcarchive.org/wp-content/uploads/EL-X1-ALGOL-COMPLEX-Notebook-2.pdf
+page 37.
+Format:
+offset OPC word
+ 0 0 0422000001   2B     1    A
+ 1 89             SCC
+ 2 0 0122000241   2S     1 X5 A
+ 3 35             TFR
+ 4 0 0035077777   3A 32767 X0 B Z
+ 5 0 0670340000 N 7P
+ 6 0 0024477774   2A 32764 X0 B P 
+ 7 0 0671400001   1P     1 AA   E
+ 8 0 0022200001 Y 2A     1    A
+ 9 0 0032300001 N 3A     1    A
+10 0 0064077774   6A 32764 X0 B
+11 13             EIS

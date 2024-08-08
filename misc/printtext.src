@@ -13,16 +13,15 @@ offset OPC word
  6 0 0022000003   2A  3      A
  7 0 0060000000   6A  0   X0
  8 0 0160000042   6S  2   X1     <-- 15
-The next two instructions are conjectured. 
  9 0 0362000377   2LS 255    A
 10 0 0343100377 U 0LS 255    A Z
 11 1 0522200023 Y 2T  19     A   -->
 12 99             TAS
 13 0 0120000042   2S  2   X1
-The next instruction is conjectured. 
-14 0 0630000010   3P  8   SS
+The next instruction is according to the 5-track tape listing (ibid, page 35).
+14 0 0770000050   3P  8   SS
 15 1 0540400010   4T  8   0    P -->
 16 0 0420000047   2B  7   X1
 17 0 0402000001   0B  1      A
-18 1 0520400004   2T  4      A   -->
+18 1 0522000004   2T  4      A   -->
 19 12             RET            <-- 11
