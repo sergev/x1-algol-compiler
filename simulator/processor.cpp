@@ -146,11 +146,13 @@ bool Processor::call_opc(unsigned opc)
         // Jump to address from stack.
         OT = frame_release();
         break;
-    case OPC_EIS:
+    case OPC_EIS: {
         // end of implicit subroutine
+        auto item = stack.pop();
         OT = frame_release();
+        stack.push(item);
         break;
-
+    }
     //TODO: case OPC_TRAD: // take real address dynamic
     //TODO: case OPC_TRAS: // take real address static
     case OPC_TIAD: {
@@ -218,7 +220,6 @@ std::cout << "--- take integer result dynamic: " << core.S << " -> " << addr << 
         // Read word from memory at this address - it contains address
         // of implicit subroutine. Call it to obtain actual argument value.
         unsigned addr = arg_address(core.S);
-std::cout << "--- take formal result: " << core.S << " -> " << addr << "\n";
         frame_create(OT, 0, 0);
         OT = addr;
         break;
@@ -699,9 +700,11 @@ unsigned Processor::frame_release()
     if (frame_ptr >= stack.count()) {
         throw std::runtime_error("No frame stack to release");
     }
+    auto new_stack_ptr = frame_ptr;
     auto ret_addr = stack.get(frame_ptr + 1).get_addr();
     stack_base    = stack.get(frame_ptr + 3).get_addr();
     frame_ptr     = stack.get(frame_ptr).get_addr();
+    stack.erase(new_stack_ptr);
     return ret_addr;
 }
 

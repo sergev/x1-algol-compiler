@@ -113,23 +113,27 @@ void Processor::print_registers()
         out << std::endl;
     }
     if (core.B != prev.B) {
-        out << "      B = ";
-        x1_print_word_octal(out, core.B);
-        out << std::endl;
+        out << "      B = " << std::oct << core.B << std::dec << std::endl;
     }
     if (core.C != prev.C) {
-        out << "      C = ";
-        x1_print_word_octal(out, core.C);
-        out << std::endl;
+        out << "      C = " << core.C << std::endl;
     }
     if (core.S != prev.S) {
         out << "      S = ";
         x1_print_word_octal(out, core.S);
         out << std::endl;
     }
+    if (stack.count() != prev_stack_ptr) {
+        out << "      SP = " << std::oct << stack.count() << std::dec << std::endl;
+    }
+    if (frame_ptr != prev_frame_ptr) {
+        out << "      FP = " << std::oct << frame_ptr << std::dec << std::endl;
+    }
 
     // Update previous state.
     prev = core;
+    prev_frame_ptr = frame_ptr;
+    prev_stack_ptr = stack.count();
 
     // Restore output flags.
     out.flags(save_flags);

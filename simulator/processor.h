@@ -32,6 +32,8 @@ private:
 
     // Previous state, for tracing.
     struct CoreState prev{};
+    unsigned prev_frame_ptr{};
+    unsigned prev_stack_ptr{};
 
     unsigned OT{}; // order counter
     unsigned OR{}; // order register

@@ -60,6 +60,9 @@ public:
     // Remove one item from stack, and return it as cell.
     Stack_Cell pop();
 
+    // Put an item on stack.
+    void push(const Stack_Cell &item) { storage.push_back(item); }
+
     // Remove one item from stack, and return it as standard floating point value.
     long double pop_ieee();
 
