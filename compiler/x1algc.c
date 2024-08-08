@@ -70,7 +70,7 @@ int P_eof(FILE *f)
 #define gvc0   138  /*0-04-10*/
 #define tlib   800  /*0-25-00*/
 #define plie   6783 /*6-19-31*/
-#define bim    930  /*0-29-02*/
+#define bim    942  /*0-29-14 - was 930, increased by length of EVEN */
 #define nlscop 31
 #define nlsc0  48
 #define mlib   800   /*0-25-00*/
@@ -3726,8 +3726,23 @@ int main(int argc, char *argv[])
     put_crf_entry(&ii, 7680);
     put_crf_entry(&ii, 7680);
 
-    store[mcpb]     = d21 * 63;
-    store[mcpb + 1] = d21 * 63;
+    store[mcpb]     = d21 * 63; /* MCP list terminator */
+
+    /* even.src compiled with objfile -w */
+    store[mcpb + 1] = 0770000000;
+    store[mcpb + 2] = 0070700640;
+    store[mcpb + 3] = 0777777266;
+    store[mcpb + 4] = 0203764750;
+    store[mcpb + 5] = 0770734740;
+    store[mcpb + 6] = 0623777763;
+    store[mcpb + 7] = 0353003763;
+    store[mcpb + 8] = 0362037707;
+    store[mcpb + 9] = 0477515460;
+    store[mcpb + 10] = 0554077777;
+    store[mcpb + 11] = 0000224376;
+    store[mcpb + 12] = 0000040030;
+
+    store[bim - 1] = d21 * 63;  /* Program code terminator */
 
     program_loader();
 
