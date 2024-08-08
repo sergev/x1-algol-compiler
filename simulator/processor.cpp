@@ -145,23 +145,23 @@ bool Processor::call_opc(unsigned opc)
         // return from procedure
         // Jump to address from stack.
         OT = frame_release();
-        //TODO: display.pop();
         break;
-    //TODO: case OPC_EIS:  // end of implicit subroutine
+    case OPC_EIS:
+        // end of implicit subroutine
+        OT = frame_release();
+        break;
 
     //TODO: case OPC_TRAD: // take real address dynamic
     //TODO: case OPC_TRAS: // take real address static
-    case OPC_TIAD:
+    case OPC_TIAD: {
         // take integer address dynamic
         // Dynamic address is present in register S.
-        // Split it into block index and memory offset.
-        // For example, S=0241=161 means 5*32+1.
-        // Here 1 is the block index, and 5 is offset.
-        // Get frame pointer of required block from display[block_index].
-        // Add offset (plus some correction).
-        // This is static address - push it on stack.
-std::cout << "--- take integer address dynamic\n";
+        // Convert it to static address and push on stack.
+        unsigned addr = static_address(core.S);
+std::cout << "--- take integer address dynamic: " << core.S << " -> " << addr << "\n";
+        stack.push_int_addr(addr);
         break;
+    }
     //TODO: case OPC_TIAS: // take integer address static
     //TODO: case OPC_TFA:  // take formal address
 
@@ -194,18 +194,16 @@ std::cout << "--- take integer address dynamic\n";
         stack.push_real_value(value);
         break;
     }
-    case OPC_TIRD:
+    case OPC_TIRD: {
         // take integer result dynamic
         // Dynamic address is present in register S.
-        // Split it into block index and memory offset.
-        // For example, S=0241=161 means 5*32+1.
-        // Here 1 is the block index, and 5 is offset.
-        // Get frame pointer of required block from display[block_index].
-        // Add offset (plus some correction).
-        // This is static address - read integer value and push on stack.
-std::cout << "--- take integer result dynamic\n";
+        // Convert it to static address, read integer value and push on stack.
+        unsigned addr = static_address(core.S);
+        Word value = machine.mem_load(addr);
+std::cout << "--- take integer result dynamic: " << core.S << " -> " << addr << "\n";
+        stack.push_int_value(value);
         break;
-
+    }
     case OPC_TIRS: {
         // Take integer result static.
         // Read word from memory at address in register B.
@@ -214,20 +212,17 @@ std::cout << "--- take integer result dynamic\n";
         stack.push_int_value(value);
         break;
     }
-    case OPC_TFR:
+    case OPC_TFR: {
         // take formal result
         // Dynamic address is present in register S.
-        // Split it into block index and memory offset.
-        // For example, S=0241=161 means 5*32+1.
-        // Here 1 is the block index, and 5 is offset.
-        // Get frame pointer of required block from display[block_index].
-        // Get return address from it, add offset (5) and subtract 8.
         // Read word from memory at this address - it contains address
-        // of actual argument passed to the procedure.
-        // Read it's value and push on stack.
-std::cout << "--- take formal result\n";
+        // of implicit subroutine. Call it to obtain actual argument value.
+        unsigned addr = arg_address(core.S);
+std::cout << "--- take formal result: " << core.S << " -> " << addr << "\n";
+        frame_create(OT, 0, 0);
+        OT = addr;
         break;
-
+    }
     //TODO: case OPC_ADRD: // add real dynamic
     case OPC_ADRS: {
         // add real static
@@ -615,7 +610,10 @@ std::cout << "--- take formal result\n";
     case OPC_SCC:
         // short circuit
         // Numeric argument is present in register B.
-        //TODO: display.push(frame_ptr, core.B);
+        if (core.B > 31) {
+            throw std::runtime_error("Bad block level in SCC");
+        }
+        display[core.B] = frame_ptr;
         stack_base = stack.count();
         break;
     //TODO: case OPC_RSF: // real arrays storage function frame
@@ -705,4 +703,47 @@ unsigned Processor::frame_release()
     stack_base    = stack.get(frame_ptr + 3).get_addr();
     frame_ptr     = stack.get(frame_ptr).get_addr();
     return ret_addr;
+}
+
+//
+// Convert dynamic address of variable (relative to stack frame)
+// into static address.
+//
+// Split dynamic address into block level and memory offset.
+// For example, S=0241=161 means 5*32+1.
+// Here 1 is the block level, and 5 is offset.
+// Get frame pointer of required block from display[block_level].
+// Add offset (plus some correction).
+// This is static address.
+//
+unsigned Processor::static_address(unsigned dynamic_addr)
+{
+    auto const offset      = dynamic_addr / 32;
+    auto const block_level = dynamic_addr % 32;
+    auto const correction  = 4;
+    auto const static_addr = display[block_level] + offset + correction;
+
+    return static_addr;
+}
+
+//
+// Convert dynamic address of formal parameter into static address
+// of actual argument.
+//
+// Split dynamic address it into block level and memory offset.
+// For example, S=0241=161 means 5*32+1.
+// Here 1 is the block level, and 5 is offset.
+// Get frame pointer of required block from display[block_level].
+// Get return address from it, add offset (5) and subtract 8.
+// Read word from memory at this address - it contains address
+// of actual argument passed to the procedure.
+//
+unsigned Processor::arg_address(unsigned dynamic_addr)
+{
+    auto const offset      = dynamic_addr / 32;
+    auto const block_level = dynamic_addr % 32;
+    auto const ret_addr    = stack.get(display[block_level] + 1).get_addr();
+    auto const arg_descr   = machine.mem_load(ret_addr + offset - 8);
+
+    return arg_descr;
 }

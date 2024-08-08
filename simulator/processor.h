@@ -42,6 +42,9 @@ private:
     // Base of stack in current block.
     unsigned stack_base{};
 
+    // Frame pointers for each block level.
+    unsigned display[32]{};
+
 public:
     // Stack of arguments for OPC.
     Virtual_Stack stack;
@@ -85,6 +88,14 @@ private:
     // Deallocate frame in stack when leaving the procedure.
     // Return address is returned.
     unsigned frame_release();
+
+    // Convert dynamic address of variable (relative to stack frame)
+    // into static address.
+    unsigned static_address(unsigned dynamic_addr);
+
+    // Convert dynamic address of formal parameter into static address
+    // of actual argument.
+    unsigned arg_address(unsigned dynamic_addr);
 };
 
 #endif // X1_PROCESSOR_H
