@@ -1,6 +1,9 @@
-#include <stack>
 #include <cstdio>
+#include <cstdlib>
+#include <cstring>
+#include <getopt.h>
 #include <string>
+#include <vector>
 
 const int d26 = 1 << 26;
 const int d5 = 1 << 5;
@@ -11,7 +14,8 @@ const int d12 = 1 << 12;
 typedef void Void;
 int bitcount, bitstock;
 
-std::stack<int> store;
+bool word_store = false;
+std::vector<int> store;
 
 int odd_parity(int a) {
     int i;
@@ -36,10 +40,14 @@ Void bit_string_maker(int w)
     if (bitcount <= 27)
         return;
     bitcount -= 27;
-    store.push((bitstock>>0) & 127);
-    store.push((bitstock>>7) & 127);
-    store.push((bitstock>>14) & 127);
-    store.push((bitstock>>21) << 1 | odd_parity(bitstock));
+    if (word_store) {
+        store.push_back(bitstock);
+    } else {
+        store.push_back((bitstock>>0) & 127);
+        store.push_back((bitstock>>7) & 127);
+        store.push_back((bitstock>>14) & 127);
+        store.push_back((bitstock>>21) << 1 | odd_parity(bitstock));
+    }
     bitstock    = head;
 } /*bit_string_maker*/
 
@@ -370,39 +378,117 @@ Void fill_result_list(int opc, int w)
     bit_string_maker(w);
 } /*fill_result_list*/
 
-int main(int argc, char**argv) {
-    int i;  
-    int len, num;
-    if (argc != 3) {
-        printf("Usage: objfile len num\n");
+void usage(const char * prog_name) {
+    printf("X1 object file generator\n");
+    printf("Usage:\n");
+    printf("    %s [options...] MCP# source\n", prog_name);
+    printf("Input files:\n");
+    printf("    source                  Source text (\"offset OPC [word]\" per line)\n");
+    printf("Options:\n"
+           "    -h                      Display available options\n"
+           "    -w                      Output in word-based format\n");
+}
+
+int main(int argc, char*argv[]) {
+    int i;
+    int len = 0, num;
+    char * line = nullptr;
+    size_t lsize = 0;
+    FILE * src;
+    const char * prog_name = strrchr(argv[0], '/');
+    if (prog_name == NULL) {
+        prog_name = argv[0];
+    } else {
+        prog_name++;
+    }
+    for (;;) {
+        switch (getopt(argc, argv, "hw")) {
+        case EOF:
+            break;
+        case 'h':
+        case '?':
+            usage(prog_name);
+            exit(EXIT_SUCCESS);
+        case 'w':
+            word_store = true;
+            continue;
+        }
+        break;
+    }
+
+    if (argc != optind + 2) {
+        usage(prog_name);
         exit(EXIT_FAILURE);
     }
-    len = atoi(argv[1]);
-    num = atoi(argv[2]);
-    fprintf(stderr, "Making MCP %d, length %d\n", num, len);
-    store.push(0);
-    store.push(0);
-    store.push(0);    
-    store.push(127);
-    for (i = 0; i < len; ++i) {
-        fill_result_list(0, i);
+    num = atoi(argv[optind]);
+    src = fopen(argv[optind+1], "r");
+    if (!src) {
+        perror("Could not open source file");
+        exit(EXIT_FAILURE);
     }
+    if (word_store) {
+        store.push_back(0770000000);
+    } else {
+        store.push_back(0);
+        store.push_back(0);
+        store.push_back(0);
+        store.push_back(127);
+    }
+    int lnum = 0;
+    while (0 < getline(&line, &lsize, src)) {
+        ++lnum;
+        char * end1;
+        int offset = (int)strtol(line, &end1, 10);
+        if (end1 == line) {
+            // No number was read; treat as a comment line
+            continue;
+        }
+        if (offset != len) {
+            printf("Line %d: word offset mismatch, seen %d, expected %d\n",
+                   lnum, offset, len);
+            exit(EXIT_FAILURE);
+        }
+        char * end2;
+        int opc = (int)strtol(end1, &end2, 10); // OPC is always decimal
+        if (end1 == end2) {
+            printf("Line %d: missing OPC\n", lnum);
+            exit(EXIT_FAILURE);
+        }
+        int w = 0;
+        if (opc < 8) {
+            char * end3;
+            w = (int)strtol(end2, &end3, 0);
+            if (end2 == end3) {
+                printf("Line %d: OPC %d requires a word\n", lnum, opc);
+                exit(EXIT_FAILURE);
+            }
+        }
+        fill_result_list(opc, w);
+        ++len;
+    }
+    fprintf(stderr, "Making MCP %d, length %d\n", num, len);
     for (i = 0; i < 13; ++i)
-      bit_string_maker (1<<10|(num>>i & 1));
+        bit_string_maker (1<<10|(num>>i & 1));
     for (i = 0; i < 13; ++i)
-      bit_string_maker (1<<10|(len>>i & 1));
+        bit_string_maker (1<<10|(len>>i & 1));
     bit_string_maker(1|1<<10);
     while (bitstock) bit_string_maker(1 << 10);
+    if (word_store) {
+        for (size_t i = 0; i < store.size(); ++i) {
+            printf("store[mcpb + %zu] = %010o;\n", i+1, store[i]);
+        }
+        exit(EXIT_SUCCESS);
+    }
     std::string s{"30"};
     while (!store.empty()) {
-      if (!s.empty()) s += ' ';
-      s += std::to_string(store.top());
-      store.pop();
-      if (s.length() > 72) {
-        puts(s.c_str());
-        s.erase();
-      }
+        if (!s.empty()) s += ' ';
+        s += std::to_string(store.back());
+        store.pop_back();
+        if (s.length() > 72) {
+            puts(s.c_str());
+            s.erase();
+        }
     }
     if (!s.empty())
-      puts(s.c_str());
+        puts(s.c_str());
 }
