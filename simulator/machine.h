@@ -135,6 +135,12 @@ public:
             print_memory_access(addr, val, "Read");
     }
 
+    static void trace_stack(unsigned offset, const std::string &value, const std::string &op)
+    {
+        if (debug_flag)
+            print_stack_op(offset, value, op);
+    }
+
     void trace_instruction(unsigned opcode)
     {
         if (debug_flag)
@@ -149,6 +155,7 @@ public:
 
     static void print_exception(const char *message);
     static void print_memory_access(unsigned addr, Word val, const char *opname);
+    static void print_stack_op(unsigned offset, const std::string &value, const std::string &op);
 };
 
 //

@@ -82,6 +82,20 @@ void Machine::print_memory_access(unsigned addr, Word val, const char *opname)
 }
 
 //
+// Print stack push/pop.
+//
+void Machine::print_stack_op(unsigned offset, const std::string &value, const std::string &opname)
+{
+    auto &out       = Machine::get_trace_stream();
+    auto save_flags = out.flags();
+
+    out << "      Stack " << opname << " [" << std::dec << offset << "] = " << value << std::endl;
+
+    // Restore.
+    out.flags(save_flags);
+}
+
+//
 // Print instruction address, opcode from OR and mnemonics.
 //
 void Processor::print_instruction()

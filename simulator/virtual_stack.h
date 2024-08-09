@@ -33,6 +33,9 @@ struct Stack_Cell {
     Word get_int() const { return value & BITS(27); }
     Real get_real() const { return value & BITS(54); }
 
+    // Convert the value to string.
+    std::string to_string();
+
     // Compare this item and another one.
     bool is_less(const Stack_Cell &another) const;
     bool is_equal(const Stack_Cell &another) const;
@@ -61,7 +64,8 @@ public:
     Stack_Cell pop();
 
     // Put an item on stack.
-    void push(const Stack_Cell &item) { storage.push_back(item); }
+    void push(const Stack_Cell &item);
+    void push(Cell_Type type, uint64_t value);
 
     // Remove one item from stack, and return it as standard floating point value.
     long double pop_ieee();
@@ -78,20 +82,22 @@ public:
     // Get item by index.
     Stack_Cell get(unsigned index) const;
 
+    // Push any item on stack.
+
     // Push integer value in X1 format.
-    void push_int_value(Word value);
+    void push_int_value(Word value) { push(Cell_Type::INTEGER_VALUE, value); }
 
     // Push address of integer.
-    void push_int_addr(Word addr);
+    void push_int_addr(Word addr) { push(Cell_Type::INTEGER_ADDRESS, addr); }
 
     // Push real value in X1 format.
-    void push_real_value(Real value);
+    void push_real_value(Real value) { push(Cell_Type::REAL_VALUE, value); }
 
     // Push address of real.
-    void push_real_addr(Word addr);
+    void push_real_addr(Word addr) { push(Cell_Type::REAL_ADDRESS, addr); }
 
     // Push a standard floating point value.
-    void push_ieee(long double value);
+    void push_ieee(long double value) { push(Cell_Type::REAL_VALUE, ieee_to_x1(value)); }
 };
 
 #endif // X1_VIRTUAL_STACK_H

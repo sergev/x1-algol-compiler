@@ -1,4 +1,5 @@
 #include "virtual_stack.h"
+#include "machine.h"
 
 #include <cmath>
 
@@ -81,6 +82,24 @@ bool Stack_Cell::is_equal(const Stack_Cell &another) const
             throw std::runtime_error("Bad cell type");
         }
     }
+    default:
+        throw std::runtime_error("Bad cell type");
+    }
+}
+
+//
+// Convert the value to string.
+//
+std::string Stack_Cell::to_string()
+{
+    switch (type) {
+    case Cell_Type::INTEGER_VALUE:
+        return "integer " + std::to_string(x1_to_integer(get_int()));
+    case Cell_Type::REAL_VALUE:
+        return "real " + std::to_string(x1_to_ieee(get_real()));
+    case Cell_Type::INTEGER_ADDRESS:
+    case Cell_Type::REAL_ADDRESS:
+        return "addr " + std::to_string(get_addr());
     default:
         throw std::runtime_error("Bad cell type");
     }
@@ -261,6 +280,7 @@ Stack_Cell Virtual_Stack::pop()
     }
     auto item = storage.back();
     storage.pop_back();
+    Machine::trace_stack(storage.size(), item.to_string(), "Pop");
     return item;
 }
 
@@ -274,6 +294,7 @@ long double Virtual_Stack::pop_ieee()
     }
     auto item = storage.back();
     storage.pop_back();
+    Machine::trace_stack(storage.size(), item.to_string(), "Pop");
     if (item.is_int_value()) {
         return x1_to_integer(item.get_int());
     } else if (item.is_real_value()) {
@@ -293,6 +314,7 @@ int Virtual_Stack::pop_integer()
     }
     auto item = storage.back();
     storage.pop_back();
+    Machine::trace_stack(storage.size(), item.to_string(), "Pop");
     if (item.is_int_value()) {
         return x1_to_integer(item.get_int());
     } else if (item.is_real_value()) {
@@ -312,6 +334,7 @@ unsigned Virtual_Stack::pop_addr()
     }
     auto item = storage.back();
     storage.pop_back();
+    Machine::trace_stack(storage.size(), item.to_string(), "Pop");
     if (item.is_int_value()) {
         throw std::runtime_error("Need address, got integer");
     } else if (item.is_real_value()) {
@@ -331,6 +354,7 @@ bool Virtual_Stack::pop_boolean()
     }
     auto item = storage.back();
     storage.pop_back();
+    Machine::trace_stack(storage.size(), item.to_string(), "Pop");
     if (item.is_int_value()) {
         return item.get_int() == X1_TRUE;
     } else if (item.is_real_value()) {
@@ -352,56 +376,19 @@ Stack_Cell Virtual_Stack::get(unsigned index) const
 }
 
 //
-// Push integer value in X1 format.
+// Push any item on stack.
 //
-void Virtual_Stack::push_int_value(Word value)
+void Virtual_Stack::push(const Stack_Cell &item)
+{
+    storage.push_back(item);
+    Machine::trace_stack(storage.size() - 1, storage.back().to_string(), "Push");
+}
+
+void Virtual_Stack::push(Cell_Type type, uint64_t value)
 {
     storage.push_back({});
     auto &item = storage.back();
     item.type  = Cell_Type::INTEGER_VALUE;
     item.value = value;
-}
-
-//
-// Push address of integer.
-//
-void Virtual_Stack::push_int_addr(Word addr)
-{
-    storage.push_back({});
-    auto &item = storage.back();
-    item.type  = Cell_Type::INTEGER_ADDRESS;
-    item.value = addr;
-}
-
-//
-// Push real value in X1 format.
-//
-void Virtual_Stack::push_real_value(Real value)
-{
-    storage.push_back({});
-    auto &item = storage.back();
-    item.type  = Cell_Type::REAL_VALUE;
-    item.value = value;
-}
-
-//
-// Push address of real.
-//
-void Virtual_Stack::push_real_addr(Word addr)
-{
-    storage.push_back({});
-    auto &item = storage.back();
-    item.type  = Cell_Type::REAL_ADDRESS;
-    item.value = addr;
-}
-
-//
-// Push a standard floating point value.
-//
-void Virtual_Stack::push_ieee(long double value)
-{
-    storage.push_back({});
-    auto &item = storage.back();
-    item.type  = Cell_Type::REAL_VALUE;
-    item.value = ieee_to_x1(value);
+    Machine::trace_stack(storage.size() - 1, item.to_string(), "Push");
 }
