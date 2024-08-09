@@ -97,6 +97,10 @@ private:
 
     // Extract descriptor of actual argument.
     unsigned arg_descriptor(unsigned dynamic_addr);
+
+    // Store value given by src cell.
+    // Write it to memory address given by dest cell.
+    void store_value(const Stack_Cell &dest, const Stack_Cell &src);
 };
 
 #endif // X1_PROCESSOR_H

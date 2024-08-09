@@ -153,7 +153,14 @@ bool Processor::call_opc(unsigned opc)
         stack.push(item);
         break;
     }
-    //TODO: case OPC_TRAD: // take real address dynamic
+    case OPC_TRAD: {
+        // take real address dynamic
+        // Dynamic address is present in register S.
+        // Convert it to static address and push on stack.
+        unsigned addr = static_address(core.S);
+        stack.push_real_addr(addr);
+        break;
+    }
     //TODO: case OPC_TRAS: // take real address static
     case OPC_TIAD: {
         // take integer address dynamic
@@ -171,13 +178,22 @@ bool Processor::call_opc(unsigned opc)
         // of actual argument. It can hold either address of value, or address
         // of implicit subroutine. Call it to obtain actual argument value.
         unsigned arg = arg_descriptor(core.S);
-        if (arg & ONEBIT(19)) {
-            // Get address.
+        switch (arg >> 18 & 7) {
+        case 0: {
+            // Get real address.
+            stack.push_real_addr(arg);
+            break;
+        }
+        case 2: {
+            // Get integer address.
             stack.push_int_addr(arg);
-        } else {
+            break;
+        }
+        default:
             // Call implicit subroutine.
             frame_create(OT, 0, 0);
             OT = arg;
+            break;
         }
         break;
     }
@@ -200,7 +216,17 @@ bool Processor::call_opc(unsigned opc)
         core.C = stack.pop_boolean();
         break;
 
-    //TODO: case OPC_TRRD: // take real result dynamic
+    case OPC_TRRD: {
+        // take real result dynamic
+        // Dynamic address is present in register S.
+        // Convert it to static address, read real value and push on stack.
+        unsigned addr = static_address(core.S);
+        Word hi       = machine.mem_load(addr);
+        Word lo       = machine.mem_load(addr + 1);
+        Real value    = x1_words_to_real(hi, lo);
+        stack.push_real_value(value);
+        break;
+    }
     case OPC_TRRS: {
         // Take real result static.
         // Read two words from memory at address in register B.
@@ -235,14 +261,26 @@ bool Processor::call_opc(unsigned opc)
         // of actual argument. It can hold either address of value, or address
         // of implicit subroutine. Call it to obtain actual argument value.
         unsigned arg = arg_descriptor(core.S);
-        if (arg & ONEBIT(19)) {
-            // Get value.
+        switch (arg >> 18 & 7) {
+        case 0: {
+            // Get real value.
+            Word hi    = machine.mem_load(arg);
+            Word lo    = machine.mem_load(arg + 1);
+            Real value = x1_words_to_real(hi, lo);
+            stack.push_real_value(value);
+            break;
+        }
+        case 2: {
+            // Get integer value.
             Word value = machine.mem_load(arg);
             stack.push_int_value(value);
-        } else {
+            break;
+        }
+        default:
             // Call implicit subroutine.
             frame_create(OT, 0, 0);
             OT = arg;
+            break;
         }
         break;
     }
@@ -615,15 +653,9 @@ bool Processor::call_opc(unsigned opc)
 
     case OPC_ST: {
         // store
-        auto item = stack.pop();
-        auto addr = stack.pop_addr();
-        Word result;
-        if (item.is_int_value()) {
-            result = item.get_int();
-        } else {
-            throw std::runtime_error("Cannot store non-integer value");
-        }
-        machine.mem_store(addr, result);
+        auto src  = stack.pop();
+        auto dest = stack.pop();
+        store_value(dest, src);
         break;
     }
     //TODO: case OPC_STA:  // store also
@@ -773,4 +805,52 @@ unsigned Processor::arg_descriptor(unsigned dynamic_addr)
     auto const arg_descr   = machine.mem_load(ret_addr + offset - 8);
 
     return arg_descr;
+}
+
+//
+// Store value given by src cell.
+// Write it to memory address given by dest cell.
+// Convert integer value to real when needed.
+//
+void Processor::store_value(const Stack_Cell &dest, const Stack_Cell &src)
+{
+    unsigned addr = dest.get_addr();
+
+    switch (dest.type) {
+    case Cell_Type::INTEGER_ADDRESS: {
+        Word result;
+        if (src.is_int_value()) {
+            result = src.get_int();
+        } else if (src.is_real_value()) {
+            throw std::runtime_error("Cannot store real as integer");
+        } else {
+            throw std::runtime_error("Cannot store address");
+        }
+        machine.mem_store(addr, result);
+        break;
+    }
+    case Cell_Type::REAL_ADDRESS: {
+        Real result;
+        if (src.is_real_value()) {
+            result = src.get_real();
+        } else if (src.is_int_value()) {
+            // Convert integer to real.
+            Word value = src.get_int();
+            if (value == BITS(27)) {
+                // Minus zero.
+                result = BITS(54);
+            } else {
+                result = ieee_to_x1((long double) x1_to_integer(value));
+            }
+        } else {
+            throw std::runtime_error("Cannot store address");
+        }
+        machine.mem_store(addr, (result >> 27) & BITS(27));
+        machine.mem_store(addr + 1, result & BITS(27));
+        break;
+    }
+    default:
+        throw std::runtime_error("Bad destination");
+    }
+
 }

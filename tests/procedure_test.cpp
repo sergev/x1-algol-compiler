@@ -63,6 +63,56 @@ TEST_F(x1_machine, arg1_integer_by_name)
     EXPECT_EQ(output, expect);
 }
 
+TEST_F(x1_machine, arg1_real_by_value)
+{
+    auto output = compile_and_run(R"(
+        _b_e_g_i_n
+            _p_r_o_c_e_d_u_r_e print real(num);
+                _v_a_l_u_e num;
+                _r_e_a_l num;
+            _b_e_g_i_n
+                print(num);
+            _e_n_d;
+            print real(123.456);
+            print real(-123.456);
+            print real(1.615850303564⏨616);
+            print real(-1.615850303564⏨616);
+            print real(0.0);
+            print real(-0.0);
+            print real(1.547173023691⏨-617);
+            print real(-1.547173023691⏨-617);
+        _e_n_d
+    )");
+    const std::string expect = R"(123.456
+-123.456
+1.615850303564e+616
+-1.615850303564e+616
+0
+-0
+1.547173023691e-617
+-1.547173023691e-617
+)";
+    EXPECT_EQ(output, expect);
+}
+
+TEST_F(x1_machine, arg1_real_by_name)
+{
+    auto output = compile_and_run(R"(
+        _b_e_g_i_n
+            _r_e_a_l i;
+            _p_r_o_c_e_d_u_r_e get real(num);
+                _r_e_a_l num;
+            _b_e_g_i_n
+                num := -123.456;
+            _e_n_d;
+            get real(i);
+            print(i);
+        _e_n_d
+    )");
+    const std::string expect = "-123.456\n";
+    EXPECT_EQ(output, expect);
+}
+
 TEST_F(x1_machine, man_or_boy)
 {
     // Only compile for now.

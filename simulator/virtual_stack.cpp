@@ -95,9 +95,17 @@ std::string Stack_Cell::to_string()
 {
     std::ostringstream buf;
     switch (type) {
-    case Cell_Type::INTEGER_VALUE:
-        buf << "integer " << std::dec << x1_to_integer(get_int()) << 'd';
+    case Cell_Type::INTEGER_VALUE: {
+        buf << "integer " << std::dec;
+        if (value & ONEBIT(26)) {
+            // Negative.
+            buf << '-' << x1_to_integer(value ^ BITS(27));
+        } else {
+            buf << x1_to_integer(value);
+        }
+        buf << 'd';
         break;
+    }
     case Cell_Type::REAL_VALUE:
         buf << "real " << x1_to_ieee(get_real());
         break;
