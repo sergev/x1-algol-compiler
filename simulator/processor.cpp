@@ -615,6 +615,7 @@ std::cout << "--- take integer result dynamic: " << core.S << " -> " << addr << 
             throw std::runtime_error("Bad block level in SCC");
         }
         display[core.B] = frame_ptr;
+        machine.trace_display(core.B, frame_ptr);
         stack_base = stack.count();
         break;
     //TODO: case OPC_RSF: // real arrays storage function frame

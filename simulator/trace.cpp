@@ -96,6 +96,21 @@ void Machine::print_stack_op(unsigned offset, const std::string &value, const st
 }
 
 //
+// Print display[] change.
+//
+void Machine::print_display(unsigned level, unsigned addr)
+{
+    auto &out       = Machine::get_trace_stream();
+    auto save_flags = out.flags();
+
+    out << "      Display [" << std::dec << level << "] = " << std::oct
+        << std::setfill('0') << std::setw(5) << addr << std::endl;
+
+    // Restore.
+    out.flags(save_flags);
+}
+
+//
 // Print instruction address, opcode from OR and mnemonics.
 //
 void Processor::print_instruction()
