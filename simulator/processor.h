@@ -95,9 +95,8 @@ private:
     // into static address.
     unsigned static_address(unsigned dynamic_addr);
 
-    // Convert dynamic address of formal parameter into static address
-    // of actual argument.
-    unsigned arg_address(unsigned dynamic_addr);
+    // Extract descriptor of actual argument.
+    unsigned arg_descriptor(unsigned dynamic_addr);
 };
 
 #endif // X1_PROCESSOR_H

@@ -1,6 +1,7 @@
 #include "virtual_stack.h"
 #include "machine.h"
 
+#include <sstream>
 #include <cmath>
 
 //
@@ -92,17 +93,22 @@ bool Stack_Cell::is_equal(const Stack_Cell &another) const
 //
 std::string Stack_Cell::to_string()
 {
+    std::ostringstream buf;
     switch (type) {
     case Cell_Type::INTEGER_VALUE:
-        return "integer " + std::to_string(x1_to_integer(get_int()));
+        buf << "integer " << std::dec << x1_to_integer(get_int()) << 'd';
+        break;
     case Cell_Type::REAL_VALUE:
-        return "real " + std::to_string(x1_to_ieee(get_real()));
+        buf << "real " << x1_to_ieee(get_real());
+        break;
     case Cell_Type::INTEGER_ADDRESS:
     case Cell_Type::REAL_ADDRESS:
-        return "addr " + std::to_string(get_addr());
+        buf << "addr " << std::oct << get_addr();
+        break;
     default:
         throw std::runtime_error("Bad cell type");
     }
+    return buf.str();
 }
 
 //
@@ -388,7 +394,7 @@ void Virtual_Stack::push(Cell_Type type, uint64_t value)
 {
     storage.push_back({});
     auto &item = storage.back();
-    item.type  = Cell_Type::INTEGER_VALUE;
+    item.type  = type;
     item.value = value;
     Machine::trace_stack(storage.size() - 1, item.to_string(), "Push");
 }

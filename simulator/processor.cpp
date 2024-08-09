@@ -160,7 +160,6 @@ bool Processor::call_opc(unsigned opc)
         // Dynamic address is present in register S.
         // Convert it to static address and push on stack.
         unsigned addr = static_address(core.S);
-std::cout << "--- take integer address dynamic: " << core.S << " -> " << addr << "\n";
         stack.push_int_addr(addr);
         break;
     }
@@ -202,7 +201,6 @@ std::cout << "--- take integer address dynamic: " << core.S << " -> " << addr <<
         // Convert it to static address, read integer value and push on stack.
         unsigned addr = static_address(core.S);
         Word value = machine.mem_load(addr);
-std::cout << "--- take integer result dynamic: " << core.S << " -> " << addr << "\n";
         stack.push_int_value(value);
         break;
     }
@@ -217,11 +215,19 @@ std::cout << "--- take integer result dynamic: " << core.S << " -> " << addr << 
     case OPC_TFR: {
         // take formal result
         // Dynamic address is present in register S.
-        // Read word from memory at this address - it contains address
+        // Read word from memory at this address - it contains descriptor
+        // of actual argument. It can hold either address of value, or address
         // of implicit subroutine. Call it to obtain actual argument value.
-        unsigned addr = arg_address(core.S);
-        frame_create(OT, 0, 0);
-        OT = addr;
+        unsigned arg = arg_descriptor(core.S);
+        if (arg & ONEBIT(19)) {
+            // Get value.
+            Word value = machine.mem_load(arg);
+            stack.push_int_value(value);
+        } else {
+            // Call implicit subroutine.
+            frame_create(OT, 0, 0);
+            OT = arg;
+        }
         break;
     }
     //TODO: case OPC_ADRD: // add real dynamic
@@ -724,7 +730,7 @@ unsigned Processor::static_address(unsigned dynamic_addr)
 {
     auto const offset      = dynamic_addr / 32;
     auto const block_level = dynamic_addr % 32;
-    auto const correction  = 4;
+    auto const correction  = -1;
     auto const static_addr = display[block_level] + offset + correction;
 
     return static_addr;
@@ -740,9 +746,10 @@ unsigned Processor::static_address(unsigned dynamic_addr)
 // Get frame pointer of required block from display[block_level].
 // Get return address from it, add offset (5) and subtract 8.
 // Read word from memory at this address - it contains address
-// of actual argument passed to the procedure.
+// of actual argument passed to the procedure,
+// or address of implicit subroutine.
 //
-unsigned Processor::arg_address(unsigned dynamic_addr)
+unsigned Processor::arg_descriptor(unsigned dynamic_addr)
 {
     auto const offset      = dynamic_addr / 32;
     auto const block_level = dynamic_addr % 32;

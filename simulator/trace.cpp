@@ -89,7 +89,7 @@ void Machine::print_stack_op(unsigned offset, const std::string &value, const st
     auto &out       = Machine::get_trace_stream();
     auto save_flags = out.flags();
 
-    out << "      Stack " << opname << " [" << std::dec << offset << "] = " << value << std::endl;
+    out << "      Stack " << opname << " [" << std::oct << offset << "] = " << value << std::endl;
 
     // Restore.
     out.flags(save_flags);
@@ -103,7 +103,7 @@ void Machine::print_display(unsigned level, unsigned addr)
     auto &out       = Machine::get_trace_stream();
     auto save_flags = out.flags();
 
-    out << "      Display [" << std::dec << level << "] = " << std::oct
+    out << "      Display [" << std::oct << level << "] = "
         << std::setfill('0') << std::setw(5) << addr << std::endl;
 
     // Restore.
