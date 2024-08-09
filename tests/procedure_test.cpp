@@ -45,7 +45,7 @@ TEST_F(x1_machine, arg1_integer_by_value)
     EXPECT_EQ(output, expect);
 }
 
-TEST_F(x1_machine, DISABLED_arg1_integer_by_name)
+TEST_F(x1_machine, arg1_integer_by_name)
 {
     auto output = compile_and_run(R"(
         _b_e_g_i_n
@@ -59,7 +59,7 @@ TEST_F(x1_machine, DISABLED_arg1_integer_by_name)
             print(i);
         _e_n_d
     )");
-    const std::string expect = "123\n";
+    const std::string expect = "-123\n";
     EXPECT_EQ(output, expect);
 }
 

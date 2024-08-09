@@ -164,7 +164,23 @@ bool Processor::call_opc(unsigned opc)
         break;
     }
     //TODO: case OPC_TIAS: // take integer address static
-    //TODO: case OPC_TFA:  // take formal address
+    case OPC_TFA: {
+        // take formal address
+        // Dynamic address is present in register S.
+        // Read word from memory at this address - it contains descriptor
+        // of actual argument. It can hold either address of value, or address
+        // of implicit subroutine. Call it to obtain actual argument value.
+        unsigned arg = arg_descriptor(core.S);
+        if (arg & ONEBIT(19)) {
+            // Get address.
+            stack.push_int_addr(arg);
+        } else {
+            // Call implicit subroutine.
+            frame_create(OT, 0, 0);
+            OT = arg;
+        }
+        break;
+    }
 
     //TODO: case OPC_FOR0:
     //TODO: case OPC_FOR1:
