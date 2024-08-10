@@ -53,19 +53,19 @@ int P_eof(FILE *f)
 #define d12 4096
 #define d13 8192
 
-#define d15 32768L
-#define d16 65536L
-#define d17 131072L
-#define d18 262144L
-#define d19 524288L
-#define d20 1048576L
-#define d21 2097152L
-#define d22 4194304L
-#define d23 8388608L
-#define d24 16777216L
-#define d25 33554432L
-#define d26 67108864L
-#define mz  134217727L
+#define d15 32768
+#define d16 65536
+#define d17 131072
+#define d18 262144
+#define d19 524288
+#define d20 1048576
+#define d21 2097152
+#define d22 4194304
+#define d23 8388608
+#define d24 16777216
+#define d25 33554432
+#define d26 67108864
+#define mz  134217727
 
 #define gvc0   138  /*0-04-10*/
 #define tlib   800  /*0-25-00*/
@@ -615,7 +615,7 @@ _L3: /*float*/
             bexp++;
         }
     }
-    if ((unsigned long)bexp > 4095)
+    if (bexp > 4095)
         stop(4, "Real too large");
     inw   = inw / 4096 * 4096 + bexp;
     dflag = 1;
@@ -675,14 +675,14 @@ Local Void augment_prescan_list(struct LOC_prescan *LINK)
     dflag = 1;
     inw   = plie;
     fnw   = plie - 1;
-    fill_prescan_list(0L, LINK);
+    fill_prescan_list(0, LINK);
 } /*augment_prescan_list*/
 
 Local Void block_introduction(struct LOC_prescan *LINK)
 {
     /*HK*/
     fill_t_list(LINK->bc); /*block-begin marker*/
-    fill_t_list(-1L);
+    fill_t_list(-1);
     LINK->mbc++;
     LINK->bc = LINK->mbc;
     augment_prescan_list(LINK);
@@ -720,7 +720,7 @@ _L3:
         goto _L1;
     /*skip:*/
     if (dl == 90) { /*:*/
-        fill_prescan_list(0L, &V);
+        fill_prescan_list(0, &V);
         goto _L2;
     }
     if (dl == 91) {                   /*;*/
@@ -771,7 +771,7 @@ _L3:
             goto _L3;
         tlsc--;                 /*remove begin from t_list*/
         block_introduction(&V); /*add begin to t_list again*/
-        fill_t_list(104L);
+        fill_t_list(104);
         goto _L3;
     }
     if (dl == 105) {                  /*end*/
@@ -793,7 +793,7 @@ _L3:
     if (dl == 111) {      /*switch*/
         if (bflag == 0) { /*declarator*/
             read_until_next_delimiter();
-            fill_prescan_list(0L, &V);
+            fill_prescan_list(0, &V);
             goto _L6;
         }
         /*for switch identifier*/
@@ -806,7 +806,7 @@ _L4:
         if (bflag == 0) { /*declarator*/
             bflag = 1;    /*for procedure identifier*/
             read_until_next_delimiter();
-            fill_prescan_list(1L, &V);
+            fill_prescan_list(1, &V);
             block_introduction(&V);
             goto _L6;
         } else
@@ -835,7 +835,7 @@ _L1:
     plib = store[i];
     i++;
     while (i != plib) {
-        w = store[i];
+        w = Rstore(i);
         if ((w & 7) == 0) /*at most 4 letters/digits*/
             i++;
         else {
@@ -860,7 +860,7 @@ Static Void intro_new_block1()
 {
     /*HW*/
     fill_t_list(nlsc);
-    fill_t_list(161L);
+    fill_t_list(161);
     intro_new_block2();
 } /*intro_new_block1*/
 
@@ -963,43 +963,43 @@ Static Void fill_result_list(int opc, int w)
     if (opc < 8) {
         address_coder(w);
         w = w / d15 * d15 + opc;
-        if (w == 21495808L) /*  2S   0 A  */
+        if (w == 21495808) /*  2S   0 A  */
             w = 3076;       /*3*1024 +   4*/
-        else if (w == 71827459L) /*  2B   3 A  */
+        else if (w == 71827459) /*  2B   3 A  */
             w = 3077;       /*3*1024 +   5*/
-        else if (w == 88080386L) /*  2T 2X0    */
+        else if (w == 88080386) /*  2T 2X0    */
             w = 4108;       /*4*1024 +  12*/
-        else if (w == 71827456L) /*  2B   0 A  */
+        else if (w == 71827456) /*  2B   0 A  */
             w = 4109;       /*4*1024 +  13*/
-        else if (w == 4718592L) /*  2A   0 A  */
+        else if (w == 4718592) /*  2A   0 A  */
             w = 7280;       /*7*1024 + 112*/
-        else if (w == 71303170L) /*  2B 2X0    */
+        else if (w == 71303170) /*  2B 2X0    */
             w = 7281;       /*7*1024 + 113*/
-        else if (w == 88604673L) /*  2T   1 A  */
+        else if (w == 88604673) /*  2T   1 A  */
             w = 7282;       /*7*1024 + 114*/
         else if (w == 0)    /*  0A 0X0    */
             w = 7283;       /*7*1024 + 115*/
-        else if (w == 524291L)  /*  0A   3 A  */
+        else if (w == 524291)  /*  0A   3 A  */
             w = 7284;       /*7*1024 + 116*/
-        else if (w == 88178690L) /*N 2T 2X0    */
+        else if (w == 88178690) /*N 2T 2X0    */
             w = 7285;       /*7*1024 + 117*/
-        else if (w == 71827457L) /*  2B   1 A  */
+        else if (w == 71827457) /*  2B   1 A  */
             w = 7286;       /*7*1024 + 118*/
-        else if (w == 1048577L) /*  0A 1X0 B  */
+        else if (w == 1048577) /*  0A 1X0 B  */
             w = 7287;       /*7*1024 + 119*/
-        else if (w == 20971522L) /*  2S 2X0    */
+        else if (w == 20971522) /*  2S 2X0    */
             w = 7288;       /*7*1024 + 120*/
-        else if (w == 4784128L) /*Y 2A   0 A  */
+        else if (w == 4784128) /*Y 2A   0 A  */
             w = 7289;       /*7*1024 + 121*/
-        else if (w == 8388608L) /*  4A 0X0    */
+        else if (w == 8388608) /*  4A 0X0    */
             w = 7290;       /*7*1024 + 122*/
-        else if (w == 4390912L) /*Y 2A 0X0   P*/
+        else if (w == 4390912) /*Y 2A 0X0   P*/
             w = 7291;       /*7*1024 + 123*/
-        else if (w == 13172736L) /*Y 6A   0 A */
+        else if (w == 13172736) /*Y 6A   0 A */
             w = 7292;       /*7*1024 + 124*/
-        else if (w == 1572865L) /*  0A 1X0 C  */
+        else if (w == 1572865) /*  0A 1X0 C  */
             w = 7293;       /*7*1024 + 125*/
-        else if (w == 524288L)  /*  0A     0 A */
+        else if (w == 524288)  /*  0A     0 A */
             w = 7294;       /*7*1024 + 126*/
         else  {             /*7*1024 + 127*/
             address_coder(w / d15 + opc * d12);
@@ -1365,16 +1365,16 @@ Local Void label_declaration(struct LOC_main_scan *LINK)
         } while (i != 0);
     }
     /*TAB*/
-    fill_output(138L, LINK);
+    fill_output(138, LINK);
     w = rlsc;
     for (i = 1; i <= 3; i++) { /*NLCR*/
         offer_character_to_typewriter(w / d10 / 10, LINK);
         offer_character_to_typewriter(w / d10 % 10, LINK);
         w = (w & (d10 - 1)) * d5;
         if (i < 3) /*SPACE*/
-            fill_output(184L, LINK);
+            fill_output(184, LINK);
     }
-    fill_output(139L, LINK);
+    fill_output(139, LINK);
 } /*label_declaration*/
 
 Local Void test_first_occurrence(struct LOC_main_scan *LINK)
@@ -1393,8 +1393,8 @@ Local Void test_first_occurrence(struct LOC_main_scan *LINK)
 Local Void new_block_by_declaration1(struct LOC_main_scan *LINK)
 { /*2B 'bn' A*/
     /*HU*/
-    fill_result_list(0L, bn + 71827456L); /*SCC*/
-    fill_result_list(89L, 0L);
+    fill_result_list(0, bn + 71827456); /*SCC*/
+    fill_result_list(89, 0);
     pnlv = bn + 160;
     vlam = pnlv;
 } /*new_block_by_declaration1*/
@@ -1406,14 +1406,14 @@ Local Void new_block_by_declaration(struct LOC_main_scan *LINK)
         return;
     tlsc--; /*remove 'begin'*/
     /*2A 0 A*/
-    fill_result_list(0L, 4718592L);        /*2B 'rlsc+3' A*/
-    fill_result_list(1L, rlsc + 71827459); /*ETMP*/
-    fill_result_list(9L, 0L);              /*2T 'flsc'*/
-    fill_result_list(2L, flsc + 88080384L);
+    fill_result_list(0, 4718592);        /*2B 'rlsc+3' A*/
+    fill_result_list(1, rlsc + 71827459); /*ETMP*/
+    fill_result_list(9, 0);              /*2T 'flsc'*/
+    fill_result_list(2, flsc + 88080384);
     fill_t_list(flsc);
     flsc++;
     intro_new_block(); /*begin*/
-    fill_t_list(104L);
+    fill_t_list(104);
     new_block_by_declaration1(LINK);
 } /*new_block_by_declaration*/
 
@@ -1434,9 +1434,9 @@ Local Void reservation_of_local_variables(struct LOC_main_scan *LINK)
     /*KY*/
     if (lvc <= 0) /*2A 'lvc' A*/
         return;
-    fill_result_list(0L, lvc + 4718592L); /*4A 17X1*/
-    fill_result_list(0L, 8388657L);       /*4A 18X1*/
-    fill_result_list(0L, 8388658L);
+    fill_result_list(0, lvc + 4718592); /*4A 17X1*/
+    fill_result_list(0, 8388657);       /*4A 18X1*/
+    fill_result_list(0, 8388658);
 } /*reservation_of_local_variables*/
 
 Local Void address_to_register(struct LOC_main_scan *LINK)
@@ -1444,15 +1444,15 @@ Local Void address_to_register(struct LOC_main_scan *LINK)
     /*ZR*/
     if (((id / d15) & 1) != 0) { /*static addressing*/
         /*2B 'static address' A*/
-        fill_result_list(0L, (id & (d15 - 1)) + 21495808L);
+        fill_result_list(0, (id & (d15 - 1)) + 21495808);
         /*2S 'dynamic address' A*/
         return;
     }
     if (((id / d24) & (d2 - 1)) == 2) /*future list*/
-        fill_result_list(2L, (id & (d15 - 1)) + 71303168L);
+        fill_result_list(2, (id & (d15 - 1)) + 71303168);
     /*2B 'FLI-address'*/
     else
-        fill_result_list((id / d24) & 3, (id & (d15 - 1)) + 71827456L);
+        fill_result_list((id / d24) & 3, (id & (d15 - 1)) + 71827456);
 } /*address_to_register*/
 
 Local Void generate_address(struct LOC_main_scan *LINK)
@@ -1462,7 +1462,7 @@ Local Void generate_address(struct LOC_main_scan *LINK)
 
     address_to_register(LINK);
     if (((id / d16) & 1) == 1) { /*formal*/
-        fill_result_list(18L, 0L);
+        fill_result_list(18, 0);
         return;
     }
     /*TFA*/
@@ -1471,7 +1471,7 @@ Local Void generate_address(struct LOC_main_scan *LINK)
         opc++; /*TRAS*/
     if (((id / d19) & 1) == 1)
         opc += 2; /*TIAD or TIAS*/
-    fill_result_list(opc, 0L);
+    fill_result_list(opc, 0);
 } /*generate_address*/
 
 Local Void reservation_of_arrays(struct LOC_main_scan *LINK)
@@ -1490,9 +1490,9 @@ Local Void reservation_of_arrays(struct LOC_main_scan *LINK)
         if (id >= d26 && id < d25 + d26) { /*value array:*/
             address_to_register(LINK);
             if (((id / d19) & 1) == 0) /*RVA*/
-                fill_result_list(92L, 0L);
+                fill_result_list(92, 0);
             else
-                fill_result_list(93L, 0L);
+                fill_result_list(93, 0);
             /*IVA*/
             store[rlab - 1] = id / d15 * d15 - d16 + pnlv;
             pnlv += 256; /*at most 5 indices*/
@@ -1508,11 +1508,11 @@ Local Void reservation_of_arrays(struct LOC_main_scan *LINK)
             id = store[rlab - 1] - d26;
             if (id < d25) {
                 address_to_register(LINK); /*VAP*/
-                fill_result_list(95L, 0L);
+                fill_result_list(95, 0);
             } else { /*LAP*/
                 id -= d25;
                 address_to_register(LINK);
-                fill_result_list(94L, 0L);
+                fill_result_list(94, 0);
             }
         }
         if ((store[rlab - 2] & (d3 - 1)) == 0)
@@ -1545,7 +1545,7 @@ Local Void procedure_statement(struct LOC_main_scan *LINK)
 Local Void production_transmark(struct LOC_main_scan *LINK)
 {
     /*ZL*/
-    fill_result_list(fflag * 2 - eflag + 9, 0L);
+    fill_result_list(fflag * 2 - eflag + 9, 0);
 } /*production_transmark*/
 
 Local Void production_of_object_program(int opht, struct LOC_main_scan *LINK)
@@ -1576,62 +1576,62 @@ Local Void production_of_object_program(int opht, struct LOC_main_scan *LINK)
                         operator_++;
                     if (((id / d19) & 1) != 0)
                         operator_ += 2;
-                    fill_result_list(operator_ - 284, 0L);
+                    fill_result_list(operator_ - 284, 0);
                 } else
-                    fill_result_list(operator_ - 280, 0L);
+                    fill_result_list(operator_ - 280, 0);
             } else if (fflag == 0) {
                 block_number = (id / d19) & (d5 - 1);
                 if (block_number != bn) {
-                    fill_result_list(0L, block_number + 71827456L); /*GTA*/
-                    fill_result_list(28L, 0L);
+                    fill_result_list(0, block_number + 71827456); /*GTA*/
+                    fill_result_list(28, 0);
                 }
                 test_first_occurrence(LINK);
                 if (((id / d24) & 3) == 2) {
                     /*2T 'address'*/
-                    fill_result_list(2L, (id & (d15 - 1)) + 88080384L);
+                    fill_result_list(2, (id & (d15 - 1)) + 88080384);
                 } else {
                     /*2T 'address' A*/
-                    fill_result_list(1L, (id & (d15 - 1)) + 88604672L);
+                    fill_result_list(1, (id & (d15 - 1)) + 88604672);
                 }
             } else {
                 address_to_register(LINK); /*TFR*/
-                fill_result_list(35L, 0L);
+                fill_result_list(35, 0);
             }
         } else { /*2A 0 A*/
             procedure_statement(LINK);
             if (nid > nlscop) {
-                fill_result_list(0L, 4718592L);
+                fill_result_list(0, 4718592);
                 production_transmark(LINK);
             }
         }
     } else if (aflag != 0) {
         aflag = 0; /*TAR*/
-        fill_result_list(58L, 0L);
+        fill_result_list(58, 0);
     }
     while (oh <= ((store[tlsc - 1] / d8) & 15)) {
         tlsc--;
         operator_ = store[tlsc] & (d8 - 1);
         if (operator_ > 63 && operator_ <= 80) {
-            fill_result_list(operator_ - 5, 0L);
+            fill_result_list(operator_ - 5, 0);
             continue;
         }
         if (operator_ == 132) { /*NEG*/
-            fill_result_list(57L, 0L);
+            fill_result_list(57, 0);
             continue;
         }
         /*NEG*/
         if (operator_ < 132 && operator_ > 127) { /*ST,STA,STP,STAP*/
             if (operator_ > 129) {                /*STP,STAP*/
                 tlsc--;                           /*2B 'BN' A*/
-                fill_result_list(0L, store[tlsc] + 71827456L);
+                fill_result_list(0, store[tlsc] + 71827456);
             }
-            fill_result_list(operator_ - 43, 0L);
+            fill_result_list(operator_ - 43, 0);
             continue;
         }
         if (operator_ > 127 && operator_ <= 141)
-            fill_result_list(operator_ - 57, 0L);
+            fill_result_list(operator_ - 57, 0);
         else if (operator_ > 141 && operator_ <= 151)
-            fill_result_list(operator_ - 40, 0L);
+            fill_result_list(operator_ - 40, 0);
         else {
             stop(22, "Special function in object program");
             /*special function*/
@@ -1658,7 +1658,7 @@ Local Void empty_t_list_through_thenelse(struct LOC_main_scan *LINK)
     /*FR*/
     oflag = 1;
     do {
-        production_of_object_program(1L, LINK);
+        production_of_object_program(1, LINK);
     } while (thenelse(LINK)); /*empty_t_list_through_thenelse*/
 }
 
@@ -1670,7 +1670,7 @@ Local boolean do_in_t_list(struct LOC_main_scan *LINK)
         nlsc = store[tlsc + 2];
         bn--;
         fill_future_list(flib + store[tlsc + 1], rlsc + 1, LINK); /*2T 0X0 A*/
-        fill_result_list(1L, store[tlsc] + 88604672L);
+        fill_result_list(1, store[tlsc] + 88604672);
         return true;
     } else
         return false;
@@ -1914,7 +1914,7 @@ _L3:
 _L64: /*+,-*/
     /*ES*/
     if (oflag == 0) {
-        production_of_object_program(9L, &V);
+        production_of_object_program(9, &V);
         fill_t_list_with_delimiter(&V);
     } else if (dl == 65) { /*-*/
         oh = 10;
@@ -1924,20 +1924,20 @@ _L64: /*+,-*/
     goto _L1;
 _L66: /**,/,_:*/
     /*ET*/
-    production_of_object_program(10L, &V);
+    production_of_object_program(10, &V);
     fill_t_list_with_delimiter(&V);
     goto _L1;
 
 _L69: /*|^*/
     /*KT*/
-    production_of_object_program(11L, &V);
+    production_of_object_program(11, &V);
     fill_t_list_with_delimiter(&V);
     goto _L1;
 
 _L70: /*<,_<,=,_>,>,|=*/
     /*KK*/
     oflag = 1;
-    production_of_object_program(8L, &V);
+    production_of_object_program(8, &V);
     fill_t_list_with_delimiter(&V);
     goto _L1;
 
@@ -1972,12 +1972,12 @@ _L8202:
 _L83: /*then*/
     /*EN*/
     do {
-        production_of_object_program(1L, &V);
+        production_of_object_program(1, &V);
     } while (thenelse(&V));
     tlsc--;
     eflag = store[tlsc - 1];   /*CAC*/
-    fill_result_list(30L, 0L); /*N 2T 'flsc'*/
-    fill_result_list(2L, flsc + 88178688L);
+    fill_result_list(30, 0); /*N 2T 'flsc'*/
+    fill_result_list(2, flsc + 88178688);
 _L8301:
     fill_t_list(flsc);
     flsc++;
@@ -1985,7 +1985,7 @@ _L8301:
 
 _L84: /*else*/
     /*FZ*/
-    production_of_object_program(1L, &V);
+    production_of_object_program(1, &V);
     if ((store[tlsc - 1] & (d8 - 1)) == 84) { /*else*/
         if (thenelse(&V))
             goto _L84;
@@ -1997,12 +1997,12 @@ _L8401:
         tlsc -= 3;
         nlsc = store[tlsc + 1];
         fill_future_list(flib + store[tlsc], rlsc + 1, &V); /*RET*/
-        fill_result_list(12L, 0L);
+        fill_result_list(12, 0);
         bn--;
         goto _L8401;
     }
     /*2T 'flsc'*/
-    fill_result_list(2L, flsc + 88080384L);
+    fill_result_list(2, flsc + 88080384);
     if (thenelse(&V)) /*finds 'then'!*/
         tlsc++;       /*keep eflag in t_list*/
     goto _L8301;
@@ -2010,7 +2010,7 @@ _L8401:
 _L85: /*for*/
     /*FE*/
     reservation_of_arrays(&V); /*2T 'flsc'*/
-    fill_result_list(2L, flsc + 88080384L);
+    fill_result_list(2, flsc + 88080384);
     fora = flsc;
     flsc++;
     fill_t_list(rlsc);
@@ -2028,13 +2028,13 @@ _L86: /*do*/
 _L8601:          /*returned from DDEL ,*/
     vflag = 0;
     tlsc--; /*2S 'flsc'*/
-    fill_result_list(2L, flsc + 20971520L);
+    fill_result_list(2, flsc + 20971520);
     fill_t_list(flsc);
     flsc++; /*FOR8*/
-    fill_result_list(27L, 0L);
+    fill_result_list(27, 0);
     fill_future_list(flib + fora, rlsc, &V); /*FOR0*/
-    fill_result_list(19L, 0L);               /*2T 0X0 A*/
-    fill_result_list(1L, store[tlsc - 2] + 88604672L);
+    fill_result_list(19, 0);               /*2T 0X0 A*/
+    fill_result_list(1, store[tlsc - 2] + 88604672);
     fill_future_list(flib + forc, rlsc, &V);
     eflag = 0;
     intro_new_block1();
@@ -2045,7 +2045,7 @@ _L87: /*,*/
     oflag = 1;
     if (iflag == 1) { /*subscript separator:*/
         do {
-            production_of_object_program(1L, &V);
+            production_of_object_program(1, &V);
         } while (thenelse(&V));
         goto _L1;
     }
@@ -2053,18 +2053,18 @@ _L87: /*,*/
         goto _L8702;
     /*for-list separator:*/
     do {
-        production_of_object_program(1L, &V);
+        production_of_object_program(1, &V);
     } while (thenelse(&V));
 _L8701:
     if ((store[tlsc - 1] & (d8 - 1)) == 85) /*for*/
-        fill_result_list(21L, 0L);
+        fill_result_list(21, 0);
     /*for2*/
     else { /*while*/
         tlsc--;
         if ((store[tlsc] & (d8 - 1)) == 96) /*for4*/
-            fill_result_list(23L, 0L);
+            fill_result_list(23, 0);
         else {
-            fill_result_list(26L, 0L);
+            fill_result_list(26, 0);
             /*for7*/
         }
     }
@@ -2102,7 +2102,7 @@ _L8702:
                         store[tlsc - 2] = pstb;
                     goto _L8704;
                 } else {
-                    fill_result_list(98L, 0L);
+                    fill_result_list(98, 0);
                     goto _L8703;
                 }
             } else {
@@ -2111,17 +2111,17 @@ _L8702:
             }
         } else {
             store[tlsc - 2] += d19 + d20 + d24; /*EIS*/
-            fill_result_list(13L, 0L);
+            fill_result_list(13, 0);
             goto _L8704;
         }
     }
     /*completion of implicit subroutine:*/
 _L8703: /*completion of implicit subroutine:*/
     do {
-        production_of_object_program(1L, &V);
+        production_of_object_program(1, &V);
     } while (thenelse(&V) | do_in_t_list(&V));
     store[tlsc - 2] += d20 + d24; /*EIS*/
-    fill_result_list(13L, 0L);
+    fill_result_list(13, 0);
 _L8704:
     if (dl == 87)    /*,*/
         goto _L9804; /*prepare next parameter*/
@@ -2134,12 +2134,12 @@ _L8704:
         if (((pstb / d16) & 1) == 0)
             fill_result_list(pstb / d24, pstb & (d24 - 1));
         else
-            fill_result_list(0L, pstb);
+            fill_result_list(0, pstb);
         unload_t_list_element(&pstb, &V);
     }
     tlsc--;
     fill_future_list(flib + store[tlsc], rlsc, &V); /*2A 'psta' A*/
-    fill_result_list(0L, psta + 4718592L);
+    fill_result_list(0, psta + 4718592);
     bn--;
     unload_t_list_element(&fflag, &V);
     unload_t_list_element(&eflag, &V);
@@ -2198,7 +2198,7 @@ _L92: /*:=*/
             /*assignment to function identifier*/
             fill_t_list_with_delimiter(&V);
         } else {
-            fill_result_list(2L, flsc + 88080384L);
+            fill_result_list(2, flsc + 88080384);
             fill_t_list(flsc);
             flsc++;
             fill_t_list(nid);
@@ -2214,16 +2214,16 @@ _L92: /*:=*/
         eflag = 1;
         if (nflag != 0) /*FOR1*/
             generate_address(&V);
-        fill_result_list(20L, 0L);
+        fill_result_list(20, 0);
         forc = flsc; /*2T 'flsc'*/
-        fill_result_list(2L, flsc + 88080384L);
+        fill_result_list(2, flsc + 88080384);
         flsc++;
         fill_future_list(flib + fora, rlsc, &V); /*2A 0 A*/
-        fill_result_list(0L, 4718592L);
+        fill_result_list(0, 4718592);
         fora = flsc; /*2B 'flsc*/
-        fill_result_list(2L, flsc + 71303168L);
+        fill_result_list(2, flsc + 71303168);
         flsc++; /*ETMP*/
-        fill_result_list(9L, 0L);
+        fill_result_list(9, 0);
     }
     /*for statement*/
     goto _L1;
@@ -2231,19 +2231,19 @@ _L92: /*:=*/
 _L94: /*step*/
     /*FH*/
     empty_t_list_through_thenelse(&V); /*FOR5*/
-    fill_result_list(24L, 0L);
+    fill_result_list(24, 0);
     goto _L1;
 
 _L95: /*until*/
     /*FK*/
     empty_t_list_through_thenelse(&V); /*FOR6*/
-    fill_result_list(25L, 0L);
+    fill_result_list(25, 0);
     goto _L8501;
 
 _L96: /*while*/
     /*FF*/
     empty_t_list_through_thenelse(&V); /*FOR3*/
-    fill_result_list(22L, 0L);
+    fill_result_list(22, 0);
     goto _L8501;
 
 _L98: /*(*/
@@ -2260,7 +2260,7 @@ _L9802:
     goto _L1;
 _L9803:                      /*begin of parameter list:*/
     procedure_statement(&V); /*2T 'flsc'*/
-    fill_result_list(2L, flsc + 88080384L);
+    fill_result_list(2, flsc + 88080384);
     fill_t_list(iflag);
     fill_t_list(vflag);
     fill_t_list(mflag);
@@ -2286,7 +2286,7 @@ _L99: /*)*/
     if (mflag == 1)
         goto _L8702;
     do {
-        production_of_object_program(1L, &V);
+        production_of_object_program(1, &V);
     } while (thenelse(&V));
     tlsc--;
     unload_t_list_element(&mflag, &V);
@@ -2315,14 +2315,14 @@ _L100: /*[*/
 _L101: /*]*/
     /*EF*/
     do {
-        production_of_object_program(1L, &V);
+        production_of_object_program(1, &V);
     } while (thenelse(&V));
     tlsc--;
     if (iflag == 0)                            /*2S 'aic' A*/
     {                                          /*array declaration:*/
-        fill_result_list(0L, aic + 21495808L); /*RSF*/
+        fill_result_list(0, aic + 21495808); /*RSF*/
         /*RSF or ISF*/
-        fill_result_list(ibd + 90, 0L);
+        fill_result_list(ibd + 90, 0);
         arrb = d15 + d25 + d26;
         if (ibd == 1)
             arrb += d19;
@@ -2350,12 +2350,12 @@ _L101: /*]*/
     unload_t_list_element(&eflag, &V);
     if (jflag == 0) { /*subscripted variable:*/
         aflag = 1;    /*IND*/
-        fill_result_list(56L, 0L);
+        fill_result_list(56, 0);
         goto _L1;
     }
     /*switch designator:*/
     nflag = 1; /*SSI*/
-    fill_result_list(29L, 0L);
+    fill_result_list(29, 0);
     read_next_symbol();
     id    = store[nlib + nid];
     pflag = 0;
@@ -2376,13 +2376,13 @@ _L102: /*|<*/
             qb += dl * qa;
             qa *= d8;
             if (qa == d24) {
-                fill_result_list(0L, qb);
+                fill_result_list(0, qb);
                 qb = 0;
                 qa = 1;
             }
         }
     } while (qc != 0);
-    fill_result_list(0L, qb + qa * 255);
+    fill_result_list(0, qb + qa * 255);
     oflag = 0;
     goto _L1;
 
@@ -2403,7 +2403,7 @@ _L105: /*end*/
             tlsc -= 3;
             nlsc = store[tlsc + 1];
             fill_future_list(flib + store[tlsc], rlsc + 1, &V); /*RET*/
-            fill_result_list(12L, 0L);
+            fill_result_list(12, 0);
             bn--;
             goto _L105;
         }
@@ -2412,12 +2412,12 @@ _L105: /*end*/
         do {
             tlsc -= 2;
             /*2T 'stacked RLSC' A*/
-            fill_result_list(1L, store[tlsc] + 88604672L); /*switch comma*/
+            fill_result_list(1, store[tlsc] + 88604672); /*switch comma*/
         } while (store[tlsc - 1] == 160);
         tlsc--;
         unload_t_list_element(&nid, &V);
         label_declaration(&V); /*1T 16X1*/
-        fill_result_list(0L, 85983280L);
+        fill_result_list(0, 85983280);
         tlsc--;
         fill_future_list(flib + store[tlsc], rlsc, &V);
     }
@@ -2621,7 +2621,7 @@ _L112: /*procedure*/
     /*HY*/
     reservation_of_arrays(&V);
     new_block_by_declaration(&V); /*2T 'flsc'*/
-    fill_result_list(2L, flsc + 88080384L);
+    fill_result_list(2, flsc + 88080384);
     fill_t_list(flsc);
     flsc++;
     read_until_next_delimiter();
@@ -2694,14 +2694,14 @@ _L1124:
         store[nlib + nid] = id;
         address_to_register(&V); /*generates 2S 'PARD position' A*/
         if (spe == 0)            /*TRAD*/
-            fill_result_list(14L, 0L);
+            fill_result_list(14, 0);
         else
-            fill_result_list(16L, 0L);
+            fill_result_list(16, 0);
         /*TIAD*/
         address_to_register(&V); /*generates 2S 'PARD position' A*/
         /*TFR*/
-        fill_result_list(35L, 0L); /*ST*/
-        fill_result_list(85L, 0L);
+        fill_result_list(35, 0); /*ST*/
+        fill_result_list(85, 0);
     }
     if (dl == 87) { /*,*/
         read_until_next_delimiter();
@@ -2771,8 +2771,8 @@ Local Void complete_bitstock(struct LOC_program_loader *LINK)
                 bitcount++;
                 LINK->parity_word =
                     logical_sum(LINK->parity_word, LINK->parity_word / d4) & (d4 - 1);
-                if ((unsigned long)LINK->parity_word < 32 &&
-                    ((1L << LINK->parity_word) & 0x9669L) != 0)
+                if (LINK->parity_word < 32 &&
+                    ((1 << LINK->parity_word) & 0x9669) != 0)
                     stop(105, "Parity error on library tape");
                 LINK->heptade_count = -3;
                 LINK->parity_word   = w;
@@ -2826,7 +2826,7 @@ Local Void prepare_read_bit_string2(struct LOC_program_loader *LINK)
     LINK->from_store    = 0;
     complete_bitstock(LINK);
     do {
-    } while (read_bit_string(1L, LINK) != 1); /*prepare_read_bit_string2*/
+    } while (read_bit_string(1, LINK) != 1); /*prepare_read_bit_string2*/
 }
 
 Local Void prepare_read_bit_string3(struct LOC_program_loader *LINK)
@@ -2848,7 +2848,7 @@ Local Void prepare_read_bit_string3(struct LOC_program_loader *LINK)
     LINK->parity_word   = 1;
     complete_bitstock(LINK);
     do {
-    } while (read_bit_string(1L, LINK) != 1); /*prepare_read_bit_string3*/
+    } while (read_bit_string(1, LINK) != 1); /*prepare_read_bit_string3*/
 }
 
 Local int address_decoding(struct LOC_program_loader *LINK)
@@ -2922,14 +2922,14 @@ Local int read_mask(struct LOC_program_loader *LINK)
     char c;
 
     if (bitstock < d26) /*code starts with 0*/
-        c = read_bit_string(2L, LINK);
+        c = read_bit_string(2, LINK);
     /*0x*/
     else {
         if (bitstock < d26 + d25) /*01*/
-            c = read_bit_string(3L, LINK) - 2;
+            c = read_bit_string(3, LINK) - 2;
         /*10x*/
         else {
-            c = read_bit_string(6L, LINK) - 44;
+            c = read_bit_string(6, LINK) - 44;
             /*11xxxx*/
         }
     }
@@ -3058,7 +3058,7 @@ Local int read_binary_word(struct LOC_program_loader *LINK)
         return (opc_table[w]);
     } /*0*/
     else {
-        w   = read_bit_string(1L, LINK);
+        w   = read_bit_string(1, LINK);
         w   = read_mask(LINK);
         opc = w / d12;
         w   = (w & (d12 - 1)) * d15 + address_decoding(LINK);
@@ -3238,9 +3238,9 @@ Static Void program_loader()
     flsc = 0;
     /*load MCP's from store:*/
     prepare_read_bit_string2(&V);
-    V.ll = read_bit_string(13L, &V); /*for length or end marker*/
+    V.ll = read_bit_string(13, &V); /*for length or end marker*/
     while (V.ll < 7680) {
-        i              = read_bit_string(13L, &V); /*for MCP number*/
+        i              = read_bit_string(13, &V); /*for MCP number*/
         V.list_address = store[crfb + i];
         if (V.list_address != 0) {
             read_list(&V);
@@ -3253,7 +3253,7 @@ Static Void program_loader()
             } while (store[V.read_location] != d21 * 63);
         }
         prepare_read_bit_string2(&V);
-        V.ll = read_bit_string(13L, &V);
+        V.ll = read_bit_string(13, &V);
     }
     /*load MCP's from tape:*/
     while (mcp_count != 0) {
@@ -3272,9 +3272,9 @@ Static Void program_loader()
             exit(EXIT_FAILURE);
         }
         prepare_read_bit_string3(&V);
-        V.ll = read_bit_string(13L, &V); /*for length or end marker*/
+        V.ll = read_bit_string(13, &V); /*for length or end marker*/
         while (V.ll < 7680) {
-            i              = read_bit_string(13L, &V); /*for MCP number*/
+            i              = read_bit_string(13, &V); /*for MCP number*/
             if (verbose_tape)
                 printf("Reading MCP %d, length %d\n", i, V.ll);
             if (i > 50) {
@@ -3309,7 +3309,7 @@ Static Void program_loader()
             prepare_read_bit_string3(&V);
             if (feof(lib_tape))
                 break;          /* The tape has ended */
-            V.ll = read_bit_string(13L, &V);
+            V.ll = read_bit_string(13, &V);
         }
         fclose(lib_tape);
     }
@@ -3613,7 +3613,7 @@ int main(int argc, char *argv[])
     nlsc = nlsc0;
     tlsc = tlib;
     gvc  = gvc0;
-    fill_t_list(161L);
+    fill_t_list(161);
     /*prefill of name list:*/
     prefill_op_proc("read", 102);
     prefill_op_proc("print", 103);
@@ -3654,11 +3654,11 @@ int main(int argc, char *argv[])
     bitcount = 0;
     bitstock = 0;
     rnsb     = bim; /*START*/
-    fill_result_list(96L, 0L);
+    fill_result_list(96, 0);
     pos_ = 0;
     main_scan(); /*EL*/
     /*STOP*/
-    fill_result_list(97L, 0L);
+    fill_result_list(97, 0);
 
     /*writeln; writeln('FLI:');
     for bn:= 0 to flsc-1 do
@@ -3715,14 +3715,14 @@ int main(int argc, char *argv[])
 
     ii = crfb*2;
     /* Length of MCP0 is 30, not needed by any other MCP, etc. */
-    put_crf_entry(&ii, 30, 0, 7680);
-    put_crf_entry(&ii, 20, 1, 7680);
-    put_crf_entry(&ii, 12, 2, 7680);
-    put_crf_entry(&ii, 63, 3, 7680);
+    put_crf_entry(&ii, 30, 0, 7680); /* SUM */
+    put_crf_entry(&ii, 20, 1, 7680); /* PRINTTEXT */
+    put_crf_entry(&ii, 12, 2, 7680); /* EVEN */
+    put_crf_entry(&ii, 63, 3, 7680); /* arctan */
     put_crf_entry(&ii, 15, 4, 3, 7680); /* MCP4 is needed by MCP3 */
-    put_crf_entry(&ii, 100, 5, 7680);
-    put_crf_entry(&ii, 134, 6, 24, 7680); /* MCP6 is needed by MCP24 */
-    put_crf_entry(&ii, 21, 24, 7680);
+    put_crf_entry(&ii, 100, 5, 7680);   /* FLOT */
+    put_crf_entry(&ii, 134, 6, 24, 7680); /* MCP6 (FIXT) is needed by MCP24 */
+    put_crf_entry(&ii, 21, 24, 7680);     /* ABSFIXT */
     put_crf_entry(&ii, 7680);
     put_crf_entry(&ii, 7680);
 
