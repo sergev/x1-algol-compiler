@@ -3,6 +3,7 @@
 
 #include <cmath>
 #include <iostream>
+#include <sstream>
 
 //
 // Reset routine
@@ -721,8 +722,11 @@ bool Processor::call_opc(unsigned opc)
     //TODO: case OPC_stop:
     //TODO: case OPC_P21:
 
-    default:
-        throw std::runtime_error("Unknown OPC " + std::to_string(opc));
+    default: {
+        std::ostringstream ostr;
+        x1_print_instruction(ostr, opc);
+        throw std::runtime_error("NYI OPC " + ostr.str());
+    }
     }
     return false;
 }
