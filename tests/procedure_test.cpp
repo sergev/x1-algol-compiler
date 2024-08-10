@@ -113,6 +113,24 @@ TEST_F(x1_machine, arg1_real_by_name)
     EXPECT_EQ(output, expect);
 }
 
+TEST_F(x1_machine, integer_factorial)
+{
+    auto output = compile_and_run(R"(
+        _b_e_g_i_n
+            _i_n_t_e_g_e_r _p_r_o_c_e_d_u_r_e fact(num);
+                _v_a_l_u_e num;
+                _i_n_t_e_g_e_r num;
+            _b_e_g_i_n
+                fact := _i_f num < 2 _t_h_e_n 1 _e_l_s_e num * fact(num - 1);
+            _e_n_d;
+            print(fact(3));
+        _e_n_d
+    )");
+    const std::string expect = R"(6
+)";
+    EXPECT_EQ(output, expect);
+}
+
 TEST_F(x1_machine, man_or_boy)
 {
     // Only compile for now.

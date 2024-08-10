@@ -128,7 +128,14 @@ bool Processor::step()
 bool Processor::call_opc(unsigned opc)
 {
     switch (opc) {
-    //TODO: case OPC_ETMR: // extransmark result
+    case OPC_ETMR:
+        // extransmark result
+        // Invoke a function which address is located in register B.
+        // Number of arguments is present in register A.
+        frame_create(OT, 0, core.A);
+        OT = core.B;
+        break;
+
     case OPC_ETMP:
         // extransmark procedure
         // Invoke a procedure which address is located in register B.
@@ -670,7 +677,14 @@ bool Processor::call_opc(unsigned opc)
         break;
     }
     //TODO: case OPC_STA:  // store also
-    //TODO: case OPC_STP:  // store procedure value
+    case OPC_STP: {
+        // store procedure value
+        // Block level is present in register B.
+        // Zero means the current procedure.
+        auto src = stack.pop();
+        store_result(core.B, src);
+        break;
+    }
     //TODO: case OPC_STAP: // store also procedure value
 
     case OPC_SCC:
@@ -867,4 +881,22 @@ void Processor::store_value(const Stack_Cell &dest, const Stack_Cell &src)
         throw std::runtime_error("Bad destination");
     }
 
+}
+
+//
+// Store a result of procedure, given by src cell.
+//
+void Processor::store_result(unsigned block_level, const Stack_Cell &src)
+{
+    unsigned fp   = display[block_level + 1];
+    unsigned addr = stack.get(fp + 2).get_addr();
+
+    if (src.is_real_value()) {
+        Real result = src.get_real();
+        machine.mem_store(addr, (result >> 27) & BITS(27));
+        machine.mem_store(addr + 1, result & BITS(27));
+    } else {
+        Word result = src.get_int();
+        machine.mem_store(addr, result);
+    }
 }

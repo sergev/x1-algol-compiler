@@ -158,6 +158,9 @@ void x1_print_instruction(std::ostream &out, unsigned cmd)
     case 052'20:
         out << "T := " << addr;
         break;
+    case 052'23:
+        out << "if !C then T := " << addr;
+        break;
     //TODO: process other instructions
     case 0:
         switch (addr) {
