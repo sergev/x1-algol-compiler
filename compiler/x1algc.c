@@ -29,7 +29,7 @@ void PASCAL_MAIN(int argc, char **argv)
 
 int P_eof(FILE *f)
 {
-    register int ch;
+    int ch;
 
     if (feof(f))
         return 1;
@@ -67,10 +67,21 @@ int P_eof(FILE *f)
 #define d26 67108864
 #define mz  134217727
 
+#ifdef MCP_EVEN
+#ifdef MCP_PRINTTEXT
+#error "Please enable no more than one embedded MCP for now"
+#else
+#define MCPLEN 12
+#endif
+#elif defined(MCP_PRINTTEXT)
+#define MCPLEN 22
+#else
+#define MCPLEN 0
+#endif
 #define gvc0   138  /*0-04-10*/
 #define tlib   800  /*0-25-00*/
 #define plie   6783 /*6-19-31*/
-#define bim    942  /*0-29-14 - was 930, increased by length of EVEN */
+#define bim    (mcpb+MCPLEN+2)  /*0-29-nn */
 #define nlscop 31
 #define nlsc0  48
 #define mlib   800   /*0-25-00*/
@@ -459,7 +470,7 @@ Local retType test2()
     return test1();
 } /*test2*/
 
-Local boolean test3()
+Local retType test3()
 {
     read_next_symbol();
     return test1();
@@ -1238,13 +1249,13 @@ struct LOC_main_scan {
     jmp_buf _JL9801;
 };
 
-Local Void fill_t_list_with_delimiter(struct LOC_main_scan *LINK)
+Local Void fill_t_list_with_delimiter()
 {
     /*ZW*/
     fill_t_list(d8 * oh + dl);
 } /*fill_t_list_with_delimiter*/
 
-Local Void fill_future_list(int place, int value, struct LOC_main_scan *LINK)
+Local Void fill_future_list(int place, int value)
 {
     /*FU*/
     int i, FORLIM;
@@ -1261,7 +1272,7 @@ Local Void fill_future_list(int place, int value, struct LOC_main_scan *LINK)
     store[place] = value;
 } /*fill_future_list*/
 
-Local Void fill_constant_list(int n, struct LOC_main_scan *LINK)
+Local Void fill_constant_list(int n)
 {
     /*KU*/
     int i, FORLIM;
@@ -1282,14 +1293,14 @@ Local Void fill_constant_list(int n, struct LOC_main_scan *LINK)
     klsc++;
 } /*fill_constant_list*/
 
-Local Void unload_t_list_element(int *variable, struct LOC_main_scan *LINK)
+Local Void unload_t_list_element(int *variable)
 {
     /*ZU*/
     tlsc--;
     *variable = store[tlsc];
 } /*unload_t_list_element*/
 
-Local Void fill_output(int c, struct LOC_main_scan *LINK)
+Local Void fill_output(int c)
 {
     pos_++;
     if (c < 10) {
@@ -1317,22 +1328,22 @@ Local Void fill_output(int c, struct LOC_main_scan *LINK)
     }
 } /*fill_output*/
 
-Local Void offer_character_to_typewriter(int c, struct LOC_main_scan *LINK)
+Local Void offer_character_to_typewriter(int c)
 {
     /*HS*/
     c &= 63;
     if (c < 63)
-        fill_output(c, LINK);
+        fill_output(c);
 } /*offer_character_to_typewriter*/
 
-Local Void label_declaration(struct LOC_main_scan *LINK)
+Local Void label_declaration()
 {
     /*FY*/
     int id1, id2, i, w;
 
     id1 = store[nlib + nid];
     if (((id1 / d15) & 1) == 0) /*preceding applied occurrences*/
-        fill_future_list(flib + (id1 & (d15 - 1)), rlsc, LINK);
+        fill_future_list(flib + (id1 & (d15 - 1)), rlsc);
     else
         store[nlib + nid] = id1 - d15 + d24 + rlsc;
     /*first occurrence*/
@@ -1345,7 +1356,7 @@ Local Void label_declaration(struct LOC_main_scan *LINK)
             id1 /= d6;
         }
         do {
-            offer_character_to_typewriter(id1, LINK);
+            offer_character_to_typewriter(id1);
             i--;
             id1 /= d6;
         } while (i != 0);
@@ -1357,7 +1368,7 @@ Local Void label_declaration(struct LOC_main_scan *LINK)
         id2 = w;
         i   = 9;
         do {
-            offer_character_to_typewriter(id1, LINK);
+            offer_character_to_typewriter(id1);
             i--;
             w   = id2 / d6 + (id1 & (d6 - 1)) * d21;
             id1 = id1 / d6 + (id2 & (d6 - 1)) * d21;
@@ -1365,19 +1376,19 @@ Local Void label_declaration(struct LOC_main_scan *LINK)
         } while (i != 0);
     }
     /*TAB*/
-    fill_output(138, LINK);
+    fill_output(138);
     w = rlsc;
     for (i = 1; i <= 3; i++) { /*NLCR*/
-        offer_character_to_typewriter(w / d10 / 10, LINK);
-        offer_character_to_typewriter(w / d10 % 10, LINK);
+        offer_character_to_typewriter(w / d10 / 10);
+        offer_character_to_typewriter(w / d10 % 10);
         w = (w & (d10 - 1)) * d5;
         if (i < 3) /*SPACE*/
-            fill_output(184, LINK);
+            fill_output(184);
     }
-    fill_output(139, LINK);
+    fill_output(139);
 } /*label_declaration*/
 
-Local Void test_first_occurrence(struct LOC_main_scan *LINK)
+Local Void test_first_occurrence()
 {
     /*LF*/
     id = store[nlib + nid];
@@ -1385,12 +1396,12 @@ Local Void test_first_occurrence(struct LOC_main_scan *LINK)
         return;
     id += d24 * 2 - (id & (d15 - 1)) - d15 + flsc;
     if (nid <= nlsc0) /*MCP*/
-        fill_future_list(flib + flsc, store[nlib + nid], LINK);
+        fill_future_list(flib + flsc, store[nlib + nid]);
     store[nlib + nid] = id;
     flsc++;
 } /*test_first_occurrence*/
 
-Local Void new_block_by_declaration1(struct LOC_main_scan *LINK)
+Local Void new_block_by_declaration1()
 { /*2B 'bn' A*/
     /*HU*/
     fill_result_list(0, bn + 71827456); /*SCC*/
@@ -1399,7 +1410,7 @@ Local Void new_block_by_declaration1(struct LOC_main_scan *LINK)
     vlam = pnlv;
 } /*new_block_by_declaration1*/
 
-Local Void new_block_by_declaration(struct LOC_main_scan *LINK)
+Local Void new_block_by_declaration()
 {
     /*HU*/
     if (store[tlsc - 2] == 161) /*block-begin marker*/
@@ -1414,10 +1425,10 @@ Local Void new_block_by_declaration(struct LOC_main_scan *LINK)
     flsc++;
     intro_new_block(); /*begin*/
     fill_t_list(104);
-    new_block_by_declaration1(LINK);
+    new_block_by_declaration1();
 } /*new_block_by_declaration*/
 
-Local Void fill_name_list(struct LOC_main_scan *LINK)
+Local Void fill_name_list()
 {
     /*HN*/
     nlsc += dflag + 2;
@@ -1429,7 +1440,7 @@ Local Void fill_name_list(struct LOC_main_scan *LINK)
         store[nlib + nlsc - 3] = fnw;
 } /*fill_name_list*/
 
-Local Void reservation_of_local_variables(struct LOC_main_scan *LINK)
+Local Void reservation_of_local_variables()
 {
     /*KY*/
     if (lvc <= 0) /*2A 'lvc' A*/
@@ -1439,7 +1450,7 @@ Local Void reservation_of_local_variables(struct LOC_main_scan *LINK)
     fill_result_list(0, 8388658);
 } /*reservation_of_local_variables*/
 
-Local Void address_to_register(struct LOC_main_scan *LINK)
+Local Void address_to_register()
 {
     /*ZR*/
     if (((id / d15) & 1) != 0) { /*static addressing*/
@@ -1455,12 +1466,12 @@ Local Void address_to_register(struct LOC_main_scan *LINK)
         fill_result_list((id / d24) & 3, (id & (d15 - 1)) + 71827456);
 } /*address_to_register*/
 
-Local Void generate_address(struct LOC_main_scan *LINK)
+Local Void generate_address()
 {
     /*ZH*/
     int opc = 14;
 
-    address_to_register(LINK);
+    address_to_register();
     if (((id / d16) & 1) == 1) { /*formal*/
         fill_result_list(18, 0);
         return;
@@ -1474,7 +1485,7 @@ Local Void generate_address(struct LOC_main_scan *LINK)
     fill_result_list(opc, 0);
 } /*generate_address*/
 
-Local Void reservation_of_arrays(struct LOC_main_scan *LINK)
+Local Void reservation_of_arrays()
 {
     /*KN*/
     if (vlam == 0)
@@ -1488,7 +1499,7 @@ Local Void reservation_of_arrays(struct LOC_main_scan *LINK)
     while (rlab != rlaa) {
         id = Rstore(rlab - 1);
         if (id >= d26 && id < d25 + d26) { /*value array:*/
-            address_to_register(LINK);
+            address_to_register();
             if (((id / d19) & 1) == 0) /*RVA*/
                 fill_result_list(92, 0);
             else
@@ -1507,11 +1518,11 @@ Local Void reservation_of_arrays(struct LOC_main_scan *LINK)
         if (Rstore(rlab - 1) >= d26) {
             id = store[rlab - 1] - d26;
             if (id < d25) {
-                address_to_register(LINK); /*VAP*/
+                address_to_register(); /*VAP*/
                 fill_result_list(95, 0);
             } else { /*LAP*/
                 id -= d25;
-                address_to_register(LINK);
+                address_to_register();
                 fill_result_list(94, 0);
             }
         }
@@ -1528,11 +1539,11 @@ Local Void procedure_statement(struct LOC_main_scan *LINK)
 {
     /*LH*/
     if (eflag == 0)
-        reservation_of_arrays(LINK);
+        reservation_of_arrays();
     if (nid > nlscop) {
         if (fflag == 0)
-            test_first_occurrence(LINK);
-        address_to_register(LINK);
+            test_first_occurrence();
+        address_to_register();
         return;
     }
     fill_t_list(store[nlib + nid] & (d12 - 1));
@@ -1542,7 +1553,7 @@ Local Void procedure_statement(struct LOC_main_scan *LINK)
     }
 } /*procedure_statement*/
 
-Local Void production_transmark(struct LOC_main_scan *LINK)
+Local Void production_transmark()
 {
     /*ZL*/
     fill_result_list(fflag * 2 - eflag + 9, 0);
@@ -1559,7 +1570,7 @@ Local Void production_of_object_program(int opht, struct LOC_main_scan *LINK)
         aflag = 0;
         if (pflag == 0) {
             if (jflag == 0) {
-                address_to_register(LINK);
+                address_to_register();
                 if (oh > ((store[tlsc - 1] / d8) & 15))
                     operator_ = 315; /*5*63*/
                 else {
@@ -1585,7 +1596,7 @@ Local Void production_of_object_program(int opht, struct LOC_main_scan *LINK)
                     fill_result_list(0, block_number + 71827456); /*GTA*/
                     fill_result_list(28, 0);
                 }
-                test_first_occurrence(LINK);
+                test_first_occurrence();
                 if (((id / d24) & 3) == 2) {
                     /*2T 'address'*/
                     fill_result_list(2, (id & (d15 - 1)) + 88080384);
@@ -1594,14 +1605,14 @@ Local Void production_of_object_program(int opht, struct LOC_main_scan *LINK)
                     fill_result_list(1, (id & (d15 - 1)) + 88604672);
                 }
             } else {
-                address_to_register(LINK); /*TFR*/
+                address_to_register(); /*TFR*/
                 fill_result_list(35, 0);
             }
         } else { /*2A 0 A*/
             procedure_statement(LINK);
             if (nid > nlscop) {
                 fill_result_list(0, 4718592);
-                production_transmark(LINK);
+                production_transmark();
             }
         }
     } else if (aflag != 0) {
@@ -1639,13 +1650,13 @@ Local Void production_of_object_program(int opht, struct LOC_main_scan *LINK)
     }
 } /*production_of_object_program*/
 
-Local boolean thenelse(struct LOC_main_scan *LINK)
+Local boolean thenelse()
 {
     /*ZN*/
     if (store[tlsc - 1] % 255 == 83 || store[tlsc - 1] % 255 == 84) { /*then*/
         tlsc -= 2;
-        fill_future_list(flib + store[tlsc], rlsc, LINK);
-        unload_t_list_element(&eflag, LINK);
+        fill_future_list(flib + store[tlsc], rlsc);
+        unload_t_list_element(&eflag);
         return true;
     }
     /*else*/
@@ -1659,24 +1670,24 @@ Local Void empty_t_list_through_thenelse(struct LOC_main_scan *LINK)
     oflag = 1;
     do {
         production_of_object_program(1, LINK);
-    } while (thenelse(LINK)); /*empty_t_list_through_thenelse*/
+    } while (thenelse()); /*empty_t_list_through_thenelse*/
 }
 
-Local boolean do_in_t_list(struct LOC_main_scan *LINK)
+Local boolean do_in_t_list()
 {
     /*ER*/
     if (store[tlsc - 1] % 255 == 86) {
         tlsc -= 5;
         nlsc = store[tlsc + 2];
         bn--;
-        fill_future_list(flib + store[tlsc + 1], rlsc + 1, LINK); /*2T 0X0 A*/
+        fill_future_list(flib + store[tlsc + 1], rlsc + 1); /*2T 0X0 A*/
         fill_result_list(1, store[tlsc] + 88604672);
         return true;
     } else
         return false;
 } /*do_in_t_list*/
 
-Local Void look_for_name(struct LOC_main_scan *LINK)
+Local Void look_for_name()
 {
     /*HZ*/
     int i, w;
@@ -1706,7 +1717,7 @@ _L2:
     fflag = (id / d16) & 1;
 } /*look_for_name*/
 
-Local Void look_for_constant(struct LOC_main_scan *LINK)
+Local Void look_for_constant()
 {
     /*FW*/
     int i;
@@ -1754,9 +1765,9 @@ _L1:
 _L2:
     if (nflag != 0) {
         if (kflag == 0)
-            look_for_name(&V);
+            look_for_name();
         else
-            look_for_constant(&V);
+            look_for_constant();
     } else {
         jflag = 0;
         pflag = 0;
@@ -1777,137 +1788,110 @@ _L3:
     switch (dl) {
     case 81: /*goto*/
         goto _L81;
-        break;
         /*KR*/
 
     case 82: /*if*/
         goto _L82;
-        break;
         /*EY*/
 
     case 83: /*then*/
         goto _L83;
-        break;
         /*EN*/
 
     case 84: /*else*/
         goto _L84;
-        break;
         /*FZ*/
 
     case 85: /*for*/
         goto _L85;
-        break;
         /*FE*/
 
     case 86: /*do*/
         goto _L86;
-        break;
         /*FL*/
 
     case 87: /*,*/
         goto _L87;
-        break;
         /*EK*/
 
     case 90: /*:*/
         goto _L90;
-        break;
         /*FN*/
 
     case 91: /*;*/
         goto _L91;
-        break;
         /*FS*/
 
     case 92: /*:=*/
         goto _L92;
-        break;
         /*EZ*/
 
     case 94: /*step*/
         goto _L94;
-        break;
         /*FH*/
 
     case 95: /*until*/
         goto _L95;
-        break;
         /*FK*/
 
     case 96: /*while*/
         goto _L96;
-        break;
         /*FF*/
 
     case 98: /*(*/
         goto _L98;
-        break;
         /*EW*/
 
     case 99: /*)*/
         goto _L99;
-        break;
         /*EU*/
 
     case 100: /*[*/
         goto _L100;
-        break;
         /*EE*/
 
     case 101: /*]*/
         goto _L101;
-        break;
         /*EF*/
 
     case 102: /*|<*/
         goto _L102;
-        break;
         /*KS*/
 
     case 104: /*begin*/
         goto _L104;
-        break;
         /*LZ*/
 
     case 105: /*end*/
         goto _L105;
-        break;
         /*FS*/
 
     case 106: /*own*/
         goto _L106;
-        break;
         /*KH*/
 
     case 107: /*Boolean*/
         goto _L107;
-        break;
         /*KZ*/
 
     case 108: /*integer*/
         goto _L108;
-        break;
         /*KZ*/
 
     case 109: /*real*/
         goto _L109;
-        break;
         /*KE*/
 
     case 110: /*array*/
         goto _L110;
-        break;
         /*KF*/
 
     case 111: /*switch*/
         goto _L111;
-        break;
         /*HE*/
 
     case 112: /*procedure*/
         goto _L112;
-        break;
         /*HY*/
     }
 
@@ -1915,30 +1899,30 @@ _L64: /*+,-*/
     /*ES*/
     if (oflag == 0) {
         production_of_object_program(9, &V);
-        fill_t_list_with_delimiter(&V);
+        fill_t_list_with_delimiter();
     } else if (dl == 65) { /*-*/
         oh = 10;
         dl = 132; /*NEG*/
-        fill_t_list_with_delimiter(&V);
+        fill_t_list_with_delimiter();
     }
     goto _L1;
 _L66: /**,/,_:*/
     /*ET*/
     production_of_object_program(10, &V);
-    fill_t_list_with_delimiter(&V);
+    fill_t_list_with_delimiter();
     goto _L1;
 
 _L69: /*|^*/
     /*KT*/
     production_of_object_program(11, &V);
-    fill_t_list_with_delimiter(&V);
+    fill_t_list_with_delimiter();
     goto _L1;
 
 _L70: /*<,_<,=,_>,>,|=*/
     /*KK*/
     oflag = 1;
     production_of_object_program(8, &V);
-    fill_t_list_with_delimiter(&V);
+    fill_t_list_with_delimiter();
     goto _L1;
 
 _L76: /*~,^,`,=>,_=*/
@@ -1948,24 +1932,24 @@ _L76: /*~,^,`,=>,_=*/
         goto _L8202;
     }
     production_of_object_program(83 - dl, &V);
-    fill_t_list_with_delimiter(&V);
+    fill_t_list_with_delimiter();
     goto _L1;
 
 _L81: /*goto*/
     /*KR*/
-    reservation_of_arrays(&V);
+    reservation_of_arrays();
     goto _L1;
 
 _L82: /*if*/
     /*EY*/
     if (eflag == 0)
-        reservation_of_arrays(&V);
+        reservation_of_arrays();
     fill_t_list(eflag);
     eflag = 1;
 _L8201:
     oh = 0;
 _L8202:
-    fill_t_list_with_delimiter(&V);
+    fill_t_list_with_delimiter();
     oflag = 1;
     goto _L1;
 
@@ -1973,7 +1957,7 @@ _L83: /*then*/
     /*EN*/
     do {
         production_of_object_program(1, &V);
-    } while (thenelse(&V));
+    } while (thenelse());
     tlsc--;
     eflag = store[tlsc - 1];   /*CAC*/
     fill_result_list(30, 0); /*N 2T 'flsc'*/
@@ -1987,29 +1971,29 @@ _L84: /*else*/
     /*FZ*/
     production_of_object_program(1, &V);
     if ((store[tlsc - 1] & (d8 - 1)) == 84) { /*else*/
-        if (thenelse(&V))
+        if (thenelse())
             goto _L84;
     }
 _L8401:
-    if (do_in_t_list(&V))
+    if (do_in_t_list())
         goto _L8401;
     if (store[tlsc - 1] == 161) { /*block-begin marker*/
         tlsc -= 3;
         nlsc = store[tlsc + 1];
-        fill_future_list(flib + store[tlsc], rlsc + 1, &V); /*RET*/
+        fill_future_list(flib + store[tlsc], rlsc + 1); /*RET*/
         fill_result_list(12, 0);
         bn--;
         goto _L8401;
     }
     /*2T 'flsc'*/
     fill_result_list(2, flsc + 88080384);
-    if (thenelse(&V)) /*finds 'then'!*/
+    if (thenelse()) /*finds 'then'!*/
         tlsc++;       /*keep eflag in t_list*/
     goto _L8301;
 
 _L85: /*for*/
     /*FE*/
-    reservation_of_arrays(&V); /*2T 'flsc'*/
+    reservation_of_arrays(); /*2T 'flsc'*/
     fill_result_list(2, flsc + 88080384);
     fora = flsc;
     flsc++;
@@ -2018,7 +2002,7 @@ _L85: /*for*/
     bn++;
 _L8501:
     oh = 0;
-    fill_t_list_with_delimiter(&V);
+    fill_t_list_with_delimiter();
     goto _L1;
 
 _L86: /*do*/
@@ -2032,10 +2016,10 @@ _L8601:          /*returned from DDEL ,*/
     fill_t_list(flsc);
     flsc++; /*FOR8*/
     fill_result_list(27, 0);
-    fill_future_list(flib + fora, rlsc, &V); /*FOR0*/
+    fill_future_list(flib + fora, rlsc); /*FOR0*/
     fill_result_list(19, 0);               /*2T 0X0 A*/
     fill_result_list(1, store[tlsc - 2] + 88604672);
-    fill_future_list(flib + forc, rlsc, &V);
+    fill_future_list(flib + forc, rlsc);
     eflag = 0;
     intro_new_block1();
     goto _L8501;
@@ -2046,7 +2030,7 @@ _L87: /*,*/
     if (iflag == 1) { /*subscript separator:*/
         do {
             production_of_object_program(1, &V);
-        } while (thenelse(&V));
+        } while (thenelse());
         goto _L1;
     }
     if (vflag == 0)
@@ -2054,7 +2038,7 @@ _L87: /*,*/
     /*for-list separator:*/
     do {
         production_of_object_program(1, &V);
-    } while (thenelse(&V));
+    } while (thenelse());
 _L8701:
     if ((store[tlsc - 1] & (d8 - 1)) == 85) /*for*/
         fill_result_list(21, 0);
@@ -2080,7 +2064,7 @@ _L8702:
             if (store[tlsc - 2] == rlsc && fflag == 0 && jflag == 0 && nflag == 1) {
                 if (nid > nlscop) {
                     if (pflag == 1 && fflag == 0) /*non-formal procedure:*/
-                        test_first_occurrence(&V);
+                        test_first_occurrence();
                     /*PORD construction:*/
                     if (((id / d15) & 1) == 0) { /*static addressing*/
                         pstb = ((id / d24) & (d2 - 1)) * d24 + (id & (d15 - 1));
@@ -2119,7 +2103,7 @@ _L8702:
 _L8703: /*completion of implicit subroutine:*/
     do {
         production_of_object_program(1, &V);
-    } while (thenelse(&V) | do_in_t_list(&V));
+    } while (thenelse() | do_in_t_list());
     store[tlsc - 2] += d20 + d24; /*EIS*/
     fill_result_list(13, 0);
 _L8704:
@@ -2127,27 +2111,27 @@ _L8704:
         goto _L9804; /*prepare next parameter*/
     /*production of PORDs:*/
     psta = 0;
-    unload_t_list_element(&pstb, &V);
+    unload_t_list_element(&pstb);
     while ((pstb & (d8 - 1)) == 87) { /*,*/
         psta++;
-        unload_t_list_element(&pstb, &V);
+        unload_t_list_element(&pstb);
         if (((pstb / d16) & 1) == 0)
             fill_result_list(pstb / d24, pstb & (d24 - 1));
         else
             fill_result_list(0, pstb);
-        unload_t_list_element(&pstb, &V);
+        unload_t_list_element(&pstb);
     }
     tlsc--;
-    fill_future_list(flib + store[tlsc], rlsc, &V); /*2A 'psta' A*/
+    fill_future_list(flib + store[tlsc], rlsc); /*2A 'psta' A*/
     fill_result_list(0, psta + 4718592);
     bn--;
-    unload_t_list_element(&fflag, &V);
-    unload_t_list_element(&eflag, &V);
-    production_transmark(&V);
+    unload_t_list_element(&fflag);
+    unload_t_list_element(&eflag);
+    production_transmark();
     aflag = 0;
-    unload_t_list_element(&mflag, &V);
-    unload_t_list_element(&vflag, &V);
-    unload_t_list_element(&iflag, &V);
+    unload_t_list_element(&mflag);
+    unload_t_list_element(&vflag);
+    unload_t_list_element(&iflag);
     goto _L1;
 _L8705:
     empty_t_list_through_thenelse(&V);
@@ -2157,7 +2141,7 @@ _L8705:
     oh = 0;
     dl = 160;
     fill_t_list(rlsc);
-    fill_t_list_with_delimiter(&V);
+    fill_t_list_with_delimiter();
     goto _L1;
 
 _L90: /*:*/
@@ -2166,8 +2150,8 @@ _L90: /*:*/
         ic++;
         empty_t_list_through_thenelse(&V);
     } else {
-        reservation_of_arrays(&V);
-        label_declaration(&V);
+        reservation_of_arrays();
+        label_declaration();
     }
     /*label declaration*/
     goto _L1;
@@ -2177,7 +2161,7 @@ _L91:
 
 _L92: /*:=*/
     /*EZ*/
-    reservation_of_arrays(&V);
+    reservation_of_arrays();
     dl    = 128; /*ST*/
     oflag = 1;
     if (vflag == 0) {
@@ -2189,36 +2173,36 @@ _L92: /*:=*/
             oh = 2;
             if (pflag == 0) {   /*assignment to variable*/
                 if (nflag != 0) /*assignment to scalar*/
-                    generate_address(&V);
+                    generate_address();
             } else {
                 dl += 2; /*STP or STAP*/
                 /*bn from id*/
                 fill_t_list((id / d19) & (d5 - 1));
             }
             /*assignment to function identifier*/
-            fill_t_list_with_delimiter(&V);
+            fill_t_list_with_delimiter();
         } else {
             fill_result_list(2, flsc + 88080384);
             fill_t_list(flsc);
             flsc++;
             fill_t_list(nid);
             oh = 0;
-            fill_t_list_with_delimiter(&V);
+            fill_t_list_with_delimiter();
             dl = 160;
             fill_t_list(rlsc);
-            fill_t_list_with_delimiter(&V);
+            fill_t_list_with_delimiter();
         }
     } else { /*simple variable*/
         /*switch declaration*/
         /*2T 'flsc'*/
         eflag = 1;
         if (nflag != 0) /*FOR1*/
-            generate_address(&V);
+            generate_address();
         fill_result_list(20, 0);
         forc = flsc; /*2T 'flsc'*/
         fill_result_list(2, flsc + 88080384);
         flsc++;
-        fill_future_list(flib + fora, rlsc, &V); /*2A 0 A*/
+        fill_future_list(flib + fora, rlsc); /*2A 0 A*/
         fill_result_list(0, 4718592);
         fora = flsc; /*2B 'flsc*/
         fill_result_list(2, flsc + 71303168);
@@ -2256,7 +2240,7 @@ _L9801: /*parenthesis in expression:*/
     mflag = 0;
 _L9802:
     oh = 0;
-    fill_t_list_with_delimiter(&V);
+    fill_t_list_with_delimiter();
     goto _L1;
 _L9803:                      /*begin of parameter list:*/
     procedure_statement(&V); /*2T 'flsc'*/
@@ -2274,7 +2258,7 @@ _L9803:                      /*begin of parameter list:*/
     flsc++;
     oh = 0;
     bn++;
-    fill_t_list_with_delimiter(&V);
+    fill_t_list_with_delimiter();
     dl = 87; /*,*/
 _L9804:      /*prepare parsing of actual parameter:*/
     fill_t_list(rlsc);
@@ -2287,15 +2271,15 @@ _L99: /*)*/
         goto _L8702;
     do {
         production_of_object_program(1, &V);
-    } while (thenelse(&V));
+    } while (thenelse());
     tlsc--;
-    unload_t_list_element(&mflag, &V);
+    unload_t_list_element(&mflag);
     goto _L1;
 
 _L100: /*[*/
     /*EE*/
     if (eflag == 0)
-        reservation_of_arrays(&V);
+        reservation_of_arrays();
     oflag = 1;
     oh    = 0;
     fill_t_list(eflag);
@@ -2307,16 +2291,16 @@ _L100: /*[*/
     eflag = 1;
     iflag = 1;
     mflag = 0;
-    fill_t_list_with_delimiter(&V);
+    fill_t_list_with_delimiter();
     if (jflag == 0) /*of storage function*/
-        generate_address(&V);
+        generate_address();
     goto _L1;
 
 _L101: /*]*/
     /*EF*/
     do {
         production_of_object_program(1, &V);
-    } while (thenelse(&V));
+    } while (thenelse());
     tlsc--;
     if (iflag == 0)                            /*2S 'aic' A*/
     {                                          /*array declaration:*/
@@ -2342,12 +2326,12 @@ _L101: /*]*/
         eflag = 0;
         goto _L1;
     }
-    unload_t_list_element(&nid, &V);
-    unload_t_list_element(&jflag, &V);
-    unload_t_list_element(&fflag, &V);
-    unload_t_list_element(&mflag, &V);
-    unload_t_list_element(&iflag, &V);
-    unload_t_list_element(&eflag, &V);
+    unload_t_list_element(&nid);
+    unload_t_list_element(&jflag);
+    unload_t_list_element(&fflag);
+    unload_t_list_element(&mflag);
+    unload_t_list_element(&iflag);
+    unload_t_list_element(&eflag);
     if (jflag == 0) { /*subscripted variable:*/
         aflag = 1;    /*IND*/
         fill_result_list(56, 0);
@@ -2389,20 +2373,20 @@ _L102: /*|<*/
 _L104: /*begin*/
     /*LZ*/
     if (store[tlsc - 1] != 161) /*block-begin marker*/
-        reservation_of_arrays(&V);
+        reservation_of_arrays();
     goto _L8501;
 
 _L105: /*end*/
     /*FS*/
-    reservation_of_arrays(&V);
+    reservation_of_arrays();
     do {
         empty_t_list_through_thenelse(&V);
-    } while (do_in_t_list(&V));
+    } while (do_in_t_list());
     if (sflag == 0) {
         if (store[tlsc - 1] == 161) { /*blok-begin marker*/
             tlsc -= 3;
             nlsc = store[tlsc + 1];
-            fill_future_list(flib + store[tlsc], rlsc + 1, &V); /*RET*/
+            fill_future_list(flib + store[tlsc], rlsc + 1); /*RET*/
             fill_result_list(12, 0);
             bn--;
             goto _L105;
@@ -2415,11 +2399,11 @@ _L105: /*end*/
             fill_result_list(1, store[tlsc] + 88604672); /*switch comma*/
         } while (store[tlsc - 1] == 160);
         tlsc--;
-        unload_t_list_element(&nid, &V);
-        label_declaration(&V); /*1T 16X1*/
+        unload_t_list_element(&nid);
+        label_declaration(); /*1T 16X1*/
         fill_result_list(0, 85983280);
         tlsc--;
-        fill_future_list(flib + store[tlsc], rlsc, &V);
+        fill_future_list(flib + store[tlsc], rlsc);
     }
     /*end of switch declaration*/
     eflag = 0;
@@ -2441,7 +2425,7 @@ _L105: /*end*/
 
 _L106: /*own*/
     /*KH*/
-    new_block_by_declaration(&V);
+    new_block_by_declaration();
     read_next_symbol();
     if (dl == 109) /*real*/
         ibd = 0;
@@ -2459,7 +2443,7 @@ _L107: /*Boolean*/
 _L108: /*integer*/
     /*KZ*/
     ibd = 1;
-    new_block_by_declaration(&V);
+    new_block_by_declaration();
     read_until_next_delimiter();
 _L1081:
     if (nflag == 0) {
@@ -2477,7 +2461,7 @@ _L1082: /*static addressing*/
         gvc++;
     } else
         gvc += 2;
-    fill_name_list(&V);
+    fill_name_list();
     if (dl == 87) { /*,*/
         read_until_next_delimiter();
         goto _L1082;
@@ -2493,14 +2477,14 @@ _L1083: /*dynamic addressing*/
         pnlv += 64;
         lvc += 2;
     }
-    fill_name_list(&V);
+    fill_name_list();
     if (dl == 87) { /*,*/
         read_until_next_delimiter();
         goto _L1083;
     }
     read_until_next_delimiter();
     if (dl <= 106 || dl > 109) { /*own*/
-        reservation_of_local_variables(&V);
+        reservation_of_local_variables();
         goto _L2;
     }
     /*real*/
@@ -2511,7 +2495,7 @@ _L1083: /*dynamic addressing*/
     read_until_next_delimiter();
     if (nflag == 1)
         goto _L1083; /*more scalars*/
-    reservation_of_local_variables(&V);
+    reservation_of_local_variables();
     if (dl == 110) /*array*/
         goto _L1101;
     goto _L3;
@@ -2519,7 +2503,7 @@ _L1083: /*dynamic addressing*/
 _L109: /*real*/
     /*KE*/
     ibd = 0;
-    new_block_by_declaration(&V);
+    new_block_by_declaration();
     read_until_next_delimiter();
     if (nflag == 1)
         goto _L1081;
@@ -2528,7 +2512,7 @@ _L109: /*real*/
 _L110: /*array*/
     /*KF*/
     ibd = 0;
-    new_block_by_declaration(&V);
+    new_block_by_declaration();
 _L1101:
     if (bn != 0)
         goto _L1103;
@@ -2541,7 +2525,7 @@ _L1102: /*static bounds, constants only:*/
         arrb = tlsc;
         do { /*read identifier list:*/
             read_until_next_delimiter();
-            fill_name_list(&V); /*[*/
+            fill_name_list(); /*[*/
         } while (dl != 100);
         arrc = 0;
         fill_t_list(2 - ibd); /*delta[0]*/
@@ -2580,11 +2564,11 @@ _L1102: /*static bounds, constants only:*/
         arrd = nlsc;
         do { /*construction of storage function in constant list:*/
             store[nlib + arrd - 1] += klsc;
-            fill_constant_list(gvc, &V);
-            fill_constant_list(gvc + arrc, &V);
+            fill_constant_list(gvc);
+            fill_constant_list(gvc + arrc);
             tlsc = arrb;
             do {
-                fill_constant_list(store[tlsc], &V);
+                fill_constant_list(store[tlsc]);
                 tlsc++;
             } while (store[tlsc - 1] > 0);
             gvc -= store[tlsc - 1];
@@ -2604,7 +2588,7 @@ _L1103:        /*dynamic bounds,arithmetic expressions:*/
     do {
         aic++;
         read_until_next_delimiter();
-        fill_name_list(&V); /*,*/
+        fill_name_list(); /*,*/
     } while (dl == 87);
     eflag = 1;
     oflag = 1;
@@ -2612,30 +2596,30 @@ _L1103:        /*dynamic bounds,arithmetic expressions:*/
 
 _L111: /*switch*/
     /*HE*/
-    reservation_of_arrays(&V);
+    reservation_of_arrays();
     sflag = 1;
-    new_block_by_declaration(&V);
+    new_block_by_declaration();
     goto _L1;
 
 _L112: /*procedure*/
     /*HY*/
-    reservation_of_arrays(&V);
-    new_block_by_declaration(&V); /*2T 'flsc'*/
+    reservation_of_arrays();
+    new_block_by_declaration(); /*2T 'flsc'*/
     fill_result_list(2, flsc + 88080384);
     fill_t_list(flsc);
     flsc++;
     read_until_next_delimiter();
-    look_for_name(&V);
-    label_declaration(&V);
+    look_for_name();
+    label_declaration();
     intro_new_block();
-    new_block_by_declaration1(&V);
+    new_block_by_declaration1();
     if (dl == 91) /*;*/
         goto _L1;
     /*formal parameter list:*/
     do {
         read_until_next_delimiter();
         id = pnlv + d15 + d16;
-        fill_name_list(&V);
+        fill_name_list();
         pnlv += d5 * 2; /*reservation PARD*/
     } while (dl == 87);
     read_until_next_delimiter(); /*for ; after )*/
@@ -2652,7 +2636,7 @@ _L1121:
 _L1122:
     do {
         read_until_next_delimiter();
-        look_for_name(&V);
+        look_for_name();
         store[nlib + nid] += spe;
     } while (dl == 87);
     goto _L1121;
@@ -2686,19 +2670,19 @@ _L1123:                           /*specification part:*/
     if (dl == 110) /*array*/
         goto _L1122;
 _L1124:
-    look_for_name(&V);
+    look_for_name();
     store[nlib + nid] += spe;
     if (store[nlib + nid] >= d26) {
         id                = store[nlib + nid] - d26;
         id                = id / d17 * d17 + (id & (d16 - 1));
         store[nlib + nid] = id;
-        address_to_register(&V); /*generates 2S 'PARD position' A*/
+        address_to_register(); /*generates 2S 'PARD position' A*/
         if (spe == 0)            /*TRAD*/
             fill_result_list(14, 0);
         else
             fill_result_list(16, 0);
         /*TIAD*/
-        address_to_register(&V); /*generates 2S 'PARD position' A*/
+        address_to_register(); /*generates 2S 'PARD position' A*/
         /*TFR*/
         fill_result_list(35, 0); /*ST*/
         fill_result_list(85, 0);
@@ -3091,7 +3075,7 @@ Local int read_binary_word(struct LOC_program_loader *LINK)
     }
 } /*read_binary_word*/
 
-Local Void test_bit_stock(struct LOC_program_loader *LINK)
+Local Void test_bit_stock()
 {
     /*RH*/
     if (bitstock != d21 * 63) {
@@ -3101,7 +3085,7 @@ Local Void test_bit_stock(struct LOC_program_loader *LINK)
     }
 } /*test_bit_stock*/
 
-Local Void typ_address(int a, struct LOC_program_loader *LINK)
+Local Void typ_address(int a)
 {
     /*RT*/
     printf("\n%2d %2d %2d", a / 1024, (a & 1023) / 32, a & 31);
@@ -3124,7 +3108,7 @@ Local Void read_list(struct LOC_program_loader *LINK)
         }
         Wstore(LINK->list_address + i, w);
     } /*for i*/
-    test_bit_stock(LINK);
+    test_bit_stock();
 } /*read_list*/
 
 Local int read_crf_item(struct LOC_program_loader *LINK)
@@ -3230,7 +3214,7 @@ Static Void program_loader()
     read_list(&V);
     if (store[rlib] != opc_table[89]) /*START*/
         stop(101, "Start OPC overwritten");
-    typ_address(rlib, &V);
+    typ_address(rlib);
     /*copy MLI:*/
     for (i = 0; i <= 127; i++)
         store[crfb + i] = store[mlib + i];
@@ -3242,12 +3226,19 @@ Static Void program_loader()
     while (V.ll < 7680) {
         i              = read_bit_string(13, &V); /*for MCP number*/
         V.list_address = store[crfb + i];
+        if (verbose_tape) {
+            printf("Seeing MCP %d, length %d in store: ", i, V.ll);
+        }
         if (V.list_address != 0) {
+            if (verbose_tape)
+                printf("loading\n");
             read_list(&V);
-            test_bit_stock(&V);
+            test_bit_stock();
             mcp_count--;
             store[crfb + i] = 0;
         } else {
+            if (verbose_tape)
+                printf("skipping\n");
             do {
                 V.read_location--;
             } while (store[V.read_location] != d21 * 63);
@@ -3289,7 +3280,7 @@ Static Void program_loader()
             V.list_address = Rstore(crfb + i);
             if (V.list_address != 0) {
                 read_list(&V);
-                test_bit_stock(&V);
+                test_bit_stock();
                 mcp_count--;
                 store[crfb + i] = 0;
             } else {
@@ -3314,7 +3305,7 @@ Static Void program_loader()
         fclose(lib_tape);
     }
     /*program loading completed:*/
-    typ_address(mcpe, &V);
+    typ_address(mcpe);
 } /*program_loader*/
 
 int word1(const char * ss) {
@@ -3728,7 +3719,8 @@ int main(int argc, char *argv[])
 
     store[mcpb]     = d21 * 63; /* MCP list terminator */
 
-    /* even.src compiled with objfile -w */
+#ifdef MCP_EVEN
+    /* output of objfile -w 2 misc/even.src */
     store[mcpb + 1] = 0770000000;
     store[mcpb + 2] = 0070700640;
     store[mcpb + 3] = 0777777266;
@@ -3741,6 +3733,32 @@ int main(int argc, char *argv[])
     store[mcpb + 10] = 0554077777;
     store[mcpb + 11] = 0000224376;
     store[mcpb + 12] = 0000040030;
+#endif
+#ifdef MCP_PRINTTEXT
+    /* output of objfile -w 1 misc/printtext.src */
+    store[mcpb + 1] = 0770000000;
+    store[mcpb + 2] = 0146700640;
+    store[mcpb + 3] = 0777046401;
+    store[mcpb + 4] = 0742360022;
+    store[mcpb + 5] = 0544011177;
+    store[mcpb + 6] = 0001017742;
+    store[mcpb + 7] = 0600377553;
+    store[mcpb + 8] = 0753100101;
+    store[mcpb + 9] = 0736200427;
+    store[mcpb + 10] = 0630117777;
+    store[mcpb + 11] = 0477777607;
+    store[mcpb + 12] = 0777036162;
+    store[mcpb + 13] = 0633231031;
+    store[mcpb + 14] = 0010471277;
+    store[mcpb + 15] = 0224376644;
+    store[mcpb + 16] = 0377077500;
+    store[mcpb + 17] = 0633422024;
+    store[mcpb + 18] = 0320044777;
+    store[mcpb + 19] = 0060017742;
+    store[mcpb + 20] = 0620447761;
+    store[mcpb + 21] = 0400005407;
+    store[mcpb + 22] = 0000002002;
+#endif
 
     store[bim - 1] = d21 * 63;  /* Program code terminator */
 
