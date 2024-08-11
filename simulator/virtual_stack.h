@@ -32,9 +32,10 @@ struct Stack_Cell {
     unsigned get_addr() const { return value & BITS(15); }
     Word get_int() const { return value & BITS(27); }
     Real get_real() const { return value & BITS(54); }
+    bool is_null() const { return value == UINT64_MAX; }
 
     // Convert the value to string.
-    std::string to_string();
+    std::string to_string() const;
 
     // Compare this item and another one.
     bool is_less(const Stack_Cell &another) const;
@@ -81,6 +82,7 @@ public:
 
     // Get item by index.
     Stack_Cell get(unsigned index) const;
+    void set(unsigned index, const Stack_Cell &item);
 
     // Push any item on stack.
 

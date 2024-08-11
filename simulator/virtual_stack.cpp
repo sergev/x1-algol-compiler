@@ -91,7 +91,7 @@ bool Stack_Cell::is_equal(const Stack_Cell &another) const
 //
 // Convert the value to string.
 //
-std::string Stack_Cell::to_string()
+std::string Stack_Cell::to_string() const
 {
     std::ostringstream buf;
     switch (type) {
@@ -391,6 +391,18 @@ Stack_Cell Virtual_Stack::get(unsigned index) const
         throw std::runtime_error("No item #" + std::to_string(index) + " in stack");
     }
     return storage[index];
+}
+
+//
+// Set item by index.
+//
+void Virtual_Stack::set(unsigned index, const Stack_Cell &item)
+{
+    if (index >= storage.size()) {
+        throw std::runtime_error("No item #" + std::to_string(index) + " in stack");
+    }
+    storage[index] = item;
+    Machine::trace_stack(index, item.to_string(), "Write");
 }
 
 //

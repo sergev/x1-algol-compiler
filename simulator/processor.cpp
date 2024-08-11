@@ -149,11 +149,17 @@ bool Processor::call_opc(unsigned opc)
 
     //TODO: case OPC_FTMR: // formtransmark result
     //TODO: case OPC_FTMP: // formtransmark procedure
-    case OPC_RET:
+    case OPC_RET: {
         // return from procedure
         // Jump to address from stack.
+        auto result = stack.get(frame_ptr + 2);
         OT = frame_release();
+        if (!result.is_null()) {
+            // Push result on stack.
+            stack.push(result);
+        }
         break;
+    }
     case OPC_EIS: {
         // end of implicit subroutine
         auto item = stack.pop();
@@ -681,8 +687,10 @@ bool Processor::call_opc(unsigned opc)
         // store procedure value
         // Block level is present in register B.
         // Zero means the current procedure.
-        auto src = stack.pop();
-        store_result(core.B, src);
+        // Result is stored in stack frame at offset 2.
+        auto result = stack.pop();
+        auto addr   = 2 + display[core.B + 1];
+        stack.set(addr, result);
         break;
     }
     //TODO: case OPC_STAP: // store also procedure value
@@ -879,24 +887,5 @@ void Processor::store_value(const Stack_Cell &dest, const Stack_Cell &src)
     }
     default:
         throw std::runtime_error("Bad destination");
-    }
-
-}
-
-//
-// Store a result of procedure, given by src cell.
-//
-void Processor::store_result(unsigned block_level, const Stack_Cell &src)
-{
-    // Result is stored in stack frame at offset 2.
-    unsigned addr = 2 + display[block_level + 1];
-
-    if (src.is_real_value()) {
-        Real result = src.get_real();
-        machine.mem_store(addr, (result >> 27) & BITS(27));
-        machine.mem_store(addr + 1, result & BITS(27));
-    } else {
-        Word result = src.get_int();
-        machine.mem_store(addr, result);
     }
 }

@@ -124,9 +124,35 @@ TEST_F(x1_machine, return_integer)
                 div pi := entier(num / 3.14159265359);
             _e_n_d;
             print(div pi(9.99));
+            print(div pi(-15.5));
+            print(div pi(30.7));
         _e_n_d
     )");
     const std::string expect = R"(3
+-5
+9
+)";
+    EXPECT_EQ(output, expect);
+}
+
+TEST_F(x1_machine, return_real)
+{
+    auto output = compile_and_run(R"(
+        _b_e_g_i_n
+            _r_e_a_l _p_r_o_c_e_d_u_r_e mul pi(num);
+                _v_a_l_u_e num;
+                _i_n_t_e_g_e_r num;
+            _b_e_g_i_n
+                mul pi := num * 3.14159265359;
+            _e_n_d;
+            print(mul pi(2));
+            print(mul pi(-3));
+            print(mul pi(4));
+        _e_n_d
+    )");
+    const std::string expect = R"(6.283185307177
+-9.424777960769
+12.56637061435
 )";
     EXPECT_EQ(output, expect);
 }

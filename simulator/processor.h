@@ -101,9 +101,6 @@ private:
     // Store value given by src cell.
     // Write it to memory address given by dest cell.
     void store_value(const Stack_Cell &dest, const Stack_Cell &src);
-
-    // Store a result of procedure, given by src cell.
-    void store_result(unsigned block_level, const Stack_Cell &src);
 };
 
 #endif // X1_PROCESSOR_H
