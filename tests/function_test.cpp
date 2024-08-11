@@ -240,3 +240,27 @@ TEST_F(x1_machine, function_entier)
 )";
     EXPECT_EQ(output, expect);
 }
+
+TEST_F(x1_machine, DISABLED_function_EVEN)
+{
+    auto output = compile_and_run(R"(
+        _b_e_g_i_n
+            print(EVEN(0));
+            print(EVEN(1));
+            print(EVEN(-1));
+            print(EVEN(2));
+            print(EVEN(-2));
+            print(EVEN(3));
+            print(EVEN(-3));
+        _e_n_d
+    )");
+    const std::string expect = R"(1
+-1
+-1
+1
+1
+-1
+-1
+)";
+    EXPECT_EQ(output, expect);
+}

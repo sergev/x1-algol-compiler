@@ -67,17 +67,27 @@ int P_eof(FILE *f)
 #define d26 67108864
 #define mz  134217727
 
-#ifdef MCP_EVEN
+// For convenience, both PRINTTEXT and EVEN are in store by default.
+#define MCP_PRINTTEXT
+#define MCP_EVEN
+
+// MCP_xxx_LEN is the object bitstream length,
+// not the final procedure length in  memory.
+#define MCP_PRINTTEXT_LEN 22
+#define MCP_EVEN_LEN 12
+
 #ifdef MCP_PRINTTEXT
-#error "Please enable no more than one embedded MCP for now"
+#define MCP_EVEN_BASE MCP_PRINTTEXT_LEN
 #else
-#define MCPLEN 12
+#define MCP_EVEN_BASE 0
 #endif
-#elif defined(MCP_PRINTTEXT)
-#define MCPLEN 22
+
+#ifdef MCP_EVEN
+#define MCPLEN (MCP_EVEN_LEN+MCP_EVEN_BASE)
 #else
-#define MCPLEN 0
+#define MCP_LEN MP_EVEN_BASE
 #endif
+
 #define gvc0   138  /*0-04-10*/
 #define tlib   800  /*0-25-00*/
 #define plie   6783 /*6-19-31*/
@@ -3721,18 +3731,18 @@ int main(int argc, char *argv[])
 
 #ifdef MCP_EVEN
     /* output of objfile -w 2 misc/even.src */
-    store[mcpb + 1] = 0770000000;
-    store[mcpb + 2] = 0070700640;
-    store[mcpb + 3] = 0777777266;
-    store[mcpb + 4] = 0203764750;
-    store[mcpb + 5] = 0770734740;
-    store[mcpb + 6] = 0623777763;
-    store[mcpb + 7] = 0353003763;
-    store[mcpb + 8] = 0362037707;
-    store[mcpb + 9] = 0477515460;
-    store[mcpb + 10] = 0554077777;
-    store[mcpb + 11] = 0000224376;
-    store[mcpb + 12] = 0000040030;
+    store[mcpb + MCP_EVEN_BASE + 1] = 0770000000;
+    store[mcpb + MCP_EVEN_BASE + 2] = 0070700640;
+    store[mcpb + MCP_EVEN_BASE + 3] = 0777777266;
+    store[mcpb + MCP_EVEN_BASE + 4] = 0203764750;
+    store[mcpb + MCP_EVEN_BASE + 5] = 0770734740;
+    store[mcpb + MCP_EVEN_BASE + 6] = 0623777763;
+    store[mcpb + MCP_EVEN_BASE + 7] = 0353003763;
+    store[mcpb + MCP_EVEN_BASE + 8] = 0362037707;
+    store[mcpb + MCP_EVEN_BASE + 9] = 0477515460;
+    store[mcpb + MCP_EVEN_BASE + 10] = 0554077777;
+    store[mcpb + MCP_EVEN_BASE + 11] = 0000224376;
+    store[mcpb + MCP_EVEN_BASE + 12] = 0000040030;
 #endif
 #ifdef MCP_PRINTTEXT
     /* output of objfile -w 1 misc/printtext.src */
