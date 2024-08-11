@@ -129,3 +129,23 @@ TEST_F(x1_machine, arith_if_clause)
 )";
     EXPECT_EQ(output, expect);
 }
+
+TEST_F(x1_machine, variables)
+{
+    auto output = compile_and_run(R"(
+        _b_e_g_i_n _i_n_t_e_g_e_r i; _r_e_a_l r;
+            i := 1; r := 1.1; i := i + 10; r := r + 10.01;
+            print(i, r);
+            r := i; print(r);
+            i := 3.14159; print(i);
+            i := 2.71828; print(i);
+        _e_n_d
+)");
+    const std::string expect = R"(11
+11.11
+11
+3
+3
+)";
+    EXPECT_EQ(output, expect);
+}

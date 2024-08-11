@@ -162,7 +162,12 @@ bool Processor::call_opc(unsigned opc)
         stack.push_real_addr(addr);
         break;
     }
-    //TODO: case OPC_TRAS: // take real address static
+    case OPC_TRAS: {
+        // take real address static
+        // The static address is in register B.
+        stack.push_real_addr(core.B);
+        break;
+    }
     case OPC_TIAD: {
         // take integer address dynamic
         // Dynamic address is present in register S.
@@ -171,7 +176,12 @@ bool Processor::call_opc(unsigned opc)
         stack.push_int_addr(addr);
         break;
     }
-    //TODO: case OPC_TIAS: // take integer address static
+    case OPC_TIAS: {
+        // take integer address static
+        // The static address is in register B.
+        stack.push_int_addr(core.B);
+        break;
+    }
     case OPC_TFA: {
         // take formal address
         // Dynamic address is present in register S.
@@ -826,7 +836,7 @@ void Processor::store_value(const Stack_Cell &dest, const Stack_Cell &src)
         if (src.is_int_value()) {
             result = src.get_int();
         } else if (src.is_real_value()) {
-            throw std::runtime_error("Cannot store real as integer");
+            result = integer_to_x1((int) roundl(x1_to_ieee(src.get_real())));
         } else {
             throw std::runtime_error("Cannot store address");
         }
