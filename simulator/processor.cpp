@@ -132,7 +132,7 @@ bool Processor::call_opc(unsigned opc)
         // extransmark result
         // Invoke a function which address is located in register B.
         // Number of arguments is present in register A.
-        frame_create(OT, 0, core.A);
+        frame_create(OT, core.A, 0);
         OT = core.B;
         break;
 
@@ -143,7 +143,7 @@ bool Processor::call_opc(unsigned opc)
         // Save return address on stack.
         // Note: descriptors of procedure arguments are located
         // in memory 3 words before the return address.
-        frame_create(OT, 0, core.A);
+        frame_create(OT, core.A, UINT64_MAX);
         OT = core.B;
         break;
 
@@ -758,13 +758,13 @@ bool Processor::call_opc(unsigned opc)
 //
 // Create frame in stack for new procedure block.
 //
-void Processor::frame_create(unsigned ret_addr, unsigned result_addr, unsigned num_args)
+void Processor::frame_create(unsigned ret_addr, unsigned num_args, Real result)
 {
     auto new_frame_ptr = stack.count();
 
     stack.push_int_addr(frame_ptr);   // offset 0: previos frame pointer
     stack.push_int_addr(ret_addr);    // offset 1: return address
-    stack.push_int_addr(result_addr); // offset 2: address to store result
+    stack.push_real_value(result);    // offset 2: place for result
     stack.push_int_addr(stack_base);  // offset 3: base of the stack
 
     for (unsigned i = 0; i < num_args; i++) {
@@ -888,8 +888,8 @@ void Processor::store_value(const Stack_Cell &dest, const Stack_Cell &src)
 //
 void Processor::store_result(unsigned block_level, const Stack_Cell &src)
 {
-    unsigned fp   = display[block_level + 1];
-    unsigned addr = stack.get(fp + 2).get_addr();
+    // Result is stored in stack frame at offset 2.
+    unsigned addr = 2 + display[block_level + 1];
 
     if (src.is_real_value()) {
         Real result = src.get_real();

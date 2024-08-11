@@ -107,7 +107,11 @@ std::string Stack_Cell::to_string()
         break;
     }
     case Cell_Type::REAL_VALUE:
-        buf << "real " << x1_to_ieee(get_real());
+        if (value == UINT64_MAX) {
+            buf << "nan";
+        } else {
+            buf << "real " << x1_to_ieee(get_real());
+        }
         break;
     case Cell_Type::INTEGER_ADDRESS:
     case Cell_Type::REAL_ADDRESS:
