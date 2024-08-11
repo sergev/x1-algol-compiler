@@ -9,10 +9,11 @@
 // or array, the address of a real variable or array, an integer value, or a real value.
 //
 enum class Cell_Type {
-    INTEGER_ADDRESS,
-    REAL_ADDRESS,
-    INTEGER_VALUE,
-    REAL_VALUE,
+    NUL,             // Empty value
+    INTEGER_ADDRESS, // Address of integer value
+    REAL_ADDRESS,    // Address of real value
+    INTEGER_VALUE,   // Integer value in bits 26:0
+    REAL_VALUE,      // Real value in bits 53:0
 };
 
 //
@@ -23,6 +24,7 @@ struct Stack_Cell {
     uint64_t value;
 
     // Quick check of the type of the value.
+    bool is_null() const { return type == Cell_Type::NUL; }
     bool is_int_value() const { return type == Cell_Type::INTEGER_VALUE; }
     bool is_int_addr() const { return type == Cell_Type::INTEGER_ADDRESS; }
     bool is_real_value() const { return type == Cell_Type::REAL_VALUE; }
@@ -32,7 +34,6 @@ struct Stack_Cell {
     unsigned get_addr() const { return value & BITS(15); }
     Word get_int() const { return value & BITS(27); }
     Real get_real() const { return value & BITS(54); }
-    bool is_null() const { return value == UINT64_MAX; }
 
     // Convert the value to string.
     std::string to_string() const;
@@ -81,7 +82,7 @@ public:
     bool pop_boolean();
 
     // Get item by index.
-    Stack_Cell get(unsigned index) const;
+    Stack_Cell &get(unsigned index);
     void set(unsigned index, const Stack_Cell &item);
 
     // Push any item on stack.
@@ -100,6 +101,9 @@ public:
 
     // Push a standard floating point value.
     void push_ieee(long double value) { push(Cell_Type::REAL_VALUE, ieee_to_x1(value)); }
+
+    // Push null item.
+    void push_null() { push(Cell_Type::NUL, 0); }
 };
 
 #endif // X1_VIRTUAL_STACK_H

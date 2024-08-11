@@ -132,8 +132,11 @@ bool Processor::call_opc(unsigned opc)
         // extransmark result
         // Invoke a function which address is located in register B.
         // Number of arguments is present in register A.
-        frame_create(OT, core.A, 0);
+        frame_create(OT, core.A);
         OT = core.B;
+
+        // Expect result on return from procedure.
+        stack.get(2 + frame_ptr).type = Cell_Type::INTEGER_VALUE;
         break;
 
     case OPC_ETMP:
@@ -143,7 +146,7 @@ bool Processor::call_opc(unsigned opc)
         // Save return address on stack.
         // Note: descriptors of procedure arguments are located
         // in memory 3 words before the return address.
-        frame_create(OT, core.A, UINT64_MAX);
+        frame_create(OT, core.A);
         OT = core.B;
         break;
 
@@ -215,7 +218,7 @@ bool Processor::call_opc(unsigned opc)
         }
         default:
             // Call implicit subroutine.
-            frame_create(OT, 0, 0);
+            frame_create(OT, 0);
             OT = arg;
             break;
         }
@@ -302,7 +305,7 @@ bool Processor::call_opc(unsigned opc)
         }
         default:
             // Call implicit subroutine.
-            frame_create(OT, 0, 0);
+            frame_create(OT, 0);
             OT = arg;
             break;
         }
@@ -766,13 +769,13 @@ bool Processor::call_opc(unsigned opc)
 //
 // Create frame in stack for new procedure block.
 //
-void Processor::frame_create(unsigned ret_addr, unsigned num_args, Real result)
+void Processor::frame_create(unsigned ret_addr, unsigned num_args)
 {
     auto new_frame_ptr = stack.count();
 
     stack.push_int_addr(frame_ptr);   // offset 0: previos frame pointer
     stack.push_int_addr(ret_addr);    // offset 1: return address
-    stack.push_real_value(result);    // offset 2: place for result
+    stack.push_null();                // offset 2: place for result
     stack.push_int_addr(stack_base);  // offset 3: base of the stack
 
     for (unsigned i = 0; i < num_args; i++) {

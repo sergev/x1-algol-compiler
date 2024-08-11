@@ -107,15 +107,14 @@ std::string Stack_Cell::to_string() const
         break;
     }
     case Cell_Type::REAL_VALUE:
-        if (value == UINT64_MAX) {
-            buf << "nan";
-        } else {
-            buf << "real " << x1_to_ieee(get_real());
-        }
+        buf << "real " << x1_to_ieee(get_real());
         break;
     case Cell_Type::INTEGER_ADDRESS:
     case Cell_Type::REAL_ADDRESS:
         buf << "addr " << std::oct << get_addr();
+        break;
+    case Cell_Type::NUL:
+        buf << "nan";
         break;
     default:
         throw std::runtime_error("Bad cell type");
@@ -385,7 +384,7 @@ bool Virtual_Stack::pop_boolean()
 //
 // Get item by index.
 //
-Stack_Cell Virtual_Stack::get(unsigned index) const
+Stack_Cell &Virtual_Stack::get(unsigned index)
 {
     if (index >= storage.size()) {
         throw std::runtime_error("No item #" + std::to_string(index) + " in stack");

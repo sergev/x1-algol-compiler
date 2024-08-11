@@ -85,7 +85,7 @@ private:
     bool call_opc(unsigned opc);
 
     // Create frame in stack for new procedure block.
-    void frame_create(unsigned ret_addr, unsigned num_args, Real result);
+    void frame_create(unsigned ret_addr, unsigned num_args);
 
     // Deallocate frame in stack when leaving the procedure.
     // Return address is returned.
