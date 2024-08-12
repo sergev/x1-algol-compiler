@@ -1028,9 +1028,15 @@ bool Processor::call_opc(unsigned opc)
         case 89:
             std::cout << "⏨";
             break;
-        case 98 ... 103:
-            std::cout << "()[]`'"[core.S - 98];
+        case 98 ... 101:
+            std::cout << "()[]"[core.S - 98];
             break;
+        case 102:
+          std::cout << "‘";
+          break;
+        case 103:
+          std::cout << "’";
+          break;
         case 118:
             std::cout << '\t';
             break;
