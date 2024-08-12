@@ -693,7 +693,9 @@ bool Processor::call_opc(unsigned opc)
         // Result is stored in stack frame at offset 2.
         auto result = stack.pop();
         auto addr   = 2 + display[core.B + 1];
-        stack.set(addr, result);
+        if (!stack.get(addr).is_null()) {
+            stack.set(addr, result);
+        }
         break;
     }
     //TODO: case OPC_STAP: // store also procedure value
