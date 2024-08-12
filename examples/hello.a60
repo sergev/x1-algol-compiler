@@ -1,3 +1,4 @@
-_b_e_g_i_n
-    PRINTTEXT(|<Hello Algol|>); NLCR
-_e_n_d
+b̲e̲g̲i̲n̲
+    PRINTTEXT(`Hello `Algol'');
+    NLCR
+e̲n̲d̲

@@ -1,14 +1,14 @@
-_b_e_g_i_n
-  _i_n_t_e_g_e_r y;
-  
-  _i_n_t_e_g_e_r _p_r_o_c_e_d_u_r_e A(x);
-  _v_a_l_u_e x;
-  _i_n_t_e_g_e_r x;
-  _b_e_g_i_n
+b̲e̲g̲i̲n̲
+  i̲n̲t̲e̲g̲e̲r̲ y;
+
+  i̲n̲t̲e̲g̲e̲r̲ p̲r̲o̲c̲e̲d̲u̲r̲e̲ A(x);
+  v̲a̲l̲u̲e̲ x;
+  i̲n̲t̲e̲g̲e̲r̲ x;
+  b̲e̲g̲i̲n̲
      x := x + 2;
      print(x);
      A := x;
-  _e_n_d;
+  e̲n̲d̲;
   y := A(5);
   print(A(5));
-_e_n_d
+e̲n̲d̲

@@ -8,12 +8,12 @@ TEST_F(x1_machine, input_encoding)
     // a number on input. But for checking encoding it's all right.
     // We are not going to run it.
     compile(R"(
-        _b_e_g_i_n
+        b̲e̲g̲i̲n̲
             print(`0123456789');
             print(`abcdefghijklmnopqrstuvwxyz');
             print(`ABCDEFGHIJKLMNOPQRSTUVWXYZ');
             print(`+-*×/>=<¬∧∨,.⏨@:; ()[]');
-        _e_n_d
+        e̲n̲d̲
     )");
     // Note: symbols " ? _ are prohibited in strings.
     // Symbols | can be used only in digraphs.
@@ -61,7 +61,7 @@ TEST_F(x1_machine, input_encoding)
 TEST_F(x1_machine, digraph_encoding)
 {
     compile(R"(
-        _b_e_g_i_n
+        b̲e̲g̲i̲n̲
             print(` := ');
             print(` |∧ ');
             print(` |= ');
@@ -71,7 +71,7 @@ TEST_F(x1_machine, digraph_encoding)
             print(` _< ');
             print(` _¬ ');
             print(` _: ');
-        _e_n_d
+        e̲n̲d̲
     )");
 
     unsigned start = machine->get_entry(0);
@@ -91,9 +91,9 @@ TEST_F(x1_machine, digraph_encoding)
 TEST_F(x1_machine, string_quotes)
 {
     compile(R"(
-        _b_e_g_i_n
+        b̲e̲g̲i̲n̲
             print(`This is a `string'');
-        _e_n_d
+        e̲n̲d̲
     )");
 
     unsigned start = machine->get_entry(0);
@@ -145,12 +145,12 @@ TEST_F(x1_machine, virtual_stack)
 TEST_F(x1_machine, print_integers)
 {
     auto output = compile_and_run(R"(
-        _b_e_g_i_n
+        b̲e̲g̲i̲n̲
             print(123);
             print(-123, 67108863);
             print;
             print(-67108863, 0, -0);
-        _e_n_d
+        e̲n̲d̲
     )");
     const std::string expect = R"(123
 -123
@@ -166,13 +166,13 @@ TEST_F(x1_machine, print_integers)
 TEST_F(x1_machine, print_reals)
 {
     auto output = compile_and_run(R"(
-        _b_e_g_i_n
+        b̲e̲g̲i̲n̲
             print(123.456);
             print(-123.456, 1.615850303564⏨616);
             print;
             print(-1.615850303564⏨616, 0.0, -0.0);
             print(1.547173023691⏨-617, -1.547173023691⏨-617);
-        _e_n_d
+        e̲n̲d̲
     )");
     const std::string expect = R"(123.456
 -123.456

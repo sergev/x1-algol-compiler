@@ -5,12 +5,12 @@
 TEST_F(x1_machine, arith_add)
 {
     auto output = compile_and_run(R"(
-        _b_e_g_i_n
+        b̲e̲g̲i̲n̲
             print(3 + 4);
             print(3.25 + 4);
             print(3 + 4.625);
             print(3.25 + 4.625);
-        _e_n_d
+        e̲n̲d̲
 )");
     const std::string expect = R"(7
 7.25
@@ -23,12 +23,12 @@ TEST_F(x1_machine, arith_add)
 TEST_F(x1_machine, arith_subtract)
 {
     auto output = compile_and_run(R"(
-        _b_e_g_i_n
+        b̲e̲g̲i̲n̲
             print(3 - 4);
             print(3.25 - 4);
             print(3 - 4.625);
             print(3.25 - 4.625);
-        _e_n_d
+        e̲n̲d̲
 )");
     const std::string expect = R"(-1
 -0.75
@@ -41,12 +41,12 @@ TEST_F(x1_machine, arith_subtract)
 TEST_F(x1_machine, arith_multiply_constants)
 {
     auto output = compile_and_run(R"(
-        _b_e_g_i_n
+        b̲e̲g̲i̲n̲
             print(3 × 4);
             print(3.125 × 4);
             print(3 × 4.625);
             print(3.25 × 4.625);
-        _e_n_d
+        e̲n̲d̲
 )");
     const std::string expect = R"(12
 12.5
@@ -59,18 +59,18 @@ TEST_F(x1_machine, arith_multiply_constants)
 TEST_F(x1_machine, arith_multiply_args)
 {
     auto output = compile_and_run(R"(
-        _b_e_g_i_n
-            _r_e_a_l _p_r_o_c_e_d_u_r_e mul(a, b);
-                _v_a_l_u_e a, b;
-                _r_e_a_l a, b;
-            _b_e_g_i_n
+        b̲e̲g̲i̲n̲
+            r̲e̲a̲l̲ p̲r̲o̲c̲e̲d̲u̲r̲e̲ mul(a, b);
+                v̲a̲l̲u̲e̲ a, b;
+                r̲e̲a̲l̲ a, b;
+            b̲e̲g̲i̲n̲
                 mul := a × b;
-            _e_n_d;
+            e̲n̲d̲;
             print(mul(3, 4));
             print(mul(3.125, -4));
             print(mul(3, 4.625));
             print(mul(3.25, -4.625));
-        _e_n_d
+        e̲n̲d̲
 )");
     const std::string expect = R"(12
 -12.5
@@ -83,12 +83,12 @@ TEST_F(x1_machine, arith_multiply_args)
 TEST_F(x1_machine, arith_real_divide)
 {
     auto output = compile_and_run(R"(
-        _b_e_g_i_n
+        b̲e̲g̲i̲n̲
             print(3 / 4);
             print(3.125 / 4);
             print(3 / 4.5);
             print(3.25 / 4.5);
-        _e_n_d
+        e̲n̲d̲
 )");
     const std::string expect = R"(0.75
 0.78125
@@ -101,12 +101,12 @@ TEST_F(x1_machine, arith_real_divide)
 TEST_F(x1_machine, arith_integer_divide)
 {
     auto output = compile_and_run(R"(
-        _b_e_g_i_n
+        b̲e̲g̲i̲n̲
             print(13 ÷ 4);
             print(-13 ÷ 4);
             print(13 ÷ (-4));
             print(-13 ÷ (-4));
-        _e_n_d
+        e̲n̲d̲
 )");
     // Note that this fails: print(13 ÷ -4);
 
@@ -121,12 +121,12 @@ TEST_F(x1_machine, arith_integer_divide)
 TEST_F(x1_machine, arith_exponent)
 {
     auto output = compile_and_run(R"(
-        _b_e_g_i_n
+        b̲e̲g̲i̲n̲
             print(3 ↑ 4);
             print((-2.5) ↑ (-4));
             print(3 ↑ 4.625);
             print(2.5 ↑ (-4.625));
-        _e_n_d
+        e̲n̲d̲
 )");
     const std::string expect = R"(81
 0.0256
@@ -139,12 +139,12 @@ TEST_F(x1_machine, arith_exponent)
 TEST_F(x1_machine, arith_if_clause)
 {
     auto output = compile_and_run(R"(
-        _b_e_g_i_n
-            print(_i_f _t_r_u_e   _t_h_e_n 1.5 _e_l_s_e 2);
-            print(_i_f _f_a_l_s_e _t_h_e_n 3.5 _e_l_s_e 4);
-            print(_i_f _t_r_u_e   _t_h_e_n 5   _e_l_s_e 6.5);
-            print(_i_f _f_a_l_s_e _t_h_e_n 7   _e_l_s_e 8.5);
-        _e_n_d
+        b̲e̲g̲i̲n̲
+            print(i̲f̲ t̲r̲u̲e̲   t̲h̲e̲n̲ 1.5 e̲l̲s̲e̲ 2);
+            print(i̲f̲ f̲a̲l̲s̲e̲ t̲h̲e̲n̲ 3.5 e̲l̲s̲e̲ 4);
+            print(i̲f̲ t̲r̲u̲e̲   t̲h̲e̲n̲ 5   e̲l̲s̲e̲ 6.5);
+            print(i̲f̲ f̲a̲l̲s̲e̲ t̲h̲e̲n̲ 7   e̲l̲s̲e̲ 8.5);
+        e̲n̲d̲
 )");
     const std::string expect = R"(1.5
 4
@@ -157,13 +157,13 @@ TEST_F(x1_machine, arith_if_clause)
 TEST_F(x1_machine, variables)
 {
     auto output = compile_and_run(R"(
-        _b_e_g_i_n _i_n_t_e_g_e_r i; _r_e_a_l r;
+        b̲e̲g̲i̲n̲ i̲n̲t̲e̲g̲e̲r̲ i; r̲e̲a̲l̲ r;
             i := 1; r := 1.1; i := i + 10; r := r + 10.01;
             print(i, r);
             r := i; print(r);
             i := 3.14159; print(i);
             i := 2.71828; print(i);
-        _e_n_d
+        e̲n̲d̲
 )");
     const std::string expect = R"(11
 11.11

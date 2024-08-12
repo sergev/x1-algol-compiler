@@ -5,7 +5,7 @@
 TEST_F(x1_machine, function_abs)
 {
     auto output = compile_and_run(R"(
-        _b_e_g_i_n
+        b̲e̲g̲i̲n̲
             print(abs(-123.456));
             print(abs(123.456));
             print(abs(-1.615850303564⏨616));
@@ -16,7 +16,7 @@ TEST_F(x1_machine, function_abs)
             print(abs(67108863));
             print(abs(-0));
             print(abs(0));
-        _e_n_d
+        e̲n̲d̲
     )");
     const std::string expect = R"(123.456
 123.456
@@ -35,7 +35,7 @@ TEST_F(x1_machine, function_abs)
 TEST_F(x1_machine, function_sign)
 {
     auto output = compile_and_run(R"(
-        _b_e_g_i_n
+        b̲e̲g̲i̲n̲
             print(sign(-123.456));
             print(sign(123.456));
             print(sign(-1.615850303564⏨616));
@@ -48,7 +48,7 @@ TEST_F(x1_machine, function_sign)
             print(sign(67108863));
             print(sign(-0));
             print(sign(0));
-        _e_n_d
+        e̲n̲d̲
     )");
     const std::string expect = R"(-1
 1
@@ -69,13 +69,13 @@ TEST_F(x1_machine, function_sign)
 TEST_F(x1_machine, function_sqrt)
 {
     auto output = compile_and_run(R"(
-        _b_e_g_i_n
+        b̲e̲g̲i̲n̲
             print(sqrt(2));
             print(sqrt(99999));
             print(sqrt(1.01));
             print(sqrt(0.99));
             print(sqrt(0.0003));
-        _e_n_d
+        e̲n̲d̲
     )");
     const std::string expect = R"(1.414213562373
 316.2261848738
@@ -89,7 +89,7 @@ TEST_F(x1_machine, function_sqrt)
 TEST_F(x1_machine, function_sin)
 {
     auto output = compile_and_run(R"(
-        _b_e_g_i_n
+        b̲e̲g̲i̲n̲
             print(sin(0.0001));
             print(sin(-0.0001));
             print(sin(0.7854));
@@ -98,7 +98,7 @@ TEST_F(x1_machine, function_sin)
             print(sin(-1.6));
             print(sin(3141.6));
             print(sin(-3141.6));
-        _e_n_d
+        e̲n̲d̲
     )");
     const std::string expect = R"(9.999999983334e-05
 -9.999999983334e-05
@@ -115,7 +115,7 @@ TEST_F(x1_machine, function_sin)
 TEST_F(x1_machine, function_cos)
 {
     auto output = compile_and_run(R"(
-        _b_e_g_i_n
+        b̲e̲g̲i̲n̲
             print(cos(0.01));
             print(cos(-0.01));
             print(cos(0.7854));
@@ -124,7 +124,7 @@ TEST_F(x1_machine, function_cos)
             print(cos(-1.6));
             print(cos(3141.6));
             print(cos(-3141.6));
-        _e_n_d
+        e̲n̲d̲
     )");
     const std::string expect = R"(0.9999500004169
 0.9999500004169
@@ -146,7 +146,7 @@ TEST_F(x1_machine, function_cos)
 TEST_F(x1_machine, DISABLED_function_arctan)
 {
     auto output = compile_and_run(R"(
-        _b_e_g_i_n
+        b̲e̲g̲i̲n̲
             print(arctan(0.0001));
             print(arctan(-0.0001));
             print(arctan(0.5));
@@ -155,7 +155,7 @@ TEST_F(x1_machine, DISABLED_function_arctan)
             print(arctan(-2));
             print(arctan(999.9));
             print(arctan(-999.9));
-        _e_n_d
+        e̲n̲d̲
     )");
     const std::string expect = R"(0.000100
 -0.000100
@@ -172,7 +172,7 @@ TEST_F(x1_machine, DISABLED_function_arctan)
 TEST_F(x1_machine, function_ln)
 {
     auto output = compile_and_run(R"(
-        _b_e_g_i_n
+        b̲e̲g̲i̲n̲
             print(ln(0.0001));
             print(ln(0.5));
             print(ln(0.9999));
@@ -181,7 +181,7 @@ TEST_F(x1_machine, function_ln)
             print(ln(4));
             print(ln(8));
             print(ln(99999));
-        _e_n_d
+        e̲n̲d̲
     )");
     const std::string expect = R"(-9.210340371981
 -0.6931471805601
@@ -198,13 +198,13 @@ TEST_F(x1_machine, function_ln)
 TEST_F(x1_machine, function_exp)
 {
     auto output = compile_and_run(R"(
-        _b_e_g_i_n
+        b̲e̲g̲i̲n̲
             print(exp(-6));
             print(exp(-1));
             print(exp(0.0001));
             print(exp(1));
             print(exp(6));
-        _e_n_d
+        e̲n̲d̲
     )");
     const std::string expect = R"(0.002478752176668
 0.3678794411712
@@ -218,7 +218,7 @@ TEST_F(x1_machine, function_exp)
 TEST_F(x1_machine, function_entier)
 {
     auto output = compile_and_run(R"(
-        _b_e_g_i_n
+        b̲e̲g̲i̲n̲
             print(entier(-98.7777));
             print(entier(98.7777));
             print(entier(-5.4444));
@@ -227,7 +227,7 @@ TEST_F(x1_machine, function_entier)
             print(entier(0.9999));
             print(entier(-0.1111));
             print(entier(0.1111));
-        _e_n_d
+        e̲n̲d̲
     )");
     const std::string expect = R"(-99
 98
@@ -244,7 +244,7 @@ TEST_F(x1_machine, function_entier)
 TEST_F(x1_machine, function_EVEN)
 {
     auto output = compile_and_run(R"(
-        _b_e_g_i_n
+        b̲e̲g̲i̲n̲
             print(EVEN(0));
             print(EVEN(1));
             print(EVEN(-1));
@@ -252,7 +252,7 @@ TEST_F(x1_machine, function_EVEN)
             print(EVEN(-2));
             print(EVEN(3));
             print(EVEN(-3));
-        _e_n_d
+        e̲n̲d̲
     )");
     const std::string expect = R"(1
 -1

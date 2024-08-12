@@ -223,7 +223,7 @@ _L1:
         if (peek_next_byte(0) == 0xCC && peek_next_byte(1) == 0xB2) {
             // Faking "_sym", leaving a non-combining representation in the string
             // for the sake of correct position of the pointer in error messages.
-            printf("Pos %d: underlined %c\n", input_pos, i);
+            //printf("Pos %d: underlined %c\n", input_pos, i);
             input_line[input_pos] = input_line[input_pos-1] = '_';
             input_line[++input_pos] = i;
             return ascii_table['_'];
