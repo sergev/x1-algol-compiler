@@ -166,6 +166,10 @@ bool Processor::step()
             goto unknown;
         break;
 
+    case 012'00:
+        core.S = machine.mem_load(addr);
+        break;
+
     case 012'20:
         core.S = addr;
         break;
@@ -178,8 +182,22 @@ bool Processor::step()
         machine.mem_store(addr, core.S);
         break;
 
+    case 034'31:
+        // U 0LS addr A Z
+        core.C = core.S == addr;
+        break;
+
+    case 036'20:
+        // 2LS addr A
+        core.S &= addr;
+        break;
+
+    case 040'20:
+        core.B += addr;
+        break;
+
     case 042'00:
-        core.B = machine.mem_load(addr);
+        core.B = machine.mem_load(addr) % 32768;
         break;
 
     case 042'20:
@@ -198,22 +216,58 @@ bool Processor::step()
         OT = addr;
         break;
 
+    case 054'04: {
+        // 4T addr 0 P
+        unsigned w = machine.mem_load(0);
+        machine.mem_store(0, (w + 0777777776 + (w > 1)) & BITS(27));
+        if (w > 1) {            // therefore the decremented value is > 0
+            OT = addr;
+        }
+        break;
+    }
     case 067'00:
         if (addr != 040000)
             goto unknown;
         throw std::runtime_error("Standard function operand type check failed");
 
     case 067'14: {
-        // Round shift to the right, 1P amount AA E
+        // Round shift to the right, 1P amount rr E
         unsigned amount = addr & 037;
         switch (addr >> 5) {
         case 0:                 // AA
             core.A = (core.A >> amount | core.A << (27-amount)) & BITS(27);
             break;
+        case 1:                 // SS
+            core.S = (core.S >> amount | core.S << (27-amount)) & BITS(27);
+            break;
         default:
             goto unknown;
         }
-        core.C = ((core.A & ONEBIT(26)) == ONEBIT(26)) == core.L;
+        switch (addr >> 5) {
+        case 0:
+            core.C = ((core.A & ONEBIT(26)) == ONEBIT(26)) == core.L;
+            core.L = core.A & ONEBIT(26);
+            break;
+        case 1:
+            core.C = ((core.S & ONEBIT(26)) == ONEBIT(26)) == core.L;
+            core.L = core.S & ONEBIT(26);
+            break;
+        }
+    }
+
+    case 077'00: {
+        // Clear shift to the right, 3P amount rr
+        unsigned amount = addr & 037;
+        switch (addr >> 5) {
+        case 0:                 // AA
+            core.A = (core.A >> amount | -(core.A>>26) << (27-amount)) & BITS(27);
+            break;
+        case 1:                 // SS
+            core.S = (core.S >> amount | -(core.S>>26) << (27-amount)) & BITS(27);
+            break;
+        default:
+            goto unknown;
+        }
         break;
     }
 
@@ -266,6 +320,7 @@ bool Processor::call_opc(unsigned opc)
         // Save return address on stack.
         // Note: descriptors of procedure arguments are located
         // in memory 3 words before the return address.
+        machine.mem_store(51, OT-8); // for PRINTTEXT
         frame_create(OT, core.A);
         OT = core.B;
         break;
@@ -943,7 +998,53 @@ bool Processor::call_opc(unsigned opc)
         return true;
 
     //TODO: case OPC_TFP:  // take formal parameter
-    //TODO: case OPC_TAS:  // type algol symbol
+
+    case OPC_TAS:
+        switch (core.S) {
+        case 0 ... 9:
+            std::cout << char(core.S + '0');
+            break;
+        case 10 ... 35:
+            std::cout << char(core.S - 10 + 'a');
+            break;
+        case 37 ... 62:
+            std::cout << char(core.S - 37 + 'A');
+            break;
+        case 64: case 65: case 67: case 70: case 72: case 74:
+            std::cout << "+-!/!!>!=!<"[core.S - 64];
+            break;
+        case 68: case 69: case 71: case 73:
+        case 75 ... 80: {
+            static const char * c[] = {
+                "÷", "↑", "", "≥", "", "≤", "", "≠", 
+                "¬", "∧", "∨", "⊃", "≡"
+            };
+            std::cout << c[core.S-68];
+            break;
+        }
+        case 87: case 88: case 90: case 91: case 93:
+            std::cout << ",.!:;! "[core.S-87];
+            break;
+        case 89:
+            std::cout << "⏨";
+            break;
+        case 98 ... 103:
+            std::cout << "()[]`'"[core.S - 98];
+            break;
+        case 118:
+            std::cout << '\t';
+            break;
+        case 119:
+            std::cout << '\n';
+            break;
+        case 121:
+            std::cout << '"';
+            break;
+        case 122:
+            std::cout << '?';
+            break;
+        }
+        break;
     //TODO: case OPC_OBC6: // output buffer class 6
     //TODO: case OPC_FLOATER:
     //TODO: case OPC_read:
@@ -969,8 +1070,15 @@ bool Processor::call_opc(unsigned opc)
         }
         break;
     }
-    //TODO: case OPC_TAB:
-    //TODO: case OPC_NLCR:
+
+    case OPC_TAB:
+        std::cout << '\t';
+        break;
+
+    case OPC_NLCR:
+        std::cout << std::endl;
+        break;
+
     //TODO: case OPC_XEEN:
     //TODO: case OPC_SPACE:
     //TODO: case OPC_stop:

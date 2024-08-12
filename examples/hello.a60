@@ -1,3 +1,3 @@
 _b_e_g_i_n
-    PRINTTEXT(|<Hello Algol|>);
+    PRINTTEXT(|<Hello Algol|>); NLCR
 _e_n_d
