@@ -12,6 +12,7 @@ add_executable(x1test EXCLUDE_FROM_ALL
     fixture.cpp
     arch_test.cpp
     arith_test.cpp
+    array_test.cpp
     boolean_test.cpp
     cli_test.cpp
     function_test.cpp

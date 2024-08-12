@@ -1,6 +1,7 @@
 #include "machine.h"
 #include "opc.h"
 
+#include <algorithm>
 #include <cmath>
 #include <iostream>
 #include <sstream>
@@ -116,6 +117,15 @@ bool Processor::step()
     }
 
     return done_flag;
+}
+
+void Processor::load_real(unsigned addr) {
+    // Read two words from memory at addr.
+    // Push them in stack as real value.
+    Word hi    = machine.mem_load(addr);
+    Word lo    = machine.mem_load(addr + 1);
+    Real value = x1_words_to_real(hi, lo);
+    stack.push_real_value(value);
 }
 
 //
@@ -247,21 +257,14 @@ bool Processor::call_opc(unsigned opc)
         // take real result dynamic
         // Dynamic address is present in register S.
         // Convert it to static address, read real value and push on stack.
-        unsigned addr = static_address(core.S);
-        Word hi       = machine.mem_load(addr);
-        Word lo       = machine.mem_load(addr + 1);
-        Real value    = x1_words_to_real(hi, lo);
-        stack.push_real_value(value);
+        load_real(static_address(core.S));
         break;
     }
     case OPC_TRRS: {
         // Take real result static.
         // Read two words from memory at address in register B.
         // Push them in stack as real value.
-        Word hi    = machine.mem_load(core.B);
-        Word lo    = machine.mem_load(core.B + 1);
-        Real value = x1_words_to_real(hi, lo);
-        stack.push_real_value(value);
+        load_real(core.B);
         break;
     }
     case OPC_TIRD: {
@@ -291,10 +294,7 @@ bool Processor::call_opc(unsigned opc)
         switch (arg >> 18 & 7) {
         case 0: {
             // Get real value.
-            Word hi    = machine.mem_load(arg);
-            Word lo    = machine.mem_load(arg + 1);
-            Real value = x1_words_to_real(hi, lo);
-            stack.push_real_value(value);
+            load_real(arg);
             break;
         }
         case 2: {
@@ -461,7 +461,67 @@ bool Processor::call_opc(unsigned opc)
     }
     //TODO: case OPC_DIF:  // divide formal
 
-    //TODO: case OPC_IND: // indexer
+    case OPC_IND: {
+        // The top of the stack is: storage function address, idx1 [idx2 [idx3 [...] ] ]
+        std::vector<Stack_Cell> idxs;
+        Stack_Cell storage_fn;
+        do {
+            auto item = stack.pop();
+            if (item.is_int_addr() || item.is_real_addr()) {
+                storage_fn = item;
+                break;
+            }
+            idxs.push_back(item);
+        } while (true);
+        if (idxs.empty()) {
+            throw std::runtime_error("Indexing but no indexes given");
+        }
+        std::reverse(idxs.begin(), idxs.end());
+        unsigned ndim = idxs.size();
+        // The storage function of an array is described by 3+ndim words.
+        // For a 1-dimensional array, "offset: contents":
+        // 0: address of the first memory word the array occupies
+        // 1: base address for indexing from 0 (for a left bound >= 0)
+        //    (using a negative representation for a left bound < 0)
+        // 2..2+ndim-1: element or dimension sizes in words
+        // 2+ndim: number of words in the array, negated
+        unsigned addr = storage_fn.get_addr();
+        int location = x1_to_integer(machine.mem_load(addr));
+        int base = x1_to_integer(machine.mem_load(addr+1));
+        int limit = x1_to_integer(machine.mem_load(addr+2+ndim));
+        // The limit must look like a negative number with a reasonable absolute value.
+        if (limit >= 0 || -limit > 32767) {
+            throw std::runtime_error("A wrong number of indexes for an array");            
+        }
+        int elt_addr = base;
+        int idx0 = 0;           // for the error message
+        for (unsigned i = 0; i < ndim; ++i) {
+            int dimsize = x1_to_integer(machine.mem_load(addr+2+i));
+            int idx = idxs[i].is_int_value() ? idxs[i].get_int()
+                : (int) roundl(idxs[i].get_real());
+            if (i == 0)
+                idx0 = idx;
+            elt_addr += idx*dimsize;
+        }
+        elt_addr &= BITS(16); // 16 rather than 15 is to catch "negative" addresses
+        if (elt_addr < location || elt_addr + limit >= location) {
+            std::ostringstream ostr;
+            int elsize = x1_to_integer(machine.mem_load(addr+2));
+            if (ndim == 1) {
+                ostr << "Index " << idx0 << " is ";
+            } else {
+                ostr << "Indexing (linearized) ";
+            }
+            ostr << "beyond limits for array [" <<
+                (location-base)/elsize << ':' << (location-base-limit)/elsize-1 << ']';
+            throw std::runtime_error(ostr.str());            
+        }
+        if (storage_fn.is_int_addr())
+            stack.push_int_addr(elt_addr);
+        else
+            stack.push_real_addr(elt_addr);
+        break;
+    }
 
     case OPC_NEG: {
         // Invert sign accumulator.
@@ -475,7 +535,17 @@ bool Processor::call_opc(unsigned opc)
         }
         break;
     }
-    //TODO: case OPC_TAR: // take result
+    case OPC_TAR:{
+        auto addr = stack.pop();
+        if (addr.is_int_addr()) {
+            stack.push_int_value(x1_to_integer(machine.mem_load(addr.get_addr()))); 
+        } else if (addr.is_real_addr()) {
+            load_real(addr.get_addr());
+        } else {
+            throw std::runtime_error("OPC TAR invoked on a non-address operand");
+        }
+        break;
+    }
     //TODO: case OPC_ADD: // add
     //TODO: case OPC_SUB: // subtract
     //TODO: case OPC_MUL: // multiply

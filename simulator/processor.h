@@ -84,6 +84,9 @@ private:
     // Return true when the processor is stopped.
     bool call_opc(unsigned opc);
 
+    // Loads a real value at addr onto the stack.
+    void load_real(unsigned addr);
+
     // Create frame in stack for new procedure block.
     void frame_create(unsigned ret_addr, unsigned num_args);
 
