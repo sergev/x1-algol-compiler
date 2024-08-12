@@ -17,6 +17,7 @@ struct CoreState {
     Word A;      // accumulator
     Word S;      // extension of accumulator
     bool C;      // condition
+    bool L;      // sign bit at the last condition-setting instruction
 };
 
 //

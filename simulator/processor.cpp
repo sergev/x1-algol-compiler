@@ -82,6 +82,24 @@ bool Processor::step()
     //          P-04
     //          Z-10
     //          E-14
+
+    // Y and N conditions reactions has the same meaning for all instructions
+    /// thus it can be checked globally.
+    switch (opcode & 3) {
+    case 0:                     // regular
+    case 1:                     // Undisturbed, unconditional
+        break;
+    case 2:                     // Yes condition
+        if (!core.C)
+            return done_flag;
+        opcode &= ~3;
+        break;
+    case 3:                     // No condition
+        if (core.C)
+            return done_flag;
+        opcode &= ~3;
+        break;
+    }
     switch (opcode) {
     case 0:
         done_flag = call_opc(addr);
@@ -91,27 +109,117 @@ bool Processor::step()
         core.A = addr;
         break;
 
+    case 002'44:
+        // Read integer value from the topmost stack cell.
+        if (addr == 077774) {
+            // 2A 32764 X0 B P
+            core.A = stack.top().get_int();
+            // Set the condition to "A has positive (0) sign bit".
+            core.C = (core.A & ONEBIT(26)) ? 0 : 1;
+            // Save the sign bit.
+            core.L = core.A & ONEBIT(26);
+        } else
+            goto unknown;
+        break;
+
+    case 003'20:
+        core.A = ~addr & BITS(27);
+        break;
+
+    case 003'50:
+        if (addr == 077777) {
+            // 3A 32767 X0 B Z
+            // Reading inverted cell type of the topmost stack cell.
+            switch (stack.top().type) {
+            case Cell_Type::INTEGER_VALUE:
+                core.A = 0;
+                break;
+            case Cell_Type::INTEGER_ADDRESS:
+                core.A = -12345; // some negative value
+                break;
+            case Cell_Type::REAL_VALUE:
+                core.A = 1;
+                break;
+            case Cell_Type::REAL_ADDRESS:
+                core.A = -23456; // some negative value
+                break;
+            default:
+                throw std::runtime_error("Bad stack cell type");
+            }
+            // Setting the condition to A == 0
+            core.C = (core.A == 0);
+            core.L = core.A & ONEBIT(26);
+        } else
+            goto unknown;
+        break;
+
+    case 006'00:
+        machine.mem_store(addr, core.A);
+        break;
+
+    case 006'40:
+        if (addr == 077774) {
+            // 6A 32764 X0 B
+            // Patching (integer) value of the topmost stack cell
+            stack.top().value = core.A;
+        } else
+            goto unknown;
+        break;
+
     case 012'20:
         core.S = addr;
+        break;
+
+    case 012'40:
+        core.S = machine.mem_load((addr+core.B) & BITS(15));
+        break;
+
+    case 016'00:
+        machine.mem_store(addr, core.S);
+        break;
+
+    case 042'00:
+        core.B = machine.mem_load(addr);
         break;
 
     case 042'20:
         core.B = addr;
         break;
 
+    case 042'40:
+        core.B = machine.mem_load((addr+core.B) & BITS(15));
+        break;
+
+    case 046'00:
+        machine.mem_store(addr, core.B);
+        break;
+
     case 052'20:
         OT = addr;
         break;
 
-    case 052'23:
-        if (!core.C) {
-            OT = addr;
+    case 067'00:
+        if (addr != 040000)
+            goto unknown;
+        throw std::runtime_error("Standard function operand type check failed");
+
+    case 067'14: {
+        // Round shift to the right, 1P amount AA E
+        unsigned amount = addr & 037;
+        switch (addr >> 5) {
+        case 0:                 // AA
+            core.A = (core.A >> amount | core.A << (27-amount)) & BITS(27);
+            break;
+        default:
+            goto unknown;
         }
+        core.C = ((core.A & ONEBIT(26)) == ONEBIT(26)) == core.L;
         break;
+    }
 
     //TODO: process other instructions
 
-    default:
+    default: unknown:
         // Unknown instruction - cannot happen.
         throw std::runtime_error("Unknown instruction " + to_octal(OR));
     }

@@ -241,7 +241,7 @@ TEST_F(x1_machine, function_entier)
     EXPECT_EQ(output, expect);
 }
 
-TEST_F(x1_machine, DISABLED_function_EVEN)
+TEST_F(x1_machine, function_EVEN)
 {
     auto output = compile_and_run(R"(
         _b_e_g_i_n
