@@ -175,6 +175,19 @@ Static int read_next_byte()
     return i & 0xFF;
 }
 
+Static int peek_next_byte(int k)
+{
+    int i;
+    Char ch;
+
+    if (input_pos + k >= strlen(input_line)) {
+        return -1;
+    }
+    ch = input_line[input_pos + k];
+    i  = ch;
+    return i & 0xFF;
+}
+
 Static int read_utf8_symbol()
 {
     int i, a;
@@ -205,6 +218,15 @@ _L1:
             /*writeln('--- Bad symbol!'); halt;*/
             /*for debug*/
             goto _L1;
+        }
+        // Check for Unicode underlining: U+0332 is 0xCC 0xB2
+        if (peek_next_byte(0) == 0xCC && peek_next_byte(1) == 0xB2) {
+            // Faking "_sym", leaving a non-combining representation in the string
+            // for the sake of correct position of the pointer in error messages.
+            printf("Pos %d: underlined %c\n", input_pos, i);
+            input_line[input_pos] = input_line[input_pos-1] = '_';
+            input_line[++input_pos] = i;
+            return ascii_table['_'];
         }
         return a;
     }
