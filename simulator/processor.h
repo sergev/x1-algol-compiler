@@ -21,6 +21,20 @@ struct CoreState {
 };
 
 //
+// Offsets in stack relative to frame_ptr.
+//
+namespace Frame_Offset {
+    enum {
+        FP = 0,      // Caller's frame pointer
+        PC = 1,      // Caller's program counter
+        SP = 2,      // Caller's stack base
+        RESULT = 3,  // Result to be returned
+        DISPLAY = 4, // Save/restore display[n]
+        ARG = 5,     // First argument of procedure
+    };
+};
+
+//
 // Electrologica X1 processor.
 //
 class Processor {

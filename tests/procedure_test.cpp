@@ -180,7 +180,7 @@ TEST_F(x1_machine, real_args)
     EXPECT_EQ(output, expect);
 }
 
-TEST_F(x1_machine, DISABLED_integer_factorial)
+TEST_F(x1_machine, integer_factorial)
 {
     auto output = compile_and_run(R"(
         _b_e_g_i_n

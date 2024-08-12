@@ -310,7 +310,7 @@ bool Processor::call_opc(unsigned opc)
         OT = core.B;
 
         // Expect result on return from procedure.
-        stack.get(2 + frame_ptr).type = Cell_Type::INTEGER_VALUE;
+        stack.get(frame_ptr + Frame_Offset::RESULT).type = Cell_Type::INTEGER_VALUE;
         break;
 
     case OPC_ETMP:
@@ -330,7 +330,14 @@ bool Processor::call_opc(unsigned opc)
     case OPC_RET: {
         // return from procedure
         // Jump to address from stack.
-        auto result = stack.get(frame_ptr + 2);
+        // Restore display[n].
+        auto const &disp = stack.get(frame_ptr + Frame_Offset::DISPLAY);
+        if (!disp.is_null()) {
+            unsigned block_level = disp.value >> 15;
+            display[block_level] = disp.value & BITS(15);
+            machine.trace_display(block_level, display[block_level]);
+        }
+        auto result = stack.get(frame_ptr + Frame_Offset::RESULT);
         OT = frame_release();
         if (!result.is_null()) {
             // Push result on stack.
@@ -343,6 +350,16 @@ bool Processor::call_opc(unsigned opc)
         auto item = stack.pop();
         OT = frame_release();
         stack.push(item);
+
+        // Restore display[n].
+        if (stack_base > 0) {
+            auto const &disp = stack.get(frame_ptr + Frame_Offset::DISPLAY);
+            if (!disp.is_null()) {
+                unsigned block_level = disp.value >> 15;
+                display[block_level] = frame_ptr;
+                machine.trace_display(block_level, frame_ptr);
+            }
+        }
         break;
     }
     case OPC_TRAD: {
@@ -393,6 +410,13 @@ bool Processor::call_opc(unsigned opc)
         }
         default:
             // Call implicit subroutine.
+            // Restore display[n].
+            auto const &disp = stack.get(frame_ptr + Frame_Offset::DISPLAY);
+            if (!disp.is_null()) {
+                unsigned block_level = disp.value >> 15;
+                display[block_level] = disp.value & BITS(15);
+                machine.trace_display(block_level, display[block_level]);
+            }
             frame_create(OT, 0);
             OT = arg;
             break;
@@ -478,6 +502,13 @@ bool Processor::call_opc(unsigned opc)
         }
         default:
             // Call implicit subroutine.
+            // Restore display[n].
+            auto const &disp = stack.get(frame_ptr + Frame_Offset::DISPLAY);
+            if (!disp.is_null()) {
+                unsigned block_level = disp.value >> 15;
+                display[block_level] = disp.value & BITS(15);
+                machine.trace_display(block_level, display[block_level]);
+            }
             frame_create(OT, 0);
             OT = arg;
             break;
@@ -964,7 +995,7 @@ bool Processor::call_opc(unsigned opc)
         // Zero means the current procedure.
         // Result is stored in stack frame at offset 2.
         auto result = stack.pop();
-        auto addr   = 2 + display[core.B + 1];
+        auto addr   = display[core.B + 1] + Frame_Offset::RESULT;
         if (!stack.get(addr).is_null()) {
             stack.set(addr, result);
         }
@@ -972,16 +1003,22 @@ bool Processor::call_opc(unsigned opc)
     }
     //TODO: case OPC_STAP: // store also procedure value
 
-    case OPC_SCC:
+    case OPC_SCC: {
         // short circuit
         // Numeric argument is present in register B.
         if (core.B > 31) {
             throw std::runtime_error("Bad block level in SCC");
         }
+        // Save display[n] and block level.
+        auto &disp = stack.get(frame_ptr + Frame_Offset::DISPLAY);
+        disp.type = Cell_Type::INTEGER_VALUE;
+        disp.value = display[core.B] | (core.B << 15);
+
         display[core.B] = frame_ptr;
         machine.trace_display(core.B, frame_ptr);
         stack_base = stack.count();
         break;
+    }
     //TODO: case OPC_RSF: // real arrays storage function frame
     //TODO: case OPC_ISF: // integer arrays storage function frame
     //TODO: case OPC_RVA: // real value array storage function frame
@@ -1016,7 +1053,7 @@ bool Processor::call_opc(unsigned opc)
         case 68: case 69: case 71: case 73:
         case 75 ... 80: {
             static const char * c[] = {
-                "÷", "↑", "", "≥", "", "≤", "", "≠", 
+                "÷", "↑", "", "≥", "", "≤", "", "≠",
                 "¬", "∧", "∨", "⊃", "≡"
             };
             std::cout << c[core.S-68];
@@ -1108,12 +1145,12 @@ void Processor::frame_create(unsigned ret_addr, unsigned num_args)
 
     stack.push_int_addr(frame_ptr);   // offset 0: previos frame pointer
     stack.push_int_addr(ret_addr);    // offset 1: return address
-    stack.push_null();                // offset 2: place for result
-    stack.push_int_addr(stack_base);  // offset 3: base of the stack
+    stack.push_int_addr(stack_base);  // offset 2: base of the stack
+    stack.push_null();                // offset 3: place for result
+    stack.push_null();                // offset 4: place for display[n]
 
     for (unsigned i = 0; i < num_args; i++) {
-        // Allocate formal parameters: offset 4-5, 6-7 and so on.
-        // Two cells per parameter.
+        // Allocate formal parameters: two cells per parameter.
         stack.push_int_value(0);
         stack.push_int_value(0);
     }
@@ -1130,9 +1167,9 @@ unsigned Processor::frame_release()
         throw std::runtime_error("No frame stack to release");
     }
     auto new_stack_ptr = frame_ptr;
-    auto ret_addr = stack.get(frame_ptr + 1).get_addr();
-    stack_base    = stack.get(frame_ptr + 3).get_addr();
-    frame_ptr     = stack.get(frame_ptr).get_addr();
+    auto ret_addr = stack.get(frame_ptr + Frame_Offset::PC).get_addr();
+    stack_base    = stack.get(frame_ptr + Frame_Offset::SP).get_addr();
+    frame_ptr     = stack.get(frame_ptr + Frame_Offset::FP).get_addr();
     stack.erase(new_stack_ptr);
     return ret_addr;
 }
@@ -1145,15 +1182,13 @@ unsigned Processor::frame_release()
 // For example, S=0241=161 means 5*32+1.
 // Here 1 is the block level, and 5 is offset.
 // Get frame pointer of required block from display[block_level].
-// Add offset (plus some correction).
-// This is static address.
+// Add offset.
 //
 unsigned Processor::address_in_stack(unsigned dynamic_addr)
 {
     auto const offset      = dynamic_addr / 32;
     auto const block_level = dynamic_addr % 32;
-    auto const correction  = -1;
-    auto const static_addr = display[block_level] + offset + correction;
+    auto const static_addr = display[block_level] + offset;
 
     return static_addr;
 }
@@ -1175,7 +1210,7 @@ unsigned Processor::arg_descriptor(unsigned dynamic_addr)
 {
     auto const arg_num     = ((dynamic_addr / 32) - 5) / 2;
     auto const block_level = dynamic_addr % 32;
-    auto const ret_addr    = stack.get(display[block_level] + 1).get_addr();
+    auto const ret_addr    = stack.get(display[block_level] + Frame_Offset::PC).get_addr();
     auto const arg_descr   = machine.mem_load(ret_addr - arg_num - 3);
 
     return arg_descr;
@@ -1208,6 +1243,7 @@ void Processor::store_value(const Stack_Cell &dest, const Stack_Cell &src)
             auto &item = stack.get(addr - STACK_BASE);
             item.value = result;
             item.type  = Cell_Type::INTEGER_VALUE;
+            Machine::trace_stack(addr - STACK_BASE, item.to_string(), "Write");
         }
         break;
     }
@@ -1236,6 +1272,7 @@ void Processor::store_value(const Stack_Cell &dest, const Stack_Cell &src)
             auto &item = stack.get(addr - STACK_BASE);
             item.value = result;
             item.type  = Cell_Type::REAL_VALUE;
+            Machine::trace_stack(addr - STACK_BASE, item.to_string(), "Write");
         }
         break;
     }
