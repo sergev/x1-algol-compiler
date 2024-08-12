@@ -38,7 +38,7 @@ TEST_F(x1_machine, arith_subtract)
     EXPECT_EQ(output, expect);
 }
 
-TEST_F(x1_machine, arith_multiply)
+TEST_F(x1_machine, arith_multiply_constants)
 {
     auto output = compile_and_run(R"(
         _b_e_g_i_n
@@ -52,6 +52,30 @@ TEST_F(x1_machine, arith_multiply)
 12.5
 13.875
 15.03125
+)";
+    EXPECT_EQ(output, expect);
+}
+
+TEST_F(x1_machine, arith_multiply_args)
+{
+    auto output = compile_and_run(R"(
+        _b_e_g_i_n
+            _r_e_a_l _p_r_o_c_e_d_u_r_e mul(a, b);
+                _v_a_l_u_e a, b;
+                _r_e_a_l a, b;
+            _b_e_g_i_n
+                mul := a × b;
+            _e_n_d;
+            print(mul(3, 4));
+            print(mul(3.125, -4));
+            print(mul(3, 4.625));
+            print(mul(3.25, -4.625));
+        _e_n_d
+)");
+    const std::string expect = R"(12
+-12.5
+13.875
+-15.03125
 )";
     EXPECT_EQ(output, expect);
 }

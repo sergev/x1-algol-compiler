@@ -143,7 +143,7 @@ TEST_F(x1_machine, return_real)
                 _v_a_l_u_e num;
                 _i_n_t_e_g_e_r num;
             _b_e_g_i_n
-                mul pi := num * 3.14159265359;
+                mul pi := num × 3.14159265359;
             _e_n_d;
             print(mul pi(2));
             print(mul pi(-3));
@@ -157,6 +157,29 @@ TEST_F(x1_machine, return_real)
     EXPECT_EQ(output, expect);
 }
 
+TEST_F(x1_machine, real_args)
+{
+    auto output = compile_and_run(R"(
+        _b_e_g_i_n
+            _p_r_o_c_e_d_u_r_e args(a, b, c, d, e);
+                _v_a_l_u_e a, b, c, d, e;
+                _r_e_a_l a, b, c, d, e;
+            _b_e_g_i_n
+                print(a, b, c, d, e);
+            _e_n_d;
+            args(123.456, 1.615850303564⏨616, 0.0,
+                 67108863, 1.547173023691⏨-617);
+        _e_n_d
+    )");
+    const std::string expect = R"(123.456
+1.615850303564e+616
+0
+67108863
+1.547173023691e-617
+)";
+    EXPECT_EQ(output, expect);
+}
+
 TEST_F(x1_machine, DISABLED_integer_factorial)
 {
     auto output = compile_and_run(R"(
@@ -165,7 +188,7 @@ TEST_F(x1_machine, DISABLED_integer_factorial)
                 _v_a_l_u_e num;
                 _i_n_t_e_g_e_r num;
             _b_e_g_i_n
-                fact := _i_f num < 2 _t_h_e_n 1 _e_l_s_e num * fact(num - 1);
+                fact := _i_f num < 2 _t_h_e_n 1 _e_l_s_e num × fact(num - 1);
             _e_n_d;
             print(fact(3));
         _e_n_d

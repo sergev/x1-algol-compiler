@@ -46,6 +46,10 @@ struct Stack_Cell {
     void exponentiate(const Stack_Cell &another);
     void exponentiate_int(int a, const Stack_Cell &another);
     void exponentiate_real(long double a, const Stack_Cell &another);
+
+    // Multiply this item by another one.
+    void multiply(const Stack_Cell &another);
+    void multiply_real(Real another);
 };
 
 class Virtual_Stack {

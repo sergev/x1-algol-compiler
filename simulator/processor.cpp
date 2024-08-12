@@ -383,7 +383,18 @@ bool Processor::call_opc(unsigned opc)
     }
     //TODO: case OPC_SUF:  // subtract formal
 
-    //TODO: case OPC_MURD: // multiply real dynamic
+    case OPC_MURD: {
+        // multiply real dynamic
+        // Dynamic address of second argument is present in register S.
+        auto addr  = static_address(core.S);
+        Word hi    = machine.mem_load(addr);
+        Word lo    = machine.mem_load(addr + 1);
+        Real value = x1_words_to_real(hi, lo);
+        auto a = stack.pop();
+        a.multiply_real(value);
+        stack.push(a);
+        break;
+    }
     case OPC_MURS: {
         // multiply real static
         Word hi   = machine.mem_load(core.B);
@@ -548,7 +559,14 @@ bool Processor::call_opc(unsigned opc)
     }
     //TODO: case OPC_ADD: // add
     //TODO: case OPC_SUB: // subtract
-    //TODO: case OPC_MUL: // multiply
+    case OPC_MUL: {
+        // multiply
+        auto b = stack.pop();
+        auto a = stack.pop();
+        a.multiply(b);
+        stack.push(a);
+        break;
+    }
     //TODO: case OPC_DIV: // divide
     case OPC_IDI: {
         // integer division
@@ -851,7 +869,9 @@ void Processor::frame_create(unsigned ret_addr, unsigned num_args)
     stack.push_int_addr(stack_base);  // offset 3: base of the stack
 
     for (unsigned i = 0; i < num_args; i++) {
-        // Allocate formal parameters: offset 4, 5 and so on/
+        // Allocate formal parameters: offset 4-5, 6-7 and so on.
+        // Two cells per parameter.
+        stack.push_int_value(0);
         stack.push_int_value(0);
     }
     frame_ptr = new_frame_ptr;
@@ -910,10 +930,10 @@ unsigned Processor::static_address(unsigned dynamic_addr)
 //
 unsigned Processor::arg_descriptor(unsigned dynamic_addr)
 {
-    auto const offset      = dynamic_addr / 32;
+    auto const arg_num     = ((dynamic_addr / 32) - 5) / 2;
     auto const block_level = dynamic_addr % 32;
     auto const ret_addr    = stack.get(display[block_level] + 1).get_addr();
-    auto const arg_descr   = machine.mem_load(ret_addr + offset - 8);
+    auto const arg_descr   = machine.mem_load(ret_addr - arg_num - 3);
 
     return arg_descr;
 }
