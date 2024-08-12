@@ -227,13 +227,15 @@ bool Processor::step()
     return done_flag;
 }
 
-void Processor::load_real(unsigned addr) {
-    // Read two words from memory at addr.
-    // Push them in stack as real value.
-    Word hi    = machine.mem_load(addr);
-    Word lo    = machine.mem_load(addr + 1);
-    Real value = x1_words_to_real(hi, lo);
-    stack.push_real_value(value);
+//
+// Read two words from memory at addr.
+// Return them as Real value.
+//
+Real Processor::load_real(unsigned addr)
+{
+    Word hi = machine.mem_load(addr);
+    Word lo = machine.mem_load(addr + 1);
+    return x1_words_to_real(hi, lo);
 }
 
 //
@@ -292,8 +294,8 @@ bool Processor::call_opc(unsigned opc)
         // take real address dynamic
         // Dynamic address is present in register S.
         // Convert it to static address and push on stack.
-        unsigned addr = static_address(core.S);
-        stack.push_real_addr(addr);
+        unsigned addr = address_in_stack(core.S);
+        stack.push_real_addr(addr + STACK_BASE);
         break;
     }
     case OPC_TRAS: {
@@ -306,8 +308,8 @@ bool Processor::call_opc(unsigned opc)
         // take integer address dynamic
         // Dynamic address is present in register S.
         // Convert it to static address and push on stack.
-        unsigned addr = static_address(core.S);
-        stack.push_int_addr(addr);
+        unsigned addr = address_in_stack(core.S);
+        stack.push_int_addr(addr + STACK_BASE);
         break;
     }
     case OPC_TIAS: {
@@ -364,24 +366,32 @@ bool Processor::call_opc(unsigned opc)
     case OPC_TRRD: {
         // take real result dynamic
         // Dynamic address is present in register S.
-        // Convert it to static address, read real value and push on stack.
-        load_real(static_address(core.S));
+        // Convert it to stack offset, read real value and push on stack.
+        auto addr   = address_in_stack(core.S);
+        auto result = stack.get(addr);
+        if (!result.is_real_value()) {
+            throw std::runtime_error("Wrong result type in TRRD");
+        }
+        stack.push(result);
         break;
     }
     case OPC_TRRS: {
         // Take real result static.
         // Read two words from memory at address in register B.
         // Push them in stack as real value.
-        load_real(core.B);
+        stack.push_real_value(load_real(core.B));
         break;
     }
     case OPC_TIRD: {
         // take integer result dynamic
         // Dynamic address is present in register S.
-        // Convert it to static address, read integer value and push on stack.
-        unsigned addr = static_address(core.S);
-        Word value = machine.mem_load(addr);
-        stack.push_int_value(value);
+        // Convert it to stack offset, read integer value and push on stack.
+        unsigned addr = address_in_stack(core.S);
+        auto result = stack.get(addr);
+        if (!result.is_int_value()) {
+            throw std::runtime_error("Wrong result type in TIRD");
+        }
+        stack.push(result);
         break;
     }
     case OPC_TIRS: {
@@ -402,7 +412,7 @@ bool Processor::call_opc(unsigned opc)
         switch (arg >> 18 & 7) {
         case 0: {
             // Get real value.
-            load_real(arg);
+            stack.push_real_value(load_real(arg));
             break;
         }
         case 2: {
@@ -422,9 +432,7 @@ bool Processor::call_opc(unsigned opc)
     //TODO: case OPC_ADRD: // add real dynamic
     case OPC_ADRS: {
         // add real static
-        Word hi   = machine.mem_load(core.B);
-        Word lo   = machine.mem_load(core.B + 1);
-        auto b    = x1_to_ieee(x1_words_to_real(hi, lo));
+        auto b    = x1_to_ieee(load_real(core.B));
         auto item = stack.pop();
         if (item.is_int_value()) {
             auto a = x1_to_integer(item.get_int());
@@ -458,9 +466,7 @@ bool Processor::call_opc(unsigned opc)
     //TODO: case OPC_SURD: // subtract real dynamic
     case OPC_SURS: {
         // subtract real static
-        Word hi   = machine.mem_load(core.B);
-        Word lo   = machine.mem_load(core.B + 1);
-        auto b    = x1_to_ieee(x1_words_to_real(hi, lo));
+        auto b    = x1_to_ieee(load_real(core.B));
         auto item = stack.pop();
         if (item.is_int_value()) {
             auto a = x1_to_integer(item.get_int());
@@ -494,20 +500,19 @@ bool Processor::call_opc(unsigned opc)
     case OPC_MURD: {
         // multiply real dynamic
         // Dynamic address of second argument is present in register S.
-        auto addr  = static_address(core.S);
-        Word hi    = machine.mem_load(addr);
-        Word lo    = machine.mem_load(addr + 1);
-        Real value = x1_words_to_real(hi, lo);
+        auto addr = address_in_stack(core.S);
+        auto b    = stack.get(addr);
+        if (!b.is_real_value()) {
+            throw std::runtime_error("Wrong second argument in MURD");
+        }
         auto a = stack.pop();
-        a.multiply_real(value);
+        a.multiply(b);
         stack.push(a);
         break;
     }
     case OPC_MURS: {
         // multiply real static
-        Word hi   = machine.mem_load(core.B);
-        Word lo   = machine.mem_load(core.B + 1);
-        auto b    = x1_to_ieee(x1_words_to_real(hi, lo));
+        auto b    = x1_to_ieee(load_real(core.B));
         auto item = stack.pop();
         if (item.is_int_value()) {
             auto a = x1_to_integer(item.get_int());
@@ -541,9 +546,7 @@ bool Processor::call_opc(unsigned opc)
     //TODO: case OPC_DIRD: // divide real dynamic
     case OPC_DIRS: {
         // divide real static
-        Word hi = machine.mem_load(core.B);
-        Word lo = machine.mem_load(core.B + 1);
-        auto b  = x1_to_ieee(x1_words_to_real(hi, lo));
+        auto b  = x1_to_ieee(load_real(core.B));
         if (b == 0) {
             throw std::runtime_error("Division by zero");
         }
@@ -610,7 +613,7 @@ bool Processor::call_opc(unsigned opc)
         int limit = x1_to_integer(machine.mem_load(addr+2+ndim));
         // The limit must look like a negative number with a reasonable absolute value.
         if (limit >= 0 || -limit > 32767) {
-            throw std::runtime_error("A wrong number of indexes for an array");            
+            throw std::runtime_error("A wrong number of indexes for an array");
         }
         int elt_addr = base;
         int idx0 = 0;           // for the error message
@@ -633,7 +636,7 @@ bool Processor::call_opc(unsigned opc)
             }
             ostr << "beyond limits for array [" <<
                 (location-base)/elsize << ':' << (location-base-limit)/elsize-1 << ']';
-            throw std::runtime_error(ostr.str());            
+            throw std::runtime_error(ostr.str());
         }
         if (storage_fn.is_int_addr())
             stack.push_int_addr(elt_addr);
@@ -655,11 +658,29 @@ bool Processor::call_opc(unsigned opc)
         break;
     }
     case OPC_TAR:{
-        auto addr = stack.pop();
-        if (addr.is_int_addr()) {
-            stack.push_int_value(x1_to_integer(machine.mem_load(addr.get_addr()))); 
-        } else if (addr.is_real_addr()) {
-            load_real(addr.get_addr());
+        // take result
+        auto src  = stack.pop();
+        auto addr = src.get_addr();
+        if (src.is_int_addr()) {
+            Word result;
+            if (addr < STACK_BASE) {
+                // From memory.
+                result = machine.mem_load(addr);
+            } else {
+                // From stack.
+                result = stack.get(addr - STACK_BASE).get_int();
+            }
+            stack.push_int_value(result);
+        } else if (src.is_real_addr()) {
+            Real result;
+            if (addr < STACK_BASE) {
+                // From memory.
+                result = load_real(addr);
+            } else {
+                // From stack.
+                result = stack.get(addr - STACK_BASE).get_real();
+            }
+            stack.push_real_value(result);
         } else {
             throw std::runtime_error("OPC TAR invoked on a non-address operand");
         }
@@ -1013,7 +1034,7 @@ unsigned Processor::frame_release()
 // Add offset (plus some correction).
 // This is static address.
 //
-unsigned Processor::static_address(unsigned dynamic_addr)
+unsigned Processor::address_in_stack(unsigned dynamic_addr)
 {
     auto const offset      = dynamic_addr / 32;
     auto const block_level = dynamic_addr % 32;
@@ -1048,7 +1069,7 @@ unsigned Processor::arg_descriptor(unsigned dynamic_addr)
 
 //
 // Store value given by src cell.
-// Write it to memory address given by dest cell.
+// Write it to stack offset given by dest cell.
 // Convert integer value to real when needed.
 //
 void Processor::store_value(const Stack_Cell &dest, const Stack_Cell &src)
@@ -1065,7 +1086,15 @@ void Processor::store_value(const Stack_Cell &dest, const Stack_Cell &src)
         } else {
             throw std::runtime_error("Cannot store address");
         }
-        machine.mem_store(addr, result);
+        if (addr < STACK_BASE) {
+            // Store to memory.
+            machine.mem_store(addr, result);
+        } else {
+            // Store to stack.
+            auto &item = stack.get(addr - STACK_BASE);
+            item.value = result;
+            item.type  = Cell_Type::INTEGER_VALUE;
+        }
         break;
     }
     case Cell_Type::REAL_ADDRESS: {
@@ -1084,8 +1113,16 @@ void Processor::store_value(const Stack_Cell &dest, const Stack_Cell &src)
         } else {
             throw std::runtime_error("Cannot store address");
         }
-        machine.mem_store(addr, (result >> 27) & BITS(27));
-        machine.mem_store(addr + 1, result & BITS(27));
+        if (addr < STACK_BASE) {
+            // Store to memory.
+            machine.mem_store(addr, (result >> 27) & BITS(27));
+            machine.mem_store(addr + 1, result & BITS(27));
+        } else {
+            // Store to stack.
+            auto &item = stack.get(addr - STACK_BASE);
+            item.value = result;
+            item.type  = Cell_Type::REAL_VALUE;
+        }
         break;
     }
     default:

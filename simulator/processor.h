@@ -48,6 +48,9 @@ private:
     // Frame pointers for each block level.
     unsigned display[32]{};
 
+    // Stack contents is mapped to this virtual address.
+    static unsigned const STACK_BASE = 0100000;
+
 public:
     // Stack of arguments for OPC.
     Virtual_Stack stack;
@@ -85,8 +88,8 @@ private:
     // Return true when the processor is stopped.
     bool call_opc(unsigned opc);
 
-    // Loads a real value at addr onto the stack.
-    void load_real(unsigned addr);
+    // Loads a real value at addr.
+    Real load_real(unsigned addr);
 
     // Create frame in stack for new procedure block.
     void frame_create(unsigned ret_addr, unsigned num_args);
@@ -96,8 +99,8 @@ private:
     unsigned frame_release();
 
     // Convert dynamic address of variable (relative to stack frame)
-    // into static address.
-    unsigned static_address(unsigned dynamic_addr);
+    // into offset in stack.
+    unsigned address_in_stack(unsigned dynamic_addr);
 
     // Extract descriptor of actual argument.
     unsigned arg_descriptor(unsigned dynamic_addr);

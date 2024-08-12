@@ -31,7 +31,7 @@ struct Stack_Cell {
     bool is_real_addr() const { return type == Cell_Type::REAL_ADDRESS; }
 
     // Get value for a given type.
-    unsigned get_addr() const { return value & BITS(15); }
+    unsigned get_addr() const { return value & BITS(16); }
     Word get_int() const { return value & BITS(27); }
     Real get_real() const { return value & BITS(54); }
 
