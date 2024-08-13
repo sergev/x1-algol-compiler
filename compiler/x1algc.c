@@ -140,7 +140,7 @@ Static FILE *lib_tape;
 
 Static int ii;
 
-Static char *input_line;
+Static char *input_line = "";
 size_t input_line_len;
 Static int input_pos;
 Static boolean input_eof_seen;
@@ -3597,9 +3597,6 @@ int main(int argc, char *argv[])
     ascii_table[':']  = 124;
     ascii_table['|']  = 162;
     ascii_table['_']  = 163;
-
-    if (getline(&input_line, &input_line_len, source_tape))
-        ;
 
     /*preparation of prescan*/
     /*LE*/
