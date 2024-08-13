@@ -188,6 +188,28 @@ void Stack_Cell::multiply_real(Real another)
 }
 
 //
+// Add another item to this one.
+//
+void Stack_Cell::add(const Stack_Cell &another)
+{
+    if (is_int_value() && another.is_int_value()) {
+        // Add two integers with integer result.
+        int a = x1_to_integer(get_int());
+        int b = x1_to_integer(another.get_int());
+        value = integer_to_x1(a + b);
+        return;
+    }
+
+    // Add two real/integer values with real result.
+    long double a = is_real_value() ? x1_to_ieee(get_real()) :
+                                      x1_to_integer(get_int());
+    long double b = another.is_real_value() ? x1_to_ieee(another.get_real()) :
+                                      x1_to_integer(another.get_int());
+    value = ieee_to_x1(a + b);
+    type  = Cell_Type::REAL_VALUE;
+}
+
+//
 // Iterative function to calculate integer pow(x, n).
 //
 static int power(int x, unsigned n)

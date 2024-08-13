@@ -122,6 +122,9 @@ private:
     // Store value given by src cell.
     // Write it to memory address given by dest cell.
     void store_value(const Stack_Cell &dest, const Stack_Cell &src);
+
+    // Get value at dynamic address and push it on stack.
+    void push_formal(unsigned dynamic_addr);
 };
 
 #endif // X1_PROCESSOR_H

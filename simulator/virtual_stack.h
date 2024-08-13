@@ -50,6 +50,9 @@ struct Stack_Cell {
     // Multiply this item by another one.
     void multiply(const Stack_Cell &another);
     void multiply_real(Real another);
+
+    // Add another item to this one.
+    void add(const Stack_Cell &another);
 };
 
 class Virtual_Stack {

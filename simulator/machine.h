@@ -80,7 +80,7 @@ public:
     void compile_and_run();
 
     // Run simulation.
-    void run();
+    void run(unsigned start_addr, unsigned finish_addr = UINT_MAX);
 
     // Get address by name from symbol table.
     unsigned get_symbol(const std::string &name) { return symbol_table.at(name); }

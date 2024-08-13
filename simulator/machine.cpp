@@ -75,16 +75,16 @@ void Machine::compile_and_run()
 
     compile(input_file, obj_filename);
     load_object_program(obj_filename);
-    run();
+    run(get_entry(0));
 }
 
 //
-// Run the machine until completion.
+// Run the machine until completion, or until PC address reached.
 //
-void Machine::run()
+void Machine::run(unsigned start_addr, unsigned finish_addr)
 {
     // Jump to the first entry.
-    cpu.set_ot(get_entry(0));
+    cpu.set_ot(start_addr);
 
     // Show initial state.
     trace_registers();
@@ -101,7 +101,11 @@ void Machine::run()
         simulated_instructions++;
 
         if (done) {
-            // Halted by 'стоп' instruction.
+            // Halted by 'STOP' code.
+            return;
+        }
+        if (cpu.get_ot() == finish_addr) {
+            // End of implicit subroutine.
             return;
         }
     }

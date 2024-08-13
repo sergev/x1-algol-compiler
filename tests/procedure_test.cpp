@@ -202,16 +202,16 @@ TEST_F(x1_machine, add_formal)
 {
     auto output = compile_and_run(R"(
         b̲e̲g̲i̲n̲
-            p̲r̲o̲c̲e̲d̲u̲r̲e̲ print sum(a, b);
+            p̲r̲o̲c̲e̲d̲u̲r̲e̲ psum(a, b);
                 r̲e̲a̲l̲ a, b;
             b̲e̲g̲i̲n̲
                 print(a + b);
             e̲n̲d̲;
-            print sum(123.456, -78.9);
-            print sum(-123, 78);
+            psum(123.456, -98.76);
+            psum(-123, 78);
         e̲n̲d̲
     )");
-    const std::string expect = R"(44.556
+    const std::string expect = R"(24.696
 -45
 )";
     EXPECT_EQ(output, expect);
