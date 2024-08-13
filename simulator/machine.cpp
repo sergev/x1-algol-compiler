@@ -104,7 +104,7 @@ void Machine::run(unsigned start_addr, unsigned finish_addr)
             // Halted by 'STOP' code.
             return;
         }
-        if (cpu.get_ot() == finish_addr) {
+        if (finish_addr != 0 && cpu.get_ot() == finish_addr) {
             // End of implicit subroutine.
             return;
         }
