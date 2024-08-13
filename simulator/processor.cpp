@@ -974,6 +974,7 @@ bool Processor::call_opc(unsigned opc)
         // Block level is present in register B.
         // Zero means the current procedure.
         // Result is stored in stack frame at offset 2.
+        // Pop result from stack.
         auto result = stack.pop();
         auto addr   = display[core.B + 1] + Frame_Offset::RESULT;
         if (!stack.get(addr).is_null()) {
@@ -981,8 +982,19 @@ bool Processor::call_opc(unsigned opc)
         }
         break;
     }
-    //TODO: case OPC_STAP: // store also procedure value
-
+    case OPC_STAP: {
+        // store also procedure value
+        // Block level is present in register B.
+        // Zero means the current procedure.
+        // Result is stored in stack frame at offset 2.
+        // Leave a copy of result on stack.
+        auto const &result = stack.top();
+        auto addr = display[core.B + 1] + Frame_Offset::RESULT;
+        if (!stack.get(addr).is_null()) {
+            stack.set(addr, result);
+        }
+        break;
+    }
     case OPC_SCC: {
         // short circuit
         // Numeric argument is present in register B.
