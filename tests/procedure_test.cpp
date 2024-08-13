@@ -255,6 +255,6 @@ TEST_F(x1_machine, procedure_PRINTTEXT)
             NLCR
         e̲n̲d̲
     )");
-    const std::string expect = "Hello ‘Algol’\n";
+    const std::string expect = "Hello `Algol'\n";
     EXPECT_EQ(output, expect);
 }
