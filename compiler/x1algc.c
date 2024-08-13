@@ -140,7 +140,7 @@ Static FILE *lib_tape;
 
 Static int ii;
 
-Static char *input_line = "";
+Static char *input_line;
 size_t input_line_len;
 Static int input_pos;
 Static boolean input_eof_seen;
@@ -3473,6 +3473,7 @@ int main(int argc, char *argv[])
 
     PASCAL_MAIN(argc, argv);
     lib_tape = NULL;
+    input_line = calloc(1, 1);
 
     /*initialization of word_del_table*/
     /*HT*/
