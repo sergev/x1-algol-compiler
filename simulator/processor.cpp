@@ -1,10 +1,11 @@
-#include "machine.h"
-#include "opc.h"
-
 #include <algorithm>
 #include <cmath>
 #include <iostream>
 #include <sstream>
+
+#include "encoding.h"
+#include "machine.h"
+#include "opc.h"
 
 //
 // Reset routine
@@ -86,15 +87,15 @@ bool Processor::step()
     // Y and N conditions reactions has the same meaning for all instructions
     /// thus it can be checked globally.
     switch (opcode & 3) {
-    case 0:                     // regular
-    case 1:                     // Undisturbed, unconditional
+    case 0: // regular
+    case 1: // Undisturbed, unconditional
         break;
-    case 2:                     // Yes condition
+    case 2: // Yes condition
         if (!core.C)
             return done_flag;
         opcode &= ~3;
         break;
-    case 3:                     // No condition
+    case 3: // No condition
         if (core.C)
             return done_flag;
         opcode &= ~3;
@@ -175,7 +176,7 @@ bool Processor::step()
         break;
 
     case 012'40:
-        core.S = machine.mem_load((addr+core.B) & BITS(15));
+        core.S = machine.mem_load((addr + core.B) & BITS(15));
         break;
 
     case 016'00:
@@ -205,7 +206,7 @@ bool Processor::step()
         break;
 
     case 042'40:
-        core.B = machine.mem_load((addr+core.B) & BITS(15));
+        core.B = machine.mem_load((addr + core.B) & BITS(15));
         break;
 
     case 046'00:
@@ -220,7 +221,7 @@ bool Processor::step()
         // 4T addr 0 P
         unsigned w = machine.mem_load(0);
         machine.mem_store(0, (w + 0777777776 + (w > 1)) & BITS(27));
-        if (w > 1) {            // therefore the decremented value is > 0
+        if (w > 1) { // therefore the decremented value is > 0
             OT = addr;
         }
         break;
@@ -234,11 +235,11 @@ bool Processor::step()
         // Round shift to the right, 1P amount rr E
         unsigned amount = addr & 037;
         switch (addr >> 5) {
-        case 0:                 // AA
-            core.A = (core.A >> amount | core.A << (27-amount)) & BITS(27);
+        case 0: // AA
+            core.A = (core.A >> amount | core.A << (27 - amount)) & BITS(27);
             break;
-        case 1:                 // SS
-            core.S = (core.S >> amount | core.S << (27-amount)) & BITS(27);
+        case 1: // SS
+            core.S = (core.S >> amount | core.S << (27 - amount)) & BITS(27);
             break;
         default:
             goto unknown;
@@ -259,11 +260,11 @@ bool Processor::step()
         // Clear shift to the right, 3P amount rr
         unsigned amount = addr & 037;
         switch (addr >> 5) {
-        case 0:                 // AA
-            core.A = (core.A >> amount | -(core.A>>26) << (27-amount)) & BITS(27);
+        case 0: // AA
+            core.A = (core.A >> amount | -(core.A >> 26) << (27 - amount)) & BITS(27);
             break;
-        case 1:                 // SS
-            core.S = (core.S >> amount | -(core.S>>26) << (27-amount)) & BITS(27);
+        case 1: // SS
+            core.S = (core.S >> amount | -(core.S >> 26) << (27 - amount)) & BITS(27);
             break;
         default:
             goto unknown;
@@ -271,9 +272,10 @@ bool Processor::step()
         break;
     }
 
-    //TODO: process other instructions
+        // TODO: process other instructions
 
-    default: unknown:
+    default:
+    unknown:
         // Unknown instruction - cannot happen.
         throw std::runtime_error("Unknown instruction " + to_octal(OR));
     }
@@ -320,13 +322,13 @@ bool Processor::call_opc(unsigned opc)
         // Save return address on stack.
         // Note: descriptors of procedure arguments are located
         // in memory 3 words before the return address.
-        machine.mem_store(51, OT-8); // for PRINTTEXT
+        machine.mem_store(51, OT - 8); // for PRINTTEXT
         frame_create(OT, core.A);
         OT = core.B;
         break;
 
-    //TODO: case OPC_FTMR: // formtransmark result
-    //TODO: case OPC_FTMP: // formtransmark procedure
+    // TODO: case OPC_FTMR: // formtransmark result
+    // TODO: case OPC_FTMP: // formtransmark procedure
     case OPC_RET: {
         // return from procedure
         // Jump to address from stack.
@@ -338,7 +340,7 @@ bool Processor::call_opc(unsigned opc)
             machine.trace_display(block_level, display[block_level]);
         }
         auto result = stack.get(frame_ptr + Frame_Offset::RESULT);
-        OT = frame_release();
+        OT          = frame_release();
         if (!result.is_null()) {
             // Push result on stack.
             stack.push(result);
@@ -348,7 +350,7 @@ bool Processor::call_opc(unsigned opc)
     case OPC_EIS: {
         // end of implicit subroutine
         auto item = stack.pop();
-        OT = frame_release();
+        OT        = frame_release();
         stack.push(item);
 
         // Restore display[n].
@@ -424,19 +426,19 @@ bool Processor::call_opc(unsigned opc)
         break;
     }
 
-    //TODO: case OPC_FOR0:
-    //TODO: case OPC_FOR1:
-    //TODO: case OPC_FOR2:
-    //TODO: case OPC_FOR3:
-    //TODO: case OPC_FOR4:
+    // TODO: case OPC_FOR0:
+    // TODO: case OPC_FOR1:
+    // TODO: case OPC_FOR2:
+    // TODO: case OPC_FOR3:
+    // TODO: case OPC_FOR4:
 
-    //TODO: case OPC_FOR5:
-    //TODO: case OPC_FOR6:
-    //TODO: case OPC_FOR7:
-    //TODO: case OPC_FOR8:
+    // TODO: case OPC_FOR5:
+    // TODO: case OPC_FOR6:
+    // TODO: case OPC_FOR7:
+    // TODO: case OPC_FOR8:
 
-    //TODO: case OPC_GTA: // goto adjustment
-    //TODO: case OPC_SSI: // store switch index
+    // TODO: case OPC_GTA: // goto adjustment
+    // TODO: case OPC_SSI: // store switch index
     case OPC_CAC:
         // copy boolean acc. into condition
         core.C = stack.pop_boolean();
@@ -466,7 +468,7 @@ bool Processor::call_opc(unsigned opc)
         // Dynamic address is present in register S.
         // Convert it to stack offset, read integer value and push on stack.
         unsigned addr = address_in_stack(core.S);
-        auto result = stack.get(addr);
+        auto result   = stack.get(addr);
         if (!result.is_int_value()) {
             throw std::runtime_error("Wrong result type in TIRD");
         }
@@ -486,7 +488,7 @@ bool Processor::call_opc(unsigned opc)
         // Dynamic address is present in register S.
         push_formal(core.S);
         break;
-    //TODO: case OPC_ADRD: // add real dynamic
+    // TODO: case OPC_ADRD: // add real dynamic
     case OPC_ADRS: {
         // add real static
         auto b    = x1_to_ieee(load_real(core.B));
@@ -502,10 +504,10 @@ bool Processor::call_opc(unsigned opc)
         }
         break;
     }
-    //TODO: case OPC_ADID: // add integer dynamic
+    // TODO: case OPC_ADID: // add integer dynamic
     case OPC_ADIS: {
         // add integer static
-        auto b = x1_to_integer(machine.mem_load(core.B));
+        auto b    = x1_to_integer(machine.mem_load(core.B));
         auto item = stack.pop();
         if (item.is_int_value()) {
             auto a = x1_to_integer(item.get_int());
@@ -529,7 +531,7 @@ bool Processor::call_opc(unsigned opc)
         stack.push(a);
         break;
     }
-    //TODO: case OPC_SURD: // subtract real dynamic
+    // TODO: case OPC_SURD: // subtract real dynamic
     case OPC_SURS: {
         // subtract real static
         auto b    = x1_to_ieee(load_real(core.B));
@@ -545,10 +547,10 @@ bool Processor::call_opc(unsigned opc)
         }
         break;
     }
-    //TODO: case OPC_SUID: // subtract integer dynamic
+    // TODO: case OPC_SUID: // subtract integer dynamic
     case OPC_SUIS: {
         // subtract integer static
-        auto b = x1_to_integer(machine.mem_load(core.B));
+        auto b    = x1_to_integer(machine.mem_load(core.B));
         auto item = stack.pop();
         if (item.is_int_value()) {
             auto a = x1_to_integer(item.get_int());
@@ -561,7 +563,7 @@ bool Processor::call_opc(unsigned opc)
         }
         break;
     }
-    //TODO: case OPC_SUF:  // subtract formal
+        // TODO: case OPC_SUF:  // subtract formal
 
     case OPC_MURD: {
         // multiply real dynamic
@@ -591,10 +593,10 @@ bool Processor::call_opc(unsigned opc)
         }
         break;
     }
-    //TODO: case OPC_MUID: // multiply integer dynamic
+    // TODO: case OPC_MUID: // multiply integer dynamic
     case OPC_MUIS: {
         // multiply integer static
-        auto b = x1_to_integer(machine.mem_load(core.B));
+        auto b    = x1_to_integer(machine.mem_load(core.B));
         auto item = stack.pop();
         if (item.is_int_value()) {
             auto a = x1_to_integer(item.get_int());
@@ -607,18 +609,18 @@ bool Processor::call_opc(unsigned opc)
         }
         break;
     }
-    //TODO: case OPC_MUF:  // static multiply formal
+    // TODO: case OPC_MUF:  // static multiply formal
 
-    //TODO: case OPC_DIRD: // divide real dynamic
+    // TODO: case OPC_DIRD: // divide real dynamic
     case OPC_DIRS: {
         // divide real static
-        auto b  = x1_to_ieee(load_real(core.B));
+        auto b = x1_to_ieee(load_real(core.B));
         if (b == 0) {
             throw std::runtime_error("Division by zero");
         }
         auto item = stack.pop();
         if (item.is_int_value()) {
-            auto a = (long double) x1_to_integer(item.get_int());
+            auto a = (long double)x1_to_integer(item.get_int());
             stack.push_real_value(ieee_to_x1(a / b));
         } else if (item.is_real_value()) {
             auto a = x1_to_ieee(item.get_real());
@@ -628,7 +630,7 @@ bool Processor::call_opc(unsigned opc)
         }
         break;
     }
-    //TODO: case OPC_DIID: // divide integer dynamic
+    // TODO: case OPC_DIID: // divide integer dynamic
     case OPC_DIIS: {
         // divide integer static
         auto b = x1_to_integer(machine.mem_load(core.B));
@@ -637,7 +639,7 @@ bool Processor::call_opc(unsigned opc)
         }
         auto item = stack.pop();
         if (item.is_int_value()) {
-            auto a = (long double) x1_to_integer(item.get_int());
+            auto a = (long double)x1_to_integer(item.get_int());
             stack.push_real_value(ieee_to_x1(a / b));
         } else if (item.is_real_value()) {
             auto a = x1_to_ieee(item.get_real());
@@ -647,7 +649,7 @@ bool Processor::call_opc(unsigned opc)
         }
         break;
     }
-    //TODO: case OPC_DIF:  // divide formal
+        // TODO: case OPC_DIF:  // divide formal
 
     case OPC_IND: {
         // The top of the stack is: storage function address, idx1 [idx2 [idx3 [...] ] ]
@@ -674,34 +676,33 @@ bool Processor::call_opc(unsigned opc)
         // 2..2+ndim-1: element or dimension sizes in words
         // 2+ndim: number of words in the array, negated
         unsigned addr = storage_fn.get_addr();
-        int location = x1_to_integer(machine.mem_load(addr));
-        int base = x1_to_integer(machine.mem_load(addr+1));
-        int limit = x1_to_integer(machine.mem_load(addr+2+ndim));
+        int location  = x1_to_integer(machine.mem_load(addr));
+        int base      = x1_to_integer(machine.mem_load(addr + 1));
+        int limit     = x1_to_integer(machine.mem_load(addr + 2 + ndim));
         // The limit must look like a negative number with a reasonable absolute value.
         if (limit >= 0 || -limit > 32767) {
             throw std::runtime_error("A wrong number of indexes for an array");
         }
         int elt_addr = base;
-        int idx0 = 0;           // for the error message
+        int idx0     = 0; // for the error message
         for (unsigned i = 0; i < ndim; ++i) {
-            int dimsize = x1_to_integer(machine.mem_load(addr+2+i));
-            int idx = idxs[i].is_int_value() ? idxs[i].get_int()
-                : (int) roundl(idxs[i].get_real());
+            int dimsize = x1_to_integer(machine.mem_load(addr + 2 + i));
+            int idx = idxs[i].is_int_value() ? idxs[i].get_int() : (int)roundl(idxs[i].get_real());
             if (i == 0)
                 idx0 = idx;
-            elt_addr += idx*dimsize;
+            elt_addr += idx * dimsize;
         }
         elt_addr &= BITS(16); // 16 rather than 15 is to catch "negative" addresses
         if (elt_addr < location || elt_addr + limit >= location) {
             std::ostringstream ostr;
-            int elsize = x1_to_integer(machine.mem_load(addr+2));
+            int elsize = x1_to_integer(machine.mem_load(addr + 2));
             if (ndim == 1) {
                 ostr << "Index " << idx0 << " is ";
             } else {
                 ostr << "Indexing (linearized) ";
             }
-            ostr << "beyond limits for array [" <<
-                (location-base)/elsize << ':' << (location-base-limit)/elsize-1 << ']';
+            ostr << "beyond limits for array [" << (location - base) / elsize << ':'
+                 << (location - base - limit) / elsize - 1 << ']';
             throw std::runtime_error(ostr.str());
         }
         if (storage_fn.is_int_addr())
@@ -723,7 +724,7 @@ bool Processor::call_opc(unsigned opc)
         }
         break;
     }
-    case OPC_TAR:{
+    case OPC_TAR: {
         // take result
         auto src  = stack.pop();
         auto addr = src.get_addr();
@@ -752,8 +753,8 @@ bool Processor::call_opc(unsigned opc)
         }
         break;
     }
-    //TODO: case OPC_ADD: // add
-    //TODO: case OPC_SUB: // subtract
+    // TODO: case OPC_ADD: // add
+    // TODO: case OPC_SUB: // subtract
     case OPC_MUL: {
         // multiply
         auto b = stack.pop();
@@ -762,7 +763,7 @@ bool Processor::call_opc(unsigned opc)
         stack.push(a);
         break;
     }
-    //TODO: case OPC_DIV: // divide
+    // TODO: case OPC_DIV: // divide
     case OPC_IDI: {
         // integer division
         auto b = stack.pop_integer();
@@ -882,10 +883,10 @@ bool Processor::call_opc(unsigned opc)
         Word result;
         if (item.is_int_value()) {
             auto value = x1_to_integer(item.get_int());
-            result = (value > 0) ? 1 : (value < 0) ? x1_negate_int(1) : 0;
+            result     = (value > 0) ? 1 : (value < 0) ? x1_negate_int(1) : 0;
         } else if (item.is_real_value()) {
             auto value = x1_to_ieee(item.get_real());
-            result = (value > 0.0) ? 1 : (value < 0.0) ? x1_negate_int(1) : 0;
+            result     = (value > 0.0) ? 1 : (value < 0.0) ? x1_negate_int(1) : 0;
         } else {
             throw std::runtime_error("Cannot get sign of address");
         }
@@ -898,7 +899,8 @@ bool Processor::call_opc(unsigned opc)
         // Argument can be either of type real or integer.
         long double input = stack.pop_ieee();
         if (input < 0) {
-            throw std::runtime_error("Cannot get square root of negative value " + std::to_string(input));
+            throw std::runtime_error("Cannot get square root of negative value " +
+                                     std::to_string(input));
         }
         stack.push_ieee(sqrtl(input));
         break;
@@ -923,7 +925,8 @@ bool Processor::call_opc(unsigned opc)
         // Argument can be either of type real or integer.
         long double input = stack.pop_ieee();
         if (input <= 0) {
-            throw std::runtime_error("Cannot get logarithm of non-positive value " + std::to_string(input));
+            throw std::runtime_error("Cannot get logarithm of non-positive value " +
+                                     std::to_string(input));
         }
         stack.push_ieee(logl(input));
         break;
@@ -932,10 +935,11 @@ bool Processor::call_opc(unsigned opc)
         // Function exp(E) - exponential function of the value of E (e**E)
         // Yield value of type real.
         // Argument can be either of type real or integer.
-        long double input = stack.pop_ieee();
+        long double input  = stack.pop_ieee();
         long double result = expl(input);
         if (result == HUGE_VALL) {
-            throw std::runtime_error("Overflow in exponential function of value " + std::to_string(input));
+            throw std::runtime_error("Overflow in exponential function of value " +
+                                     std::to_string(input));
         }
         stack.push_ieee(result);
         break;
@@ -953,7 +957,7 @@ bool Processor::call_opc(unsigned opc)
             if (input < -(int)BITS(26) || input >= (int)BITS(26) + 1) {
                 throw std::runtime_error("Overflow in entier of value " + std::to_string(input));
             }
-            result = integer_to_x1((int) floorl(input));
+            result = integer_to_x1((int)floorl(input));
         } else {
             throw std::runtime_error("Cannot get entier of address");
         }
@@ -968,7 +972,7 @@ bool Processor::call_opc(unsigned opc)
         store_value(dest, src);
         break;
     }
-    //TODO: case OPC_STA:  // store also
+    // TODO: case OPC_STA:  // store also
     case OPC_STP: {
         // store procedure value
         // Block level is present in register B.
@@ -989,7 +993,7 @@ bool Processor::call_opc(unsigned opc)
         // Result is stored in stack frame at offset 2.
         // Leave a copy of result on stack.
         auto const &result = stack.top();
-        auto addr = display[core.B + 1] + Frame_Offset::RESULT;
+        auto addr          = display[core.B + 1] + Frame_Offset::RESULT;
         if (!stack.get(addr).is_null()) {
             stack.set(addr, result);
         }
@@ -1003,7 +1007,7 @@ bool Processor::call_opc(unsigned opc)
         }
         // Save display[n] and block level.
         auto &disp = stack.get(frame_ptr + Frame_Offset::DISPLAY);
-        disp.type = Cell_Type::INTEGER_VALUE;
+        disp.type  = Cell_Type::INTEGER_VALUE;
         disp.value = display[core.B] | (core.B << 15);
 
         display[core.B] = frame_ptr;
@@ -1011,12 +1015,12 @@ bool Processor::call_opc(unsigned opc)
         stack_base = stack.count();
         break;
     }
-    //TODO: case OPC_RSF: // real arrays storage function frame
-    //TODO: case OPC_ISF: // integer arrays storage function frame
-    //TODO: case OPC_RVA: // real value array storage function frame
-    //TODO: case OPC_IVA: // integer value array storage function frame
-    //TODO: case OPC_LAP: // local array positioning
-    //TODO: case OPC_VAP: // value array positioning
+        // TODO: case OPC_RSF: // real arrays storage function frame
+        // TODO: case OPC_ISF: // integer arrays storage function frame
+        // TODO: case OPC_RVA: // real value array storage function frame
+        // TODO: case OPC_IVA: // integer value array storage function frame
+        // TODO: case OPC_LAP: // local array positioning
+        // TODO: case OPC_VAP: // value array positioning
 
     case OPC_START:
         // Start of the object program.
@@ -1026,63 +1030,15 @@ bool Processor::call_opc(unsigned opc)
         // End of the object program.
         return true;
 
-    //TODO: case OPC_TFP:  // take formal parameter
+        // TODO: case OPC_TFP:  // take formal parameter
 
     case OPC_TAS:
-        switch (core.S) {
-        case 0 ... 9:
-            std::cout << char(core.S + '0');
-            break;
-        case 10 ... 35:
-            std::cout << char(core.S - 10 + 'a');
-            break;
-        case 37 ... 62:
-            std::cout << char(core.S - 37 + 'A');
-            break;
-        case 64: case 65: case 67: case 70: case 72: case 74:
-            std::cout << "+-!/!!>!=!<"[core.S - 64];
-            break;
-        case 68: case 69: case 71: case 73:
-        case 75 ... 80: {
-            static const char * c[] = {
-                "÷", "↑", "", "≥", "", "≤", "", "≠",
-                "¬", "∧", "∨", "⊃", "≡"
-            };
-            std::cout << c[core.S-68];
-            break;
-        }
-        case 87: case 88: case 90: case 91: case 93:
-            std::cout << ",.!:;! "[core.S-87];
-            break;
-        case 89:
-            std::cout << "⏨";
-            break;
-        case 98 ... 101:
-            std::cout << "()[]"[core.S - 98];
-            break;
-        case 102:
-          std::cout << "‘";
-          break;
-        case 103:
-          std::cout << "’";
-          break;
-        case 118:
-            std::cout << '\t';
-            break;
-        case 119:
-            std::cout << '\n';
-            break;
-        case 121:
-            std::cout << '"';
-            break;
-        case 122:
-            std::cout << '?';
-            break;
-        }
+        // type Algol symbol
+        algol_putc(core.S, std::cout);
         break;
-    //TODO: case OPC_OBC6: // output buffer class 6
-    //TODO: case OPC_FLOATER:
-    //TODO: case OPC_read:
+        // TODO: case OPC_OBC6: // output buffer class 6
+        // TODO: case OPC_FLOATER:
+        // TODO: case OPC_read:
 
     case OPC_print: {
         // Print number(s).
@@ -1114,10 +1070,10 @@ bool Processor::call_opc(unsigned opc)
         std::cout << std::endl;
         break;
 
-    //TODO: case OPC_XEEN:
-    //TODO: case OPC_SPACE:
-    //TODO: case OPC_stop:
-    //TODO: case OPC_P21:
+        // TODO: case OPC_XEEN:
+        // TODO: case OPC_SPACE:
+        // TODO: case OPC_stop:
+        // TODO: case OPC_P21:
 
     default: {
         std::ostringstream ostr;
@@ -1135,11 +1091,11 @@ void Processor::frame_create(unsigned ret_addr, unsigned num_args)
 {
     auto new_frame_ptr = stack.count();
 
-    stack.push_int_addr(frame_ptr);   // offset 0: previos frame pointer
-    stack.push_int_addr(ret_addr);    // offset 1: return address
-    stack.push_int_addr(stack_base);  // offset 2: base of the stack
-    stack.push_null();                // offset 3: place for result
-    stack.push_null();                // offset 4: place for display[n]
+    stack.push_int_addr(frame_ptr);  // offset 0: previos frame pointer
+    stack.push_int_addr(ret_addr);   // offset 1: return address
+    stack.push_int_addr(stack_base); // offset 2: base of the stack
+    stack.push_null();               // offset 3: place for result
+    stack.push_null();               // offset 4: place for display[n]
 
     for (unsigned i = 0; i < num_args; i++) {
         // Allocate formal parameters: two cells per parameter.
@@ -1159,9 +1115,9 @@ unsigned Processor::frame_release()
         throw std::runtime_error("No frame stack to release");
     }
     auto new_stack_ptr = frame_ptr;
-    auto ret_addr = stack.get(frame_ptr + Frame_Offset::PC).get_addr();
-    stack_base    = stack.get(frame_ptr + Frame_Offset::SP).get_addr();
-    frame_ptr     = stack.get(frame_ptr + Frame_Offset::FP).get_addr();
+    auto ret_addr      = stack.get(frame_ptr + Frame_Offset::PC).get_addr();
+    stack_base         = stack.get(frame_ptr + Frame_Offset::SP).get_addr();
+    frame_ptr          = stack.get(frame_ptr + Frame_Offset::FP).get_addr();
     stack.erase(new_stack_ptr);
     return ret_addr;
 }
@@ -1223,7 +1179,7 @@ void Processor::store_value(const Stack_Cell &dest, const Stack_Cell &src)
         if (src.is_int_value()) {
             result = src.get_int();
         } else if (src.is_real_value()) {
-            result = integer_to_x1((int) roundl(x1_to_ieee(src.get_real())));
+            result = integer_to_x1((int)roundl(x1_to_ieee(src.get_real())));
         } else {
             throw std::runtime_error("Cannot store address");
         }
@@ -1250,7 +1206,7 @@ void Processor::store_value(const Stack_Cell &dest, const Stack_Cell &src)
                 // Minus zero.
                 result = BITS(54);
             } else {
-                result = ieee_to_x1((long double) x1_to_integer(value));
+                result = ieee_to_x1((long double)x1_to_integer(value));
             }
         } else {
             throw std::runtime_error("Cannot store address");

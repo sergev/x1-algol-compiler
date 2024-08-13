@@ -5,6 +5,7 @@ add_library(simulator STATIC
     processor.cpp
     trace.cpp
     virtual_stack.cpp
+    encoding.cpp
 )
 
 # Build executable

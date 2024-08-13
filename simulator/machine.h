@@ -18,7 +18,9 @@ private:
     void show_progress();
 
     // Time of last check.
-    std::chrono::time_point<std::chrono::steady_clock> progress_time_last{ std::chrono::steady_clock::now() };
+    std::chrono::time_point<std::chrono::steady_clock> progress_time_last{
+        std::chrono::steady_clock::now()
+    };
 
     // Last instr_count when progress message was printed.
     uint64_t progress_count{ 0 };
@@ -51,7 +53,6 @@ private:
     std::vector<unsigned> entry_table;
 
 public:
-
     // Electrologica X1 processor.
     Processor cpu{ *this };
 
@@ -94,6 +95,9 @@ public:
 
     // Enable a progress message to stderr.
     void enable_progress_message(bool on) { progress_message_enabled = on; }
+
+    // Print string from memory.
+    void print_string(std::ostream &out, unsigned addr);
 
     // Get instruction count.
     static uint64_t get_instr_count() { return simulated_instructions; }

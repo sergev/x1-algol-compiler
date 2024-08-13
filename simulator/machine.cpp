@@ -1,8 +1,8 @@
 #include "machine.h"
 
 #include <fcntl.h>
-#include <unistd.h>
 #include <sys/wait.h>
+#include <unistd.h>
 
 #include <algorithm>
 #include <cctype>
@@ -14,7 +14,8 @@
 #include <iostream>
 #include <sstream>
 
-//TODO: #include "encoding.h"
+#include "byte_pointer.h"
+#include "encoding.h"
 
 // Static fields.
 uint64_t Machine::simulated_instructions = 0;
@@ -174,7 +175,7 @@ void Machine::run_program(const std::string &prog_path, const std::string &input
 {
     // A child process passes this status code to the parent.
     enum {
-        STATUS_OK = EXIT_SUCCESS,
+        STATUS_OK              = EXIT_SUCCESS,
         STATUS_COMPILER_FAILED = EXIT_FAILURE,
         STATUS_CANNOT_READ_INPUT,
         STATUS_CANNOT_WRITE_OUTPUT,
@@ -261,7 +262,7 @@ void Machine::load_object_program(const std::string &obj_filename)
             // Symbol definition, for example:
             // "A       00 00 02"
             //
-            addr = (a * 32 + b) * 32 + c;
+            addr               = (a * 32 + b) * 32 + c;
             symbol_table[name] = addr;
 
         } else if (std::sscanf(line.c_str(), "%u %u %u", &a, &b, &c) == 3) {
@@ -284,7 +285,6 @@ void Machine::load_object_program(const std::string &obj_filename)
     }
 }
 
-#if 0
 //
 // Decode word to UTF-8 string.
 //
@@ -312,4 +312,3 @@ void Machine::print_string(std::ostream &out, unsigned addr)
     }
     out << '\n';
 }
-#endif
