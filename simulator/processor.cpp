@@ -412,34 +412,7 @@ bool Processor::call_opc(unsigned opc)
     case OPC_TFA: {
         // take formal address
         // Dynamic address is present in register S.
-        // Read word from memory at this address - it contains descriptor
-        // of actual argument. It can hold either address of value, or address
-        // of implicit subroutine. Call it to obtain actual argument value.
-        unsigned arg = arg_descriptor(core.S);
-        switch (arg >> 18 & 7) {
-        case 0: {
-            // Get real address.
-            stack.push_real_addr(arg);
-            break;
-        }
-        case 2: {
-            // Get integer address.
-            stack.push_int_addr(arg);
-            break;
-        }
-        default:
-            // Call implicit subroutine.
-            // Restore display[n].
-            auto const &disp = stack.get(frame_ptr + Frame_Offset::DISPLAY);
-            if (!disp.is_null()) {
-                unsigned block_level = disp.value >> 15;
-                display[block_level] = disp.value & BITS(15);
-                machine.trace_display(block_level, display[block_level]);
-            }
-            frame_create(OT, 0);
-            OT = arg;
-            break;
-        }
+        push_formal_address(core.S);
         break;
     }
 
@@ -503,7 +476,7 @@ bool Processor::call_opc(unsigned opc)
     case OPC_TFR:
         // take formal result
         // Dynamic address is present in register S.
-        push_formal(core.S);
+        push_formal_value(core.S);
         break;
     // TODO: case OPC_ADRD: // add real dynamic
     case OPC_ADRS: {
@@ -541,7 +514,7 @@ bool Processor::call_opc(unsigned opc)
         // add formal
         // Left argument is on stack.
         // Register S has fynamic address of right argument.
-        push_formal(core.S);
+        push_formal_value(core.S);
         auto b = stack.pop();
         auto a = stack.pop();
         a.add(b);
@@ -1283,22 +1256,21 @@ void Processor::store_value(const Stack_Cell &dest, const Stack_Cell &src)
 // of actual argument. It can hold either address of value, or address
 // of implicit subroutine. Call it to obtain actual argument value.
 //
-void Processor::push_formal(unsigned dynamic_addr)
+void Processor::push_formal_address(unsigned dynamic_addr)
 {
-    unsigned arg = arg_descriptor(dynamic_addr);
-    switch (arg >> 18 & 7) {
-    case 0: {
-        // Get real value.
-        stack.push_real_value(load_real(arg));
+    unsigned arg = arg_descriptor(core.S);
+    switch (arg >> 15) {
+    case 00'00: {
+        // Get real address.
+        stack.push_real_addr(arg);
         break;
     }
-    case 2: {
-        // Get integer value.
-        Word value = machine.mem_load(arg);
-        stack.push_int_value(value);
+    case 00'20: {
+        // Get integer address.
+        stack.push_int_addr(arg);
         break;
     }
-    default:
+    case 00'40: {
         // Call implicit subroutine.
         // Restore display[n].
         auto const &disp = stack.get(frame_ptr + Frame_Offset::DISPLAY);
@@ -1310,5 +1282,46 @@ void Processor::push_formal(unsigned dynamic_addr)
         frame_create(OT, 0);
         machine.run(arg, OT);
         break;
+    }
+    default:
+        throw std::runtime_error("Unknown descriptor of formal argument: " + to_octal(arg));
+    }
+}
+
+//
+// Read word from memory at dynamic address - it contains descriptor
+// of actual argument. It can hold either address of value, or address
+// of implicit subroutine. Call it to obtain actual argument value.
+//
+void Processor::push_formal_value(unsigned dynamic_addr)
+{
+    unsigned arg = arg_descriptor(dynamic_addr);
+    switch (arg >> 15) {
+    case 00'00: {
+        // Get real value.
+        stack.push_real_value(load_real(arg));
+        break;
+    }
+    case 00'20: {
+        // Get integer value.
+        Word value = machine.mem_load(arg);
+        stack.push_int_value(value);
+        break;
+    }
+    case 00'40: {
+        // Call implicit subroutine.
+        // Restore display[n].
+        auto const &disp = stack.get(frame_ptr + Frame_Offset::DISPLAY);
+        if (!disp.is_null()) {
+            unsigned block_level = disp.value >> 15;
+            display[block_level] = disp.value & BITS(15);
+            machine.trace_display(block_level, display[block_level]);
+        }
+        frame_create(OT, 0);
+        machine.run(arg, OT);
+        break;
+    }
+    default:
+        throw std::runtime_error("Unknown descriptor of formal argument: " + to_octal(arg));
     }
 }
