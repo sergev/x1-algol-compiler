@@ -51,8 +51,12 @@ struct Stack_Cell {
     void multiply(const Stack_Cell &another);
     void multiply_real(Real another);
 
+    // Divide this item by another one.
+    void divide(const Stack_Cell &another);
+
     // Add another item to this one.
     void add(const Stack_Cell &another);
+    void subtract(const Stack_Cell &another);
 };
 
 class Virtual_Stack {

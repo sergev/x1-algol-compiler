@@ -753,8 +753,22 @@ bool Processor::call_opc(unsigned opc)
         }
         break;
     }
-    // TODO: case OPC_ADD: // add
-    // TODO: case OPC_SUB: // subtract
+    case OPC_ADD: {
+        // add
+        auto b = stack.pop();
+        auto a = stack.pop();
+        a.add(b);
+        stack.push(a);
+        break;
+    }
+    case OPC_SUB: {
+        // subtract
+        auto b = stack.pop();
+        auto a = stack.pop();
+        a.subtract(b);
+        stack.push(a);
+        break;
+    }
     case OPC_MUL: {
         // multiply
         auto b = stack.pop();
@@ -763,7 +777,14 @@ bool Processor::call_opc(unsigned opc)
         stack.push(a);
         break;
     }
-    // TODO: case OPC_DIV: // divide
+    case OPC_DIV: {
+        // divide
+        auto b = stack.pop();
+        auto a = stack.pop();
+        a.divide(b);
+        stack.push(a);
+        break;
+    }
     case OPC_IDI: {
         // integer division
         auto b = stack.pop_integer();

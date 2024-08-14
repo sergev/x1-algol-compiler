@@ -217,6 +217,39 @@ TEST_F(x1_machine, add_formal)
     EXPECT_EQ(output, expect);
 }
 
+TEST_F(x1_machine, add_on_stack)
+{
+    auto output = compile_and_run(R"(
+        b̲e̲g̲i̲n̲
+            print(123 + 456 * 78);
+        e̲n̲d̲
+    )");
+    const std::string expect = "35691\n";
+    EXPECT_EQ(output, expect);
+}
+
+TEST_F(x1_machine, subtract_on_stack)
+{
+    auto output = compile_and_run(R"(
+        b̲e̲g̲i̲n̲
+            print(123 - 456 * 78);
+        e̲n̲d̲
+    )");
+    const std::string expect = "-35445\n";
+    EXPECT_EQ(output, expect);
+}
+
+TEST_F(x1_machine, divide_on_stack)
+{
+    auto output = compile_and_run(R"(
+        b̲e̲g̲i̲n̲
+            print(123 / (4 / 5));
+        e̲n̲d̲
+    )");
+    const std::string expect = "153.75\n";
+    EXPECT_EQ(output, expect);
+}
+
 TEST_F(x1_machine, man_or_boy)
 {
     // Only compile for now.
