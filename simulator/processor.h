@@ -112,6 +112,9 @@ private:
     // Return address is returned.
     unsigned frame_release();
 
+    // Allocate local variables.
+    void allocate_stack(unsigned nwords);
+
     // Convert dynamic address of variable (relative to stack frame)
     // into offset in stack.
     unsigned address_in_stack(unsigned dynamic_addr);

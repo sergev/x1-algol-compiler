@@ -154,6 +154,23 @@ bool Processor::step()
             goto unknown;
         break;
 
+    case 004'00:
+        switch (addr) {
+        case 061:
+            // Allocate local variables.
+            // Literally the instruction means: M[061] += A.
+            // But we have to operate on our virtual stack instead.
+            allocate_stack(core.A);
+            break;
+        case 062:
+            // Increase stack pointer by amount in register A.
+            stack_base += core.A;
+            break;
+        default:
+            goto unknown;
+        }
+        break;
+
     case 006'00:
         machine.mem_store(addr, core.A);
         break;
@@ -1141,6 +1158,17 @@ unsigned Processor::frame_release()
     frame_ptr          = stack.get(frame_ptr + Frame_Offset::FP).get_addr();
     stack.erase(new_stack_ptr);
     return ret_addr;
+}
+
+//
+// Allocate local variables.
+//
+void Processor::allocate_stack(unsigned nwords)
+{
+    for (unsigned i = 0; i < nwords; i++) {
+        // Allocate local variables.
+        stack.push_int_value(0);
+    }
 }
 
 //

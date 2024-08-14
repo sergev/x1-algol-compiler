@@ -301,3 +301,87 @@ TEST_F(x1_machine, procedure_PRINTTEXT)
 )";
     EXPECT_EQ(output, expect);
 }
+
+TEST_F(x1_machine, incr_args_by_value)
+{
+    auto output = compile_and_run(R"(
+        b̲e̲g̲i̲n̲
+            p̲r̲o̲c̲e̲d̲u̲r̲e̲ A(k, r);
+            v̲a̲l̲u̲e̲ k, r; i̲n̲t̲e̲g̲e̲r̲ k; r̲e̲a̲l̲ r;
+            b̲e̲g̲i̲n̲
+                p̲r̲o̲c̲e̲d̲u̲r̲e̲ incr;
+                b̲e̲g̲i̲n̲
+                    k := k + 1;
+                    r := r + 2;
+                e̲n̲d̲;
+                print(k, r);
+                incr;
+                print(k, r);
+            e̲n̲d̲;
+            A(10, 23.5);
+        e̲n̲d̲
+    )");
+    const std::string expect = R"(10
+23.5
+11
+25.5
+)";
+    EXPECT_EQ(output, expect);
+}
+
+TEST_F(x1_machine, incr_args_by_name)
+{
+    auto output = compile_and_run(R"(
+        b̲e̲g̲i̲n̲
+            p̲r̲o̲c̲e̲d̲u̲r̲e̲ A(k, r);
+            i̲n̲t̲e̲g̲e̲r̲ k; r̲e̲a̲l̲ r;
+            b̲e̲g̲i̲n̲
+                p̲r̲o̲c̲e̲d̲u̲r̲e̲ incr;
+                b̲e̲g̲i̲n̲
+                    k := k + 1;
+                    r := r + 2;
+                e̲n̲d̲;
+                print(k, r);
+                incr;
+                print(k, r);
+            e̲n̲d̲;
+            A(10, 23.5);
+        e̲n̲d̲
+    )");
+    const std::string expect = R"(10
+23.5
+11
+25.5
+)";
+    EXPECT_EQ(output, expect);
+}
+
+TEST_F(x1_machine, incr_local_vars)
+{
+    auto output = compile_and_run(R"(
+        b̲e̲g̲i̲n̲
+            p̲r̲o̲c̲e̲d̲u̲r̲e̲ A;
+            b̲e̲g̲i̲n̲
+                i̲n̲t̲e̲g̲e̲r̲ k;
+                r̲e̲a̲l̲ r;
+                p̲r̲o̲c̲e̲d̲u̲r̲e̲ incr;
+                b̲e̲g̲i̲n̲
+                    k := k + 1;
+                    r := r + 2;
+                e̲n̲d̲;
+                k := 10;
+                r := 23.5;
+                print(k, r);
+                incr;
+                print(k, r);
+            e̲n̲d̲;
+            A;
+        e̲n̲d̲
+    )");
+    const std::string expect = R"(10
+23.5
+11
+25.5
+)";
+    EXPECT_EQ(output, expect);
+}
