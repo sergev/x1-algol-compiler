@@ -1259,18 +1259,18 @@ void Processor::store_value(const Stack_Cell &dest, const Stack_Cell &src)
 void Processor::push_formal_address(unsigned dynamic_addr)
 {
     unsigned arg = arg_descriptor(core.S);
-    switch (arg >> 15) {
-    case 00'00: {
+    switch (arg >> 15 & 077) {
+    case 000: {
         // Get real address.
         stack.push_real_addr(arg);
         break;
     }
-    case 00'20: {
+    case 020: {
         // Get integer address.
         stack.push_int_addr(arg);
         break;
     }
-    case 00'40: {
+    case 040: {
         // Call implicit subroutine.
         // Restore display[n].
         auto const &disp = stack.get(frame_ptr + Frame_Offset::DISPLAY);
@@ -1281,6 +1281,19 @@ void Processor::push_formal_address(unsigned dynamic_addr)
         }
         frame_create(OT, 0);
         machine.run(arg, OT);
+        break;
+    }
+    case 022: {
+        // Get integer value from stack.
+        auto block_level = arg >> 22;
+        auto offset      = arg & BITS(15);
+        auto addr        = display[block_level] + offset;
+        auto const &disp = stack.get(frame_ptr + Frame_Offset::DISPLAY);
+        if (!disp.is_null() && block_level == disp.value >> 15) {
+            // Use saved display value.
+            addr = (disp.value & BITS(15)) + offset;
+        }
+        stack.push_int_addr(addr + STACK_BASE);
         break;
     }
     default:
@@ -1296,19 +1309,19 @@ void Processor::push_formal_address(unsigned dynamic_addr)
 void Processor::push_formal_value(unsigned dynamic_addr)
 {
     unsigned arg = arg_descriptor(dynamic_addr);
-    switch (arg >> 15) {
-    case 00'00: {
-        // Get real value.
+    switch (arg >> 15 & 077) {
+    case 000: {
+        // Get real value from memory.
         stack.push_real_value(load_real(arg));
         break;
     }
-    case 00'20: {
-        // Get integer value.
+    case 020: {
+        // Get integer value from memory.
         Word value = machine.mem_load(arg);
         stack.push_int_value(value);
         break;
     }
-    case 00'40: {
+    case 040: {
         // Call implicit subroutine.
         // Restore display[n].
         auto const &disp = stack.get(frame_ptr + Frame_Offset::DISPLAY);
@@ -1319,6 +1332,19 @@ void Processor::push_formal_value(unsigned dynamic_addr)
         }
         frame_create(OT, 0);
         machine.run(arg, OT);
+        break;
+    }
+    case 022: {
+        // Get integer value from stack.
+        auto block_level = arg >> 22;
+        auto offset      = arg & BITS(15);
+        auto addr        = display[block_level] + offset;
+        auto const &disp = stack.get(frame_ptr + Frame_Offset::DISPLAY);
+        if (!disp.is_null() && block_level == disp.value >> 15) {
+            // Use saved display value.
+            addr = (disp.value & BITS(15)) + offset;
+        }
+        stack.push(stack.get(addr));
         break;
     }
     default:
