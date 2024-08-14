@@ -296,7 +296,7 @@ TEST_F(x1_machine, procedure_PRINTTEXT)
 `0123456789'
 `abcdefghijklmnopqrstuvwxyz'
 `ABCDEFGHIJKLMNOPQRSTUVWXYZ'
-`+-×/÷↑>≥=≤<≠¬∧∨⊃≡,.⏨:;≔ '
+`+-×/÷↑>≥=≤<≠¬∧∨⊃≡,.⏨:;:= '
 `()[]`''
 )";
     EXPECT_EQ(output, expect);

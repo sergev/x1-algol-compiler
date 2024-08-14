@@ -192,17 +192,6 @@ void Stack_Cell::multiply_real(Real another)
 //
 void Stack_Cell::divide(const Stack_Cell &another)
 {
-    if (is_int_value() && another.is_int_value()) {
-        // Divide two integers with integer result.
-        int a = x1_to_integer(get_int());
-        int b = x1_to_integer(another.get_int());
-        if (b == 0) {
-            throw std::runtime_error("Divide by zero");
-        }
-        value = integer_to_x1(a / b);
-        return;
-    }
-
     // Divide two values with real result.
     long double a = is_real_value() ? x1_to_ieee(get_real()) :
                                       x1_to_integer(get_int());
