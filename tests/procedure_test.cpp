@@ -385,3 +385,28 @@ TEST_F(x1_machine, incr_local_vars)
 )";
     EXPECT_EQ(output, expect);
 }
+
+TEST_F(x1_machine, local_var_in_block)
+{
+    auto output = compile_and_run(R"(
+        b̲e̲g̲i̲n̲
+            i̲n̲t̲e̲g̲e̲r̲ a;
+
+            p̲r̲o̲c̲e̲d̲u̲r̲e̲ pr(k);
+                i̲n̲t̲e̲g̲e̲r̲ k;
+            print(k);
+
+            a := 54321;
+            pr(a);
+            b̲e̲g̲i̲n̲
+                i̲n̲t̲e̲g̲e̲r̲ b;
+                b := 12345;
+                pr(b);
+            e̲n̲d̲;
+        e̲n̲d̲
+    )");
+    const std::string expect = R"(54321
+12345
+)";
+    EXPECT_EQ(output, expect);
+}
