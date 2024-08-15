@@ -346,6 +346,14 @@ bool Processor::call_opc(unsigned opc)
 
     // TODO: case OPC_FTMR: // formtransmark result
     // TODO: case OPC_FTMP: // formtransmark procedure
+
+    case OPC_FOR8:
+        // Return from the loop subroutine using the provided destination.
+        stack.set(frame_ptr + Frame_Offset::PC,
+                  Stack_Cell{Cell_Type::INTEGER_ADDRESS, core.S});
+        // In the complex, FOR8 jumps to RET.
+        // FALLTHRU
+
     case OPC_RET: {
         // return from procedure
         // Jump to address from stack.
@@ -416,16 +424,38 @@ bool Processor::call_opc(unsigned opc)
         break;
     }
 
-    // TODO: case OPC_FOR0:
-    // TODO: case OPC_FOR1:
-    // TODO: case OPC_FOR2:
+    case OPC_FOR1:
+        // Save the execution link (which points to a jump to the loop body)
+        // in the local variable.
+        stack.set(frame_ptr + Frame_Offset::ARG,
+                  Stack_Cell{Cell_Type::INTEGER_ADDRESS, OT});
+        if (stack.get(frame_ptr + Frame_Offset::RESULT).is_null()) {
+            // When starting to execute a new loop element,
+            // jump to it (initially PC points to under the ETMP for the loop).
+            OT = stack.get(frame_ptr + Frame_Offset::PC).get_addr();
+        } else {
+            // Otherwise execute an iteration of the loop.
+            OT = stack.get(frame_ptr + Frame_Offset::ARG).get_addr();
+        }
+        break;
+
+    case OPC_FOR2: {
+        // The element does not repeat.
+        stack.set(frame_ptr + Frame_Offset::PC,
+                  Stack_Cell{Cell_Type::INTEGER_ADDRESS, OT});
+        // Store the next value of the loop variable.
+        auto src  = stack.pop();
+        auto dest = stack.pop();
+        store_value(dest, src);
+        OT = stack.get(frame_ptr + Frame_Offset::ARG).get_addr();        
+        break;
+    }
     // TODO: case OPC_FOR3:
     // TODO: case OPC_FOR4:
 
     // TODO: case OPC_FOR5:
     // TODO: case OPC_FOR6:
     // TODO: case OPC_FOR7:
-    // TODO: case OPC_FOR8:
 
     // TODO: case OPC_GTA: // goto adjustment
     // TODO: case OPC_SSI: // store switch index
@@ -1010,6 +1040,18 @@ bool Processor::call_opc(unsigned opc)
         }
         break;
     }
+
+    case OPC_FOR0: {
+        // Enters an implicit subroutine with one local word.
+        // In the complex, B := BN + 1; where BN is M[52]
+        auto const &disp = stack.get(frame_ptr + Frame_Offset::DISPLAY);
+        unsigned block_level = disp.is_null() ? 0 : disp.value >> 15;
+        core.B = block_level + 1;
+        allocate_stack(1);
+        stack_base += 1;
+        // In the complex, FOR0 jumps to SCC.
+    }
+        // FALLTHRU
     case OPC_SCC: {
         // short circuit
         // Numeric argument is present in register B.

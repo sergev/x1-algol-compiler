@@ -16,6 +16,7 @@ add_executable(x1test EXCLUDE_FROM_ALL
     boolean_test.cpp
     cli_test.cpp
     function_test.cpp
+    loop_test.cpp
     machine_test.cpp
     procedure_test.cpp
 )
