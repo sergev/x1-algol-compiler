@@ -435,3 +435,29 @@ TEST_F(x1_machine, real_var_in_block)
 )";
     EXPECT_EQ(output, expect);
 }
+
+TEST_F(x1_machine, DISABLED_integer_var_level2)
+{
+    auto output = compile_and_run(R"(
+        b̲e̲g̲i̲n̲
+            p̲r̲o̲c̲e̲d̲u̲r̲e̲ A(x);
+                i̲n̲t̲e̲g̲e̲r̲ x;
+            b̲e̲g̲i̲n̲
+                p̲r̲o̲c̲e̲d̲u̲r̲e̲ B;
+                b̲e̲g̲i̲n̲
+                    print(x);
+                e̲n̲d̲;
+
+                B;
+            e̲n̲d̲;
+
+            b̲e̲g̲i̲n̲
+                i̲n̲t̲e̲g̲e̲r̲ i;
+                i := 123;
+                A(i);
+            e̲n̲d̲;
+        e̲n̲d̲
+    )");
+    const std::string expect = "123\n";
+    EXPECT_EQ(output, expect);
+}
