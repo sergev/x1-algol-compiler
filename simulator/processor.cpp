@@ -1283,6 +1283,19 @@ void Processor::push_formal_address(unsigned dynamic_addr)
         machine.run(arg, OT);
         break;
     }
+    case 002: {
+        // Get real value from stack.
+        auto block_level = arg >> 22;
+        auto offset      = arg & BITS(15);
+        auto addr        = display[block_level] + offset;
+        auto const &disp = stack.get(frame_ptr + Frame_Offset::DISPLAY);
+        if (!disp.is_null() && block_level == disp.value >> 15) {
+            // Use saved display value.
+            addr = (disp.value & BITS(15)) + offset;
+        }
+        stack.push_real_addr(addr + STACK_BASE);
+        break;
+    }
     case 022: {
         // Get integer value from stack.
         auto block_level = arg >> 22;
@@ -1334,6 +1347,8 @@ void Processor::push_formal_value(unsigned dynamic_addr)
         machine.run(arg, OT);
         break;
     }
+    case 002:
+        // Get real value from stack.
     case 022: {
         // Get integer value from stack.
         auto block_level = arg >> 22;

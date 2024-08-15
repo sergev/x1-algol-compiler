@@ -386,7 +386,7 @@ TEST_F(x1_machine, incr_local_vars)
     EXPECT_EQ(output, expect);
 }
 
-TEST_F(x1_machine, local_var_in_block)
+TEST_F(x1_machine, integer_var_in_block)
 {
     auto output = compile_and_run(R"(
         b̲e̲g̲i̲n̲
@@ -407,6 +407,31 @@ TEST_F(x1_machine, local_var_in_block)
     )");
     const std::string expect = R"(54321
 12345
+)";
+    EXPECT_EQ(output, expect);
+}
+
+TEST_F(x1_machine, real_var_in_block)
+{
+    auto output = compile_and_run(R"(
+        b̲e̲g̲i̲n̲
+            r̲e̲a̲l̲ a;
+
+            p̲r̲o̲c̲e̲d̲u̲r̲e̲ pr(k);
+                r̲e̲a̲l̲ k;
+            print(k);
+
+            a := 543.21;
+            pr(a);
+            b̲e̲g̲i̲n̲
+                r̲e̲a̲l̲ b;
+                b := 123.45;
+                pr(b);
+            e̲n̲d̲;
+        e̲n̲d̲
+    )");
+    const std::string expect = R"(543.21
+123.45
 )";
     EXPECT_EQ(output, expect);
 }
