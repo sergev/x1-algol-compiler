@@ -450,8 +450,29 @@ bool Processor::call_opc(unsigned opc)
         OT = stack.get(frame_ptr + Frame_Offset::ARG).get_addr();        
         break;
     }
-    // TODO: case OPC_FOR3:
-    // TODO: case OPC_FOR4:
+
+    case OPC_FOR3: {
+        // Store the next value of the loop variable.
+        auto src  = stack.pop();
+        auto dest = stack.pop();
+        store_value(dest, src);
+        stack.push(dest);        // for the next element in case of exhaustion
+        break;
+    }
+
+    case OPC_FOR4:
+        // Check the while condition.
+        core.C = stack.pop_boolean();
+        if (core.C) {
+            stack.pop();        // address pushed by FOR3 not needed
+            // Go to the loop iteration.
+            OT = stack.get(frame_ptr + Frame_Offset::ARG).get_addr();
+        } else {
+            // Indicate end of the 'while' element, continue to the next one.
+            stack.set(frame_ptr + Frame_Offset::PC,
+                      Stack_Cell{Cell_Type::INTEGER_ADDRESS, OT});
+        }
+        break;
 
     // TODO: case OPC_FOR5:
     // TODO: case OPC_FOR6:
