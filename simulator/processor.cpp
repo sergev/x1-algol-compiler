@@ -1340,8 +1340,10 @@ unsigned Processor::address_in_stack(unsigned dynamic_addr)
 //
 unsigned Processor::address_in_caller_stack(unsigned block_level, unsigned offset)
 {
-    auto const caller_frame = stack.get(frame_ptr + Frame_Offset::FP).get_addr();
-    auto const caller_level = stack.get(caller_frame + Frame_Offset::BN).get_int();
+    // Need to figure out caller's display[] first.
+    unsigned caller_level, caller_frame;
+    unsigned dynamic_addr = block_level + (offset * 32);
+    get_formal_display(dynamic_addr, caller_level, caller_frame);
 
     if (block_level == caller_level) {
         return caller_frame + offset;
@@ -1571,9 +1573,10 @@ unsigned Processor::get_block_level() const
 void Processor::set_block_level(unsigned block_level)
 {
     // Store block level in stack frame.
-    auto &bn = stack.get(frame_ptr + Frame_Offset::BN);
-    bn.type  = Cell_Type::INTEGER_VALUE;
-    bn.value = block_level;
+    auto &item = stack.get(frame_ptr + Frame_Offset::BN);
+    item.type  = Cell_Type::INTEGER_VALUE;
+    item.value = block_level;
+    Machine::trace_stack(frame_ptr + Frame_Offset::BN, item.to_string(), "Write");
 }
 
 //

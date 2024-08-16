@@ -436,7 +436,7 @@ TEST_F(x1_machine, real_var_in_block)
     EXPECT_EQ(output, expect);
 }
 
-TEST_F(x1_machine, DISABLED_integer_var_level2)
+TEST_F(x1_machine, integer_var_level2)
 {
     auto output = compile_and_run(R"(
         b̲e̲g̲i̲n̲
