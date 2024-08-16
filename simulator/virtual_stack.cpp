@@ -486,6 +486,14 @@ Stack_Cell &Virtual_Stack::get(unsigned index)
     return storage[index];
 }
 
+const Stack_Cell &Virtual_Stack::get(unsigned index) const
+{
+    if (index >= storage.size()) {
+        throw std::runtime_error("No item #" + std::to_string(index) + " in stack");
+    }
+    return storage[index];
+}
+
 //
 // Set item by index.
 //

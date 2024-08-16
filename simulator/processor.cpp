@@ -421,13 +421,6 @@ bool Processor::call_opc(unsigned opc)
     case OPC_RET: {
         // return from procedure
         // Jump to address from stack.
-        // Restore display[n].
-        auto const &disp = stack.get(frame_ptr + Frame_Offset::DISPLAY);
-        if (!disp.is_null()) {
-            unsigned block_level = disp.value >> 15;
-            display[block_level] = disp.value & BITS(15);
-            machine.trace_display(block_level, display[block_level]);
-        }
         auto result = stack.get(frame_ptr + Frame_Offset::RESULT);
         OT          = frame_release();
         if (!result.is_null()) {
@@ -441,16 +434,6 @@ bool Processor::call_opc(unsigned opc)
         auto item = stack.pop();
         OT        = frame_release();
         stack.push(item);
-
-        // Restore display[n].
-        if (stack_base > 0) {
-            auto const &disp = stack.get(frame_ptr + Frame_Offset::DISPLAY);
-            if (!disp.is_null()) {
-                unsigned block_level = disp.value >> 15;
-                display[block_level] = frame_ptr;
-                machine.trace_display(block_level, frame_ptr);
-            }
-        }
         break;
     }
     case OPC_TRAD: {
@@ -508,7 +491,7 @@ bool Processor::call_opc(unsigned opc)
         auto src  = stack.pop();
         auto dest = stack.pop();
         store_value(dest, src);
-        OT = stack.get(frame_ptr + Frame_Offset::ARG).get_addr();        
+        OT = stack.get(frame_ptr + Frame_Offset::ARG).get_addr();
         break;
     }
 
@@ -1186,8 +1169,7 @@ bool Processor::call_opc(unsigned opc)
     case OPC_FOR0: {
         // Enters an implicit subroutine with one local word.
         // In the complex, B := BN + 1; where BN is M[52]
-        auto const &disp = stack.get(frame_ptr + Frame_Offset::DISPLAY);
-        unsigned block_level = disp.is_null() ? 0 : disp.value >> 15;
+        unsigned block_level = get_block_level();
         core.B = block_level + 1;
         allocate_stack(1);
         stack_base += 1;
@@ -1201,13 +1183,8 @@ bool Processor::call_opc(unsigned opc)
             throw std::runtime_error("Bad block level in SCC");
         }
         // Save display[n] and block level.
-        auto &disp = stack.get(frame_ptr + Frame_Offset::DISPLAY);
-        disp.type  = Cell_Type::INTEGER_VALUE;
-        disp.value = display[core.B] | (core.B << 15);
-
-        display[core.B] = frame_ptr;
-        machine.trace_display(core.B, frame_ptr);
-        stack_base = stack.count();
+        set_block_level(core.B);
+        update_display(core.B, frame_ptr);
         break;
     }
         // TODO: case OPC_RSF: // real arrays storage function frame
@@ -1290,14 +1267,18 @@ void Processor::frame_create(unsigned ret_addr, unsigned num_args)
     stack.push_int_addr(ret_addr);   // offset 1: return address
     stack.push_int_addr(stack_base); // offset 2: base of the stack
     stack.push_null();               // offset 3: place for result
-    stack.push_null();               // offset 4: place for display[n]
+    stack.push_null();               // offset 4: place for block level
+
+    // For each parameter, store info about parent display.
+    auto parent_display = get_block_level() << 22 | frame_ptr;
 
     for (unsigned i = 0; i < num_args; i++) {
         // Allocate formal parameters: two cells per parameter.
         stack.push_int_value(0);
-        stack.push_int_value(0);
+        stack.push_int_value(parent_display);
     }
     frame_ptr = new_frame_ptr;
+    stack_base = stack.count();
 }
 
 //
@@ -1314,6 +1295,13 @@ unsigned Processor::frame_release()
     stack_base         = stack.get(frame_ptr + Frame_Offset::SP).get_addr();
     frame_ptr          = stack.get(frame_ptr + Frame_Offset::FP).get_addr();
     stack.erase(new_stack_ptr);
+
+    // Restore display[n].
+    auto block_level = get_block_level();
+    if (block_level > 0) {
+        display[block_level] = frame_ptr;
+        machine.trace_display(block_level, frame_ptr);
+    }
     return ret_addr;
 }
 
@@ -1340,11 +1328,26 @@ void Processor::allocate_stack(unsigned nwords)
 //
 unsigned Processor::address_in_stack(unsigned dynamic_addr)
 {
-    auto const offset      = dynamic_addr / 32;
     auto const block_level = dynamic_addr % 32;
-    auto const static_addr = display[block_level] + offset;
+    auto const offset      = dynamic_addr / 32;
 
-    return static_addr;
+    return display[block_level] + offset;
+}
+
+//
+// Convert dynamic address into static address.
+// Assume caller's context, as if restoring display[] for a moment.
+//
+unsigned Processor::address_in_caller_stack(unsigned block_level, unsigned offset)
+{
+    auto const caller_frame = stack.get(frame_ptr + Frame_Offset::FP).get_addr();
+    auto const caller_level = stack.get(caller_frame + Frame_Offset::BN).get_int();
+
+    if (block_level == caller_level) {
+        return caller_frame + offset;
+    } else {
+        return display[block_level] + offset;
+    }
 }
 
 //
@@ -1456,40 +1459,17 @@ void Processor::push_formal_address(unsigned dynamic_addr)
     }
     case 040: {
         // Call implicit subroutine.
-        // Restore display[n].
-        auto const &disp = stack.get(frame_ptr + Frame_Offset::DISPLAY);
-        if (!disp.is_null()) {
-            unsigned block_level = disp.value >> 15;
-            display[block_level] = disp.value & BITS(15);
-            machine.trace_display(block_level, display[block_level]);
-        }
-        frame_create(OT, 0);
-        machine.run(arg, OT);
-        break;
+        throw std::runtime_error("Implicit subroutine not supported yet for formal address: " + to_octal(arg));
     }
     case 002: {
         // Get real value from stack.
-        auto block_level = arg >> 22;
-        auto offset      = arg & BITS(15);
-        auto addr        = display[block_level] + offset;
-        auto const &disp = stack.get(frame_ptr + Frame_Offset::DISPLAY);
-        if (!disp.is_null() && block_level == disp.value >> 15) {
-            // Use saved display value.
-            addr = (disp.value & BITS(15)) + offset;
-        }
+        auto const addr = address_in_caller_stack(arg >> 22, arg & BITS(15));
         stack.push_real_addr(addr + STACK_BASE);
         break;
     }
     case 022: {
         // Get integer value from stack.
-        auto block_level = arg >> 22;
-        auto offset      = arg & BITS(15);
-        auto addr        = display[block_level] + offset;
-        auto const &disp = stack.get(frame_ptr + Frame_Offset::DISPLAY);
-        if (!disp.is_null() && block_level == disp.value >> 15) {
-            // Use saved display value.
-            addr = (disp.value & BITS(15)) + offset;
-        }
+        auto const addr = address_in_caller_stack(arg >> 22, arg & BITS(15));
         stack.push_int_addr(addr + STACK_BASE);
         break;
     }
@@ -1520,33 +1500,98 @@ void Processor::push_formal_value(unsigned dynamic_addr)
     }
     case 040: {
         // Call implicit subroutine.
-        // Restore display[n].
-        auto const &disp = stack.get(frame_ptr + Frame_Offset::DISPLAY);
-        if (!disp.is_null()) {
-            unsigned block_level = disp.value >> 15;
-            display[block_level] = disp.value & BITS(15);
-            machine.trace_display(block_level, display[block_level]);
-        }
+        // Need to figure out caller's display[] first.
+        unsigned caller_block_level, caller_frame_ptr;
+        get_formal_display(dynamic_addr, caller_block_level, caller_frame_ptr);
+
+        // Setup caller's display[n].
+        unsigned saved_frame_ptr = display[caller_block_level];
+        update_display(caller_block_level, caller_frame_ptr);
+
+        // Invoke implicit subroutine in caller's context.
         frame_create(OT, 0);
         machine.run(arg, OT);
+
+        // Restore our display[n].
+        update_display(caller_block_level, saved_frame_ptr);
         break;
     }
-    case 002:
+    case 002: {
         // Get real value from stack.
+        auto const addr  = address_in_caller_stack(arg >> 22, arg & BITS(15));
+        auto const value = stack.get(addr).get_real();
+        stack.push_real_value(value);
+        break;
+    }
     case 022: {
         // Get integer value from stack.
-        auto block_level = arg >> 22;
-        auto offset      = arg & BITS(15);
-        auto addr        = display[block_level] + offset;
-        auto const &disp = stack.get(frame_ptr + Frame_Offset::DISPLAY);
-        if (!disp.is_null() && block_level == disp.value >> 15) {
-            // Use saved display value.
-            addr = (disp.value & BITS(15)) + offset;
-        }
-        stack.push(stack.get(addr));
+        auto const addr  = address_in_caller_stack(arg >> 22, arg & BITS(15));
+        auto const value = stack.get(addr).get_int();
+        stack.push_int_value(value);
         break;
     }
     default:
         throw std::runtime_error("Unknown descriptor of formal argument: " + to_octal(arg));
     }
+}
+
+//
+// For a given formal parameter, get caller's block lever and frame pointer.
+//
+void Processor::get_formal_display(unsigned dynamic_addr, unsigned &caller_block_level, unsigned &caller_frame_ptr)
+{
+    auto const block_level    = dynamic_addr % 32;
+    auto const offset         = dynamic_addr / 32;
+    auto const formal_display = stack.get(display[block_level] + offset + 1).get_int();
+
+    caller_block_level = formal_display >> 22;
+    caller_frame_ptr   = formal_display & BITS(22);
+}
+
+//
+// Get lexical scope level, or block number (BN) from stack.
+//
+unsigned Processor::get_block_level() const
+{
+    if (stack_base == 0) {
+        // At global level: no frame in stack yet.
+        return 0;
+    }
+    auto const &bn = stack.get(frame_ptr + Frame_Offset::BN);
+    if (bn.is_null()) {
+        // Block level is unknown: SCC not invoked for this block yet.
+        return 0;
+    }
+    return bn.get_int();
+}
+
+//
+// Set lexical scope level for this frame.
+//
+void Processor::set_block_level(unsigned block_level)
+{
+    // Store block level in stack frame.
+    auto &bn = stack.get(frame_ptr + Frame_Offset::BN);
+    bn.type  = Cell_Type::INTEGER_VALUE;
+    bn.value = block_level;
+}
+
+//
+// Update display[n] value.
+//
+void Processor::update_display(unsigned block_level, unsigned value)
+{
+    if (block_level == 0) {
+        // Global level: ignore.
+        return;
+    }
+    if (block_level >= 32) {
+        throw std::runtime_error("Bad block level");
+    }
+    if (display[block_level] == value) {
+        // Nothing changed.
+        return;
+    }
+    display[block_level] = value;
+    machine.trace_display(block_level, value);
 }

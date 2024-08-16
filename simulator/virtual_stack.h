@@ -94,6 +94,7 @@ public:
 
     // Get item by index.
     Stack_Cell &get(unsigned index);
+    const Stack_Cell &get(unsigned index) const;
     void set(unsigned index, const Stack_Cell &item);
 
     // Push any item on stack.

@@ -29,7 +29,7 @@ namespace Frame_Offset {
         PC = 1,      // Caller's program counter
         SP = 2,      // Caller's stack base
         RESULT = 3,  // Result to be returned
-        DISPLAY = 4, // Save/restore display[n]
+        BN = 4,      // Lexical scope block level (number)
         ARG = 5,     // First argument of procedure
     };
 };
@@ -118,6 +118,7 @@ private:
     // Convert dynamic address of variable (relative to stack frame)
     // into offset in stack.
     unsigned address_in_stack(unsigned dynamic_addr);
+    unsigned address_in_caller_stack(unsigned block_level, unsigned offset);
 
     // Extract descriptor of actual argument.
     unsigned arg_descriptor(unsigned dynamic_addr);
@@ -138,6 +139,16 @@ private:
     // Get value at dynamic address and push it on stack.
     void push_formal_value(unsigned dynamic_addr);
     void push_formal_address(unsigned dynamic_addr);
+
+    // Get/set lexical scope level, or block number (BN).
+    unsigned get_block_level() const;
+    void set_block_level(unsigned block_level);
+
+    // Update display[n] value.
+    void update_display(unsigned block_level, unsigned value);
+
+    // For a given formal parameter, get caller's block lever and frame pointer.
+    void get_formal_display(unsigned dynamic_addr, unsigned &caller_block_level, unsigned &caller_frame_ptr);
 };
 
 #endif // X1_PROCESSOR_H
