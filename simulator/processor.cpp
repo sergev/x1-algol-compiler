@@ -311,6 +311,45 @@ Real Processor::load_real(unsigned addr)
     return x1_words_to_real(hi, lo);
 }
 
+static inline int x1_sign(const Stack_Cell & item) {
+    if (item.is_int_value()) {
+        auto value = x1_to_integer(item.get_int());
+        return (value > 0) ? 1 : (value < 0) ? -1 : 0;
+    } else if (item.is_real_value()) {
+        auto value = x1_to_ieee(item.get_real());
+        return (value > 0.0) ? 1 : (value < 0.0) ? -1 : 0;
+    } else {
+        throw std::runtime_error("Cannot get sign of address");
+    }
+}
+
+Stack_Cell Processor::load_value(const Stack_Cell & src) {
+    auto addr = src.get_addr();
+    if (src.is_int_addr()) {
+        Word result;
+        if (addr < STACK_BASE) {
+            // From memory.
+            result = machine.mem_load(addr);
+        } else {
+            // From stack.
+            result = stack.get(addr - STACK_BASE).get_int();
+        }
+        return Stack_Cell{Cell_Type::INTEGER_VALUE, result};
+    } else if (src.is_real_addr()) {
+        Real result;
+        if (addr < STACK_BASE) {
+            // From memory.
+            result = load_real(addr);
+        } else {
+            // From stack.
+            result = stack.get(addr - STACK_BASE).get_real();
+        }
+        return Stack_Cell{Cell_Type::REAL_VALUE, result};
+    } else {
+        throw std::runtime_error("load_value() invoked on a non-address operand");
+    }
+}
+
 //
 // Invoke a run-time routine by code.
 //
@@ -348,6 +387,11 @@ bool Processor::call_opc(unsigned opc)
     // TODO: case OPC_FTMP: // formtransmark procedure
 
     case OPC_FOR8:
+        // Drop the unneeded address of the controlled variable.
+        stack.pop();
+        // The loop subroutine returns nothing.
+        stack.set(frame_ptr + Frame_Offset::RESULT, Stack_Cell{Cell_Type::NUL, 0});
+
         // Return from the loop subroutine using the provided destination.
         stack.set(frame_ptr + Frame_Offset::PC,
                   Stack_Cell{Cell_Type::INTEGER_ADDRESS, core.S});
@@ -429,14 +473,11 @@ bool Processor::call_opc(unsigned opc)
         // in the local variable.
         stack.set(frame_ptr + Frame_Offset::ARG,
                   Stack_Cell{Cell_Type::INTEGER_ADDRESS, OT});
-        if (stack.get(frame_ptr + Frame_Offset::RESULT).is_null()) {
-            // When starting to execute a new loop element,
-            // jump to it (initially PC points to under the ETMP for the loop).
-            OT = stack.get(frame_ptr + Frame_Offset::PC).get_addr();
-        } else {
-            // Otherwise execute an iteration of the loop.
-            OT = stack.get(frame_ptr + Frame_Offset::ARG).get_addr();
-        }
+        // When starting to execute a new loop element,
+        // jump to it (initially PC points to under the ETMP for the loop,
+        // then it gets advanced by the OPCs of the loop elements
+        // as they get exhausted).
+        OT = stack.get(frame_ptr + Frame_Offset::PC).get_addr();
         break;
 
     case OPC_FOR2: {
@@ -474,9 +515,54 @@ bool Processor::call_opc(unsigned opc)
         }
         break;
 
-    // TODO: case OPC_FOR5:
-    // TODO: case OPC_FOR6:
-    // TODO: case OPC_FOR7:
+    case OPC_FOR5:
+        // Indicate entering the step-until element.
+        stack.set(frame_ptr + Frame_Offset::RESULT,
+                  Stack_Cell{Cell_Type::NUL, 0});
+        // The job of FOR5 is done.
+        stack.set(frame_ptr + Frame_Offset::PC,
+                  Stack_Cell{Cell_Type::INTEGER_ADDRESS, OT});
+        break;
+
+    case OPC_FOR6: {
+        auto incr = stack.pop();
+        int step_dir = x1_sign(incr);
+        if (stack.get(frame_ptr + Frame_Offset::RESULT).is_null()) {
+            // First iteration: the actual value of the step is ignored,
+            // we're only interested in its sign.
+            // The initial value is now on top of the stack, pending FOR7 check.
+        } else {
+            // A subsequent iteration: load and increment the controlled variable.
+            auto var = stack.pop();
+            auto value = load_value(var);
+            value.add(incr);
+            // Prepare the stack for storing the new value of the variable.
+            stack.push(var);
+            stack.push(value);
+        }
+        stack.set(frame_ptr + Frame_Offset::RESULT,
+                  Stack_Cell{Cell_Type::INTEGER_VALUE, integer_to_x1(step_dir)});
+        break;
+    }
+
+    case OPC_FOR7: {
+        auto limit = stack.pop();
+        auto value = stack.pop();
+        auto var = stack.pop();
+        store_value(var, value);
+        int step_dir = x1_to_integer(stack.get(frame_ptr + Frame_Offset::RESULT).get_int());
+        if ((step_dir > 0 && limit.is_less(value)) ||
+            (step_dir < 0 && value.is_less(limit))) {
+            // Element exhausted.
+            stack.push(var);    // For the sake of the next loop element.
+            stack.set(frame_ptr + Frame_Offset::PC,
+                      Stack_Cell{Cell_Type::INTEGER_ADDRESS, OT});
+        } else {
+            // Go to the loop iteration.
+            OT = stack.get(frame_ptr + Frame_Offset::ARG).get_addr();
+        }
+        break;
+    }
 
     // TODO: case OPC_GTA: // goto adjustment
     // TODO: case OPC_SSI: // store switch index
@@ -768,30 +854,7 @@ bool Processor::call_opc(unsigned opc)
     case OPC_TAR: {
         // take result
         auto src  = stack.pop();
-        auto addr = src.get_addr();
-        if (src.is_int_addr()) {
-            Word result;
-            if (addr < STACK_BASE) {
-                // From memory.
-                result = machine.mem_load(addr);
-            } else {
-                // From stack.
-                result = stack.get(addr - STACK_BASE).get_int();
-            }
-            stack.push_int_value(result);
-        } else if (src.is_real_addr()) {
-            Real result;
-            if (addr < STACK_BASE) {
-                // From memory.
-                result = load_real(addr);
-            } else {
-                // From stack.
-                result = stack.get(addr - STACK_BASE).get_real();
-            }
-            stack.push_real_value(result);
-        } else {
-            throw std::runtime_error("OPC TAR invoked on a non-address operand");
-        }
+        stack.push(load_value(src));
         break;
     }
     case OPC_ADD: {
@@ -942,16 +1005,7 @@ bool Processor::call_opc(unsigned opc)
         // Yield value of type integer.
         // Argument can be either of type real or integer.
         auto item = stack.pop();
-        Word result;
-        if (item.is_int_value()) {
-            auto value = x1_to_integer(item.get_int());
-            result     = (value > 0) ? 1 : (value < 0) ? x1_negate_int(1) : 0;
-        } else if (item.is_real_value()) {
-            auto value = x1_to_ieee(item.get_real());
-            result     = (value > 0.0) ? 1 : (value < 0.0) ? x1_negate_int(1) : 0;
-        } else {
-            throw std::runtime_error("Cannot get sign of address");
-        }
+        Word result = integer_to_x1(x1_sign(item));
         stack.push_int_value(result);
         break;
     }
