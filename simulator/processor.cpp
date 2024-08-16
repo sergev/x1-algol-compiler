@@ -350,6 +350,26 @@ Stack_Cell Processor::load_value(const Stack_Cell & src) {
     }
 }
 
+Stack_Cell Processor::get_dynamic_int(unsigned dynamic_addr)
+{
+    unsigned addr = address_in_stack(dynamic_addr);
+    auto result   = stack.get(addr);
+    if (!result.is_int_value()) {
+        throw std::runtime_error("Unexpected type instead of dynamic integer");
+    }
+    return result;
+}
+
+Stack_Cell Processor::get_dynamic_real(unsigned dynamic_addr)
+{
+    unsigned addr = address_in_stack(dynamic_addr);
+    auto result   = stack.get(addr);
+    if (!result.is_real_value()) {
+        throw std::runtime_error("Unexpected type instead of dynamic real");
+    }
+    return result;
+}
+
 //
 // Invoke a run-time routine by code.
 //
@@ -615,7 +635,12 @@ bool Processor::call_opc(unsigned opc)
         // Dynamic address is present in register S.
         push_formal_value(core.S);
         break;
-    // TODO: case OPC_ADRD: // add real dynamic
+    case OPC_ADRD: {
+        // add real dynamic
+        auto b = get_dynamic_real(core.S);
+        stack.top().add(b);
+        break;
+    }
     case OPC_ADRS: {
         // add real static
         auto b    = x1_to_ieee(load_real(core.B));
@@ -631,7 +656,12 @@ bool Processor::call_opc(unsigned opc)
         }
         break;
     }
-    // TODO: case OPC_ADID: // add integer dynamic
+    case OPC_ADID: {
+        // add integer dynamic
+        auto b = get_dynamic_int(core.S);
+        stack.top().add(b);
+        break;
+    }
     case OPC_ADIS: {
         // add integer static
         auto b    = x1_to_integer(machine.mem_load(core.B));
@@ -658,7 +688,12 @@ bool Processor::call_opc(unsigned opc)
         stack.push(a);
         break;
     }
-    // TODO: case OPC_SURD: // subtract real dynamic
+    case OPC_SURD: {
+        // subtract real dynamic
+        auto b = get_dynamic_real(core.S);
+        stack.top().subtract(b);
+        break;
+    }
     case OPC_SURS: {
         // subtract real static
         auto b    = x1_to_ieee(load_real(core.B));
@@ -674,7 +709,12 @@ bool Processor::call_opc(unsigned opc)
         }
         break;
     }
-    // TODO: case OPC_SUID: // subtract integer dynamic
+    case OPC_SUID: {
+        // subtract integer dynamic
+        auto b = get_dynamic_int(core.S);
+        stack.top().subtract(b);
+        break;
+    }
     case OPC_SUIS: {
         // subtract integer static
         auto b    = x1_to_integer(machine.mem_load(core.B));
@@ -720,7 +760,12 @@ bool Processor::call_opc(unsigned opc)
         }
         break;
     }
-    // TODO: case OPC_MUID: // multiply integer dynamic
+    case OPC_MUID: {
+        // multiply integer dynamic
+        auto b = get_dynamic_int(core.S);
+        stack.top().multiply(b);
+        break;
+    }
     case OPC_MUIS: {
         // multiply integer static
         auto b    = x1_to_integer(machine.mem_load(core.B));
@@ -738,7 +783,12 @@ bool Processor::call_opc(unsigned opc)
     }
     // TODO: case OPC_MUF:  // static multiply formal
 
-    // TODO: case OPC_DIRD: // divide real dynamic
+    case OPC_DIRD: {
+        // divide real dynamic
+        auto b = get_dynamic_real(core.S);
+        stack.top().divide(b);
+        break;
+    }
     case OPC_DIRS: {
         // divide real static
         auto b = x1_to_ieee(load_real(core.B));
@@ -757,7 +807,12 @@ bool Processor::call_opc(unsigned opc)
         }
         break;
     }
-    // TODO: case OPC_DIID: // divide integer dynamic
+    case OPC_DIID: {
+        // divide integer dynamic
+        auto b = get_dynamic_int(core.S);
+        stack.top().divide(b);
+        break;
+    }
     case OPC_DIIS: {
         // divide integer static
         auto b = x1_to_integer(machine.mem_load(core.B));
@@ -799,22 +854,25 @@ bool Processor::call_opc(unsigned opc)
         // For a 1-dimensional array, "offset: contents":
         // 0: address of the first memory word the array occupies
         // 1: base address for indexing from 0 (for a left bound >= 0)
-        //    (using a negative representation for a left bound < 0)
+        //    (with the high bit set for a left bound < 0 - a 1's complement artifact)
         // 2..2+ndim-1: element or dimension sizes in words
         // 2+ndim: number of words in the array, negated
         unsigned addr = storage_fn.get_addr();
         int location  = x1_to_integer(machine.mem_load(addr));
-        int base      = x1_to_integer(machine.mem_load(addr + 1));
+        int base      = machine.mem_load(addr + 1);
         int limit     = x1_to_integer(machine.mem_load(addr + 2 + ndim));
         // The limit must look like a negative number with a reasonable absolute value.
         if (limit >= 0 || -limit > 32767) {
             throw std::runtime_error("A wrong number of indexes for an array");
         }
+        base = (base & BITS(26)) + (base >> 26);
         int elt_addr = base;
         int idx0     = 0; // for the error message
         for (unsigned i = 0; i < ndim; ++i) {
             int dimsize = x1_to_integer(machine.mem_load(addr + 2 + i));
-            int idx = idxs[i].is_int_value() ? idxs[i].get_int() : (int)roundl(idxs[i].get_real());
+            int idx = idxs[i].is_int_value() ?
+                x1_to_integer(idxs[i].get_int()) :
+                (int)roundl(x1_to_ieee(idxs[i].get_real()));
             if (i == 0)
                 idx0 = idx;
             elt_addr += idx * dimsize;
@@ -826,7 +884,7 @@ bool Processor::call_opc(unsigned opc)
             if (ndim == 1) {
                 ostr << "Index " << idx0 << " is ";
             } else {
-                ostr << "Indexing (linearized) ";
+                ostr << "Indexing (linearized " << elt_addr - base << ") ";
             }
             ostr << "beyond limits for array [" << (location - base) / elsize << ':'
                  << (location - base - limit) / elsize - 1 << ']';
@@ -1088,7 +1146,16 @@ bool Processor::call_opc(unsigned opc)
         store_value(dest, src);
         break;
     }
-    // TODO: case OPC_STA:  // store also
+
+    case OPC_STA: {
+        // store also
+        auto src  = stack.pop();
+        auto dest = stack.pop();
+        store_value(dest, src);
+        stack.push(src);
+        break;
+    }
+
     case OPC_STP: {
         // store procedure value
         // Block level is present in register B.

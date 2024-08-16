@@ -173,3 +173,26 @@ TEST_F(x1_machine, variables)
 )";
     EXPECT_EQ(output, expect);
 }
+
+TEST_F(x1_machine, dynamic_arith)
+{
+    auto output = compile_and_run(R"(
+        b̲e̲g̲i̲n̲ b̲e̲g̲i̲n̲ i̲n̲t̲e̲g̲e̲r̲ i; r̲e̲a̲l̲ r;
+            i := 1;
+            i := 10 - i;
+            i := 1 + i;
+            i := 95 / i;
+            i := 5 * i;
+            r := 1.5;
+            r := 10.5 - r;
+            r := 1.5 + r;
+            r := 94.5 / r;
+            r := 5.5 * r;
+            print(i, r);
+        e̲n̲d̲ e̲n̲d̲
+)");
+    const std::string expect = R"(50
+49.5
+)";
+    EXPECT_EQ(output, expect);
+}

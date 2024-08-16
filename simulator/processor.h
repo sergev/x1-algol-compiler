@@ -129,6 +129,12 @@ private:
     // Load value by the address in the src cell.
     Stack_Cell load_value(const Stack_Cell &src);
 
+    // The common part of all OPCs dealing with dynamic integers.
+    Stack_Cell get_dynamic_int(unsigned dynamic_addr);
+
+    // The common part of all OPCs dealing with dynamic reals.
+    Stack_Cell get_dynamic_real(unsigned dynamic_addr);
+
     // Get value at dynamic address and push it on stack.
     void push_formal_value(unsigned dynamic_addr);
     void push_formal_address(unsigned dynamic_addr);

@@ -36,3 +36,21 @@ TEST_F(x1_machine, array_multi_dim)
     EXPECT_EQ(output, expect);
 }
 
+TEST_F(x1_machine, array_negative_bound)
+{
+    auto output = compile_and_run(R"(
+        b̲e̲g̲i̲n̲
+            i̲n̲t̲e̲g̲e̲r̲ a̲r̲r̲a̲y̲ a[-1:1,-1:1];
+            a[0,0] := 1234;
+            a[-1,1] := a[1,-1] := 5678;
+            print(a[-1,1], a[0,0], a[1,-1]);
+            print(a[-6,2]);
+        e̲n̲d̲
+)");
+    const std::string expect = R"(5678
+1234
+5678
+1234
+)";
+    EXPECT_EQ(output, expect);
+}

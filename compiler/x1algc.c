@@ -2574,7 +2574,7 @@ _L1102: /*static bounds, constants only:*/
                 }
             } else
                 arrd = inw;
-            arrc -= (arrd * store[tlsc - 1]) & (d26 - 1);
+            arrc = (arrc - arrd * store[tlsc - 1]) & (d26 - 1);
             /*upper bound:*/
             read_until_next_delimiter();
             if (nflag == 0) {

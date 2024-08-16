@@ -1556,7 +1556,7 @@ begin {body of main scan}                                          {EL}
                       arrd:= - inw
                     end
           else arrd:= inw;
-          arrc:= arrc - (arrd * store[tlsc-1]) mod d26;
+          arrc:= (arrc - arrd * store[tlsc-1]) mod d26;
           {upper bound:}
           read_until_next_delimiter;
           if nflag = 0
