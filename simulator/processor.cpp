@@ -1291,7 +1291,7 @@ void Processor::frame_create(unsigned ret_addr, unsigned num_args)
     stack.push_int_addr(ret_addr);   // offset 1: return address
     stack.push_int_addr(stack_base); // offset 2: base of the stack
     stack.push_null();               // offset 3: place for result
-    stack.push_null();               // offset 4: place for block level
+    stack.push_int_value(0);         // offset 4: place for block level
 
     // For each parameter, store info about parent display.
     auto parent_display = get_block_level() << 22 | frame_ptr;
@@ -1531,6 +1531,7 @@ void Processor::push_formal_value(unsigned dynamic_addr)
 
         // Invoke implicit subroutine in caller's context.
         frame_create(OT, 0);
+        //TODO: set_block_level(caller_block_level);
         machine.run(arg, OT);
 
         // Restore our display[n].
@@ -1578,12 +1579,7 @@ unsigned Processor::get_block_level() const
         // At global level: no frame in stack yet.
         return 0;
     }
-    auto const &bn = stack.get(frame_ptr + Frame_Offset::BN);
-    if (bn.is_null()) {
-        // Block level is unknown: SCC not invoked for this block yet.
-        return 0;
-    }
-    return bn.get_int();
+    return stack.get(frame_ptr + Frame_Offset::BN).get_int();
 }
 
 //

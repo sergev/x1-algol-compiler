@@ -450,3 +450,83 @@ TEST_F(x1_machine, integer_var_level2)
     const std::string expect = "123\n";
     EXPECT_EQ(output, expect);
 }
+
+TEST_F(x1_machine, DISABLED_integer_args_level7)
+{
+    auto output = compile_and_run(R"(
+        b̲e̲g̲i̲n̲
+            p̲r̲o̲c̲e̲d̲u̲r̲e̲ A(m1); i̲n̲t̲e̲g̲e̲r̲ m1; b̲e̲g̲i̲n̲
+                p̲r̲o̲c̲e̲d̲u̲r̲e̲ B(m2); i̲n̲t̲e̲g̲e̲r̲ m2; b̲e̲g̲i̲n̲
+                    p̲r̲o̲c̲e̲d̲u̲r̲e̲ C(m3); i̲n̲t̲e̲g̲e̲r̲ m3; b̲e̲g̲i̲n̲
+                        p̲r̲o̲c̲e̲d̲u̲r̲e̲ D(m4); i̲n̲t̲e̲g̲e̲r̲ m4; b̲e̲g̲i̲n̲
+                            p̲r̲o̲c̲e̲d̲u̲r̲e̲ E(m5); i̲n̲t̲e̲g̲e̲r̲ m5; b̲e̲g̲i̲n̲
+                                p̲r̲o̲c̲e̲d̲u̲r̲e̲ F(m6); i̲n̲t̲e̲g̲e̲r̲ m6; b̲e̲g̲i̲n̲
+                                    p̲r̲o̲c̲e̲d̲u̲r̲e̲ G(m7); i̲n̲t̲e̲g̲e̲r̲ m7; b̲e̲g̲i̲n̲
+                                        PRINTTEXT(`G'); NLCR;
+                                        print(m1, m2, m3, m4, m5, m6, m7);
+                                    e̲n̲d̲ G;
+                                    PRINTTEXT(`F'); NLCR;
+                                    print(m1, m2, m3, m4, m5, m6);
+                                    G(m6 - 1);
+                                e̲n̲d̲ F;
+                                PRINTTEXT(`E'); NLCR;
+                                print(m1, m2, m3, m4, m5);
+                                F(m5 - 1);
+                            e̲n̲d̲ E;
+                            PRINTTEXT(`D'); NLCR;
+                            print(m1, m2, m3, m4);
+                            E(m4 - 1);
+                        e̲n̲d̲ D;
+                        PRINTTEXT(`C'); NLCR;
+                        print(m1, m2, m3);
+                        D(m3 - 1);
+                    e̲n̲d̲ C;
+                    PRINTTEXT(`B'); NLCR;
+                    print(m1, m2);
+                    C(m2 - 1);
+                e̲n̲d̲ B;
+                PRINTTEXT(`A'); NLCR;
+                print(m1);
+                B(m1 - 1);
+            e̲n̲d̲ A;
+            A(-1);
+        e̲n̲d̲
+    )");
+    const std::string expect = R"(A
+-1
+B
+-1
+-2
+C
+-1
+-2
+-3
+D
+-1
+-2
+-3
+-4
+E
+-1
+-2
+-3
+-4
+-5
+F
+-1
+-2
+-3
+-4
+-5
+-6
+G
+-1
+-2
+-3
+-4
+-5
+-6
+-7
+)";
+    EXPECT_EQ(output, expect);
+}
