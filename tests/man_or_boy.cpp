@@ -62,3 +62,56 @@ TEST_F(x1_machine, DISABLED_mob1)
 )";
     EXPECT_EQ(output, expect);
 }
+
+//
+// Even more simplified version.
+//
+TEST_F(x1_machine, DISABLED_mob2)
+{
+    auto output = compile_and_run(R"(
+        b̲e̲g̲i̲n̲
+            p̲r̲o̲c̲e̲d̲u̲r̲e̲ A(k, x);
+                v̲a̲l̲u̲e̲ k;
+                i̲n̲t̲e̲g̲e̲r̲ k, x;
+            b̲e̲g̲i̲n̲
+                p̲r̲o̲c̲e̲d̲u̲r̲e̲ B(y);
+                    i̲n̲t̲e̲g̲e̲r̲ y;
+                b̲e̲g̲i̲n̲
+                    print(k, x, y);
+                    i̲f̲ x > -10 t̲h̲e̲n̲ A(456, -10);
+                    i̲f̲ y < 0 t̲h̲e̲n̲ B(20);
+                e̲n̲d̲ B;
+
+                print(k, x);
+                B(x - 1);
+            e̲n̲d̲ A;
+            A(123, -1);
+        e̲n̲d̲
+    )");
+    const std::string expect = R"(123
+-1
+123
+-1
+-2
+456
+-10
+456
+-10
+-11
+456
+-10
+20
+123
+-1
+20
+456
+-10
+456
+-10
+-11
+456
+-10
+20
+)";
+    EXPECT_EQ(output, expect);
+}
