@@ -217,6 +217,25 @@ TEST_F(x1_machine, add_formal)
     EXPECT_EQ(output, expect);
 }
 
+TEST_F(x1_machine, formal_arithmetic)
+{
+    auto output = compile_and_run(R"(
+        b̲e̲g̲i̲n̲
+            r̲e̲a̲l̲ p̲r̲o̲c̲e̲d̲u̲r̲e̲ arith(a, b, c, d, e);
+                r̲e̲a̲l̲ a, b, c, d, e;
+            b̲e̲g̲i̲n̲
+                arith := (a + b) * (c - d) / e;
+            e̲n̲d̲;
+            print(arith(1.1, 2.2, 3.3, 4, 5));
+            print(arith(-1, 2+3, 4*5, 6/7, 8.8));
+        e̲n̲d̲
+    )");
+    const std::string expect = R"(-0.4620000000009
+8.7012987013
+)";
+    EXPECT_EQ(output, expect);
+}
+
 TEST_F(x1_machine, add_on_stack)
 {
     auto output = compile_and_run(R"(

@@ -713,7 +713,15 @@ bool Processor::call_opc(unsigned opc)
         }
         break;
     }
-        // TODO: case OPC_SUF:  // subtract formal
+    case OPC_SUF: {
+        // subtract formal
+        // Left argument is on stack.
+        // Register S has fynamic address of right argument.
+        push_formal_value(core.S);
+        auto b = stack.pop();
+        stack.top().subtract(b);
+        break;
+    }
 
     case OPC_MURD: {
         // multiply real dynamic
@@ -764,7 +772,15 @@ bool Processor::call_opc(unsigned opc)
         }
         break;
     }
-    // TODO: case OPC_MUF:  // static multiply formal
+    case OPC_MUF: {
+        // multiply formal
+        // Left argument is on stack.
+        // Register S has fynamic address of right argument.
+        push_formal_value(core.S);
+        auto b = stack.pop();
+        stack.top().multiply(b);
+        break;
+    }
 
     case OPC_DIRD: {
         // divide real dynamic
@@ -814,7 +830,15 @@ bool Processor::call_opc(unsigned opc)
         }
         break;
     }
-        // TODO: case OPC_DIF:  // divide formal
+    case OPC_DIF: {
+        // divide formal
+        // Left argument is on stack.
+        // Register S has fynamic address of right argument.
+        push_formal_value(core.S);
+        auto b = stack.pop();
+        stack.top().divide(b);
+        break;
+    }
 
     case OPC_IND: {
         // The top of the stack is: storage function address, idx1 [idx2 [idx3 [...] ] ]
