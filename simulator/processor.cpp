@@ -1296,12 +1296,7 @@ unsigned Processor::frame_release()
     frame_ptr          = stack.get(frame_ptr + Frame_Offset::FP).get_addr();
     stack.erase(new_stack_ptr);
 
-    // Restore display[n].
-    auto block_level = get_block_level();
-    if (block_level > 0) {
-        display[block_level] = frame_ptr;
-        machine.trace_display(block_level, frame_ptr);
-    }
+    update_display(get_block_level(), frame_ptr);
     return ret_addr;
 }
 

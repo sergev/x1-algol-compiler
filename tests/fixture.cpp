@@ -30,7 +30,7 @@ std::string x1_machine::compile_and_run(const std::string &source_code)
     std::cout.rdbuf(output.rdbuf());
 
     // Run the program.
-    machine->run(machine->get_entry(0));
+    EXPECT_NO_THROW(machine->run(machine->get_entry(0)));
 
     // Return output.
     std::cout.rdbuf(save_cout);

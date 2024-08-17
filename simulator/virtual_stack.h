@@ -63,6 +63,9 @@ class Virtual_Stack {
 private:
     std::vector<Stack_Cell> storage;
 
+    // Some arbitrary limit on stack size.
+    static unsigned const SIZE_LIMIT = 0100000;
+
 public:
     // How many items are on stack?
     unsigned count() const { return storage.size(); }

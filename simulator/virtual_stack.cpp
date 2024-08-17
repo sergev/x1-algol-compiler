@@ -511,6 +511,9 @@ void Virtual_Stack::set(unsigned index, const Stack_Cell &item)
 //
 void Virtual_Stack::push(const Stack_Cell &item)
 {
+    if (storage.size() >= SIZE_LIMIT) {
+        throw std::runtime_error("Stack overflow");
+    }
     storage.push_back(item);
     Machine::trace_stack(storage.size() - 1, storage.back().to_string(), "Push");
 }
