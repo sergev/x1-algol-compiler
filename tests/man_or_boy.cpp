@@ -66,7 +66,7 @@ TEST_F(x1_machine, DISABLED_mob1)
 //
 // Even more simplified version.
 //
-TEST_F(x1_machine, DISABLED_mob2)
+TEST_F(x1_machine, mob2)
 {
     auto output = compile_and_run(R"(
         b̲e̲g̲i̲n̲

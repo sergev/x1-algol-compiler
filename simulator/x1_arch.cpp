@@ -149,6 +149,19 @@ void x1_print_instruction(std::ostream &out, unsigned cmd)
     case 002'20:
         out << "A := " << addr;
         break;
+    case 004'00:
+        switch (addr) {
+        case 061:
+            out << "mem[61] += A";
+            break;
+        case 062:
+            out << "alloca(A)";
+            break;
+        default:
+            out << "mem[" << addr << "] += A";
+            break;
+        }
+        break;
     case 012'20:
         out << "S := " << addr;
         break;

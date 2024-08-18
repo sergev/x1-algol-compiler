@@ -30,7 +30,8 @@ namespace Frame_Offset {
         SP = 2,      // Caller's stack base
         RESULT = 3,  // Result to be returned
         BN = 4,      // Lexical scope block level (number)
-        ARG = 5,     // First argument of procedure
+        DISPLAY = 5, // Previous display[bn]
+        ARG = 6,     // First argument of procedure
     };
 };
 

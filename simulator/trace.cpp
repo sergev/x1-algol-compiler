@@ -72,7 +72,7 @@ void Machine::print_memory_access(unsigned addr, Word val, const char *opname)
     auto &out       = Machine::get_trace_stream();
     auto save_flags = out.flags();
 
-    out << "      Memory " << opname << " [" << std::oct << std::setfill('0') << std::setw(5)
+    out << "       Memory " << opname << " [" << std::oct << std::setfill('0') << std::setw(5)
         << addr << "] = ";
     x1_print_word_octal(out, val);
     out << std::endl;
@@ -89,7 +89,7 @@ void Machine::print_stack_op(unsigned offset, const std::string &value, const st
     auto &out       = Machine::get_trace_stream();
     auto save_flags = out.flags();
 
-    out << "      Stack " << opname << " [" << std::oct << offset << "] = " << value << std::endl;
+    out << "       Stack " << opname << " [" << std::oct << offset << "] = " << value << std::endl;
 
     // Restore.
     out.flags(save_flags);
@@ -103,7 +103,7 @@ void Machine::print_display(unsigned level, unsigned addr)
     auto &out       = Machine::get_trace_stream();
     auto save_flags = out.flags();
 
-    out << "      Display [" << std::oct << level << "] = "
+    out << "       Display [" << std::oct << level << "] = "
         << std::setfill('0') << std::setw(5) << addr << std::endl;
 
     // Restore.
@@ -137,26 +137,26 @@ void Processor::print_registers()
     auto save_flags = out.flags();
 
     if (core.A != prev.A) {
-        out << "      A = ";
+        out << "       A = ";
         x1_print_word_octal(out, core.A);
         out << std::endl;
     }
     if (core.B != prev.B) {
-        out << "      B = " << std::oct << core.B << std::dec << std::endl;
+        out << "       B = " << std::oct << core.B << std::dec << std::endl;
     }
     if (core.C != prev.C) {
-        out << "      C = " << core.C << std::endl;
+        out << "       C = " << core.C << std::endl;
     }
     if (core.S != prev.S) {
-        out << "      S = ";
+        out << "       S = ";
         x1_print_word_octal(out, core.S);
         out << std::endl;
     }
     if (stack.count() != prev_stack_ptr) {
-        out << "      SP = " << std::oct << stack.count() << std::dec << std::endl;
+        out << "       SP = " << std::oct << stack.count() << std::dec << std::endl;
     }
     if (frame_ptr != prev_frame_ptr) {
-        out << "      FP = " << std::oct << frame_ptr << std::dec << std::endl;
+        out << "       FP = " << std::oct << frame_ptr << std::dec << std::endl;
     }
 
     // Update previous state.

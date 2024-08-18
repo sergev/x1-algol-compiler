@@ -1292,6 +1292,7 @@ void Processor::frame_create(unsigned ret_addr, unsigned num_args)
     stack.push_int_addr(stack_base); // offset 2: base of the stack
     stack.push_null();               // offset 3: place for result
     stack.push_int_value(0);         // offset 4: place for block level
+    stack.push_int_value(0);         // offset 5: place for saved display
 
     // For each parameter, store info about parent display.
     auto parent_display = get_block_level() << 22 | frame_ptr;
@@ -1314,13 +1315,18 @@ unsigned Processor::frame_release()
     if (frame_ptr >= stack.count()) {
         throw std::runtime_error("No frame stack to release");
     }
+    auto block_level = get_block_level();
+    if (block_level > 0) {
+        auto saved_display = stack.get(frame_ptr + Frame_Offset::DISPLAY).get_int();
+        update_display(block_level, saved_display);
+    }
+
     auto new_stack_ptr = frame_ptr;
     auto ret_addr      = stack.get(frame_ptr + Frame_Offset::PC).get_addr();
     stack_base         = stack.get(frame_ptr + Frame_Offset::SP).get_addr();
     frame_ptr          = stack.get(frame_ptr + Frame_Offset::FP).get_addr();
     stack.erase(new_stack_ptr);
 
-    update_display(get_block_level(), frame_ptr);
     return ret_addr;
 }
 
@@ -1348,7 +1354,7 @@ void Processor::allocate_stack(unsigned nwords)
 unsigned Processor::address_in_stack(unsigned dynamic_addr)
 {
     auto const block_level = dynamic_addr % 32;
-    auto const offset      = dynamic_addr / 32;
+    auto const offset      = (dynamic_addr / 32) + Frame_Offset::ARG - 5;
 
     return display[block_level] + offset;
 }
@@ -1364,6 +1370,7 @@ unsigned Processor::address_in_caller_stack(unsigned block_level, unsigned offse
     unsigned dynamic_addr = block_level + (offset * 32);
     get_formal_display(dynamic_addr, caller_level, caller_frame);
 
+    offset += Frame_Offset::ARG - 5;
     if (block_level == caller_level) {
         return caller_frame + offset;
     } else {
@@ -1531,7 +1538,6 @@ void Processor::push_formal_value(unsigned dynamic_addr)
 
         // Invoke implicit subroutine in caller's context.
         frame_create(OT, 0);
-        //TODO: set_block_level(caller_block_level);
         machine.run(arg, OT);
 
         // Restore our display[n].
@@ -1563,8 +1569,8 @@ void Processor::push_formal_value(unsigned dynamic_addr)
 void Processor::get_formal_display(unsigned dynamic_addr, unsigned &caller_block_level, unsigned &caller_frame_ptr)
 {
     auto const block_level    = dynamic_addr % 32;
-    auto const offset         = dynamic_addr / 32;
-    auto const formal_display = stack.get(display[block_level] + offset + 1).get_int();
+    auto const offset         = (dynamic_addr / 32) + Frame_Offset::ARG - 4;
+    auto const formal_display = stack.get(display[block_level] + offset).get_int();
 
     caller_block_level = formal_display >> 22;
     caller_frame_ptr   = formal_display & BITS(22);
@@ -1588,10 +1594,17 @@ unsigned Processor::get_block_level() const
 void Processor::set_block_level(unsigned block_level)
 {
     // Store block level in stack frame.
-    auto &item = stack.get(frame_ptr + Frame_Offset::BN);
-    item.type  = Cell_Type::INTEGER_VALUE;
-    item.value = block_level;
-    Machine::trace_stack(frame_ptr + Frame_Offset::BN, item.to_string(), "Write");
+    auto &bn = stack.get(frame_ptr + Frame_Offset::BN);
+    if (bn.value == 0) {
+        bn.type  = Cell_Type::INTEGER_VALUE;
+        bn.value = block_level;
+        Machine::trace_stack(frame_ptr + Frame_Offset::BN, bn.to_string(), "Write");
+
+        auto &disp = stack.get(frame_ptr + Frame_Offset::DISPLAY);
+        disp.type  = Cell_Type::INTEGER_VALUE;
+        disp.value = display[block_level];
+        Machine::trace_stack(frame_ptr + Frame_Offset::DISPLAY, disp.to_string(), "Write");
+    }
 }
 
 //
