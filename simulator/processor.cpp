@@ -1532,16 +1532,11 @@ void Processor::push_formal_value(unsigned dynamic_addr)
         unsigned caller_block_level, caller_frame_ptr;
         get_formal_display(dynamic_addr, caller_block_level, caller_frame_ptr);
 
-        // Setup caller's display[n].
-        unsigned saved_frame_ptr = display[caller_block_level];
-        update_display(caller_block_level, caller_frame_ptr);
-
         // Invoke implicit subroutine in caller's context.
         frame_create(OT, 0);
+        set_block_level(caller_block_level);
+        update_display(caller_block_level, caller_frame_ptr);
         machine.run(arg, OT);
-
-        // Restore our display[n].
-        update_display(caller_block_level, saved_frame_ptr);
         break;
     }
     case 002: {
@@ -1568,9 +1563,8 @@ void Processor::push_formal_value(unsigned dynamic_addr)
 //
 void Processor::get_formal_display(unsigned dynamic_addr, unsigned &caller_block_level, unsigned &caller_frame_ptr)
 {
-    auto const block_level    = dynamic_addr % 32;
-    auto const offset         = (dynamic_addr / 32) + Frame_Offset::ARG - 4;
-    auto const formal_display = stack.get(display[block_level] + offset).get_int();
+    auto const addr           = address_in_stack(dynamic_addr);
+    auto const formal_display = stack.get(addr + 1).get_int();
 
     caller_block_level = formal_display >> 22;
     caller_frame_ptr   = formal_display & BITS(22);
