@@ -44,19 +44,17 @@ TEST_F(x1_machine, DISABLED_mob1)
             b̲e̲g̲i̲n̲
                 i̲n̲t̲e̲g̲e̲r̲ p̲r̲o̲c̲e̲d̲u̲r̲e̲ B;
                 b̲e̲g̲i̲n̲
+                    print(k);
                     k := k - 1;
-                    B := A := A(k, B, x1);
+                    print(k);
+                    B := A(k, B, x1);
                 e̲n̲d̲;
-                print(k);
-                A := i̲f̲ k < 1 t̲h̲e̲n̲ k + x2 e̲l̲s̲e̲ B;
-                print(k);
+                A := i̲f̲ k < 1 t̲h̲e̲n̲ x2 e̲l̲s̲e̲ B;
             e̲n̲d̲;
             print(A(1, 1, -1));
         e̲n̲d̲
     )");
     const std::string expect = R"(1
-0
-0
 0
 1
 )";
