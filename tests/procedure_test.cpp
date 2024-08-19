@@ -539,3 +539,33 @@ TEST_F(x1_machine, arg_from_previous_level)
 )";
     EXPECT_EQ(output, expect);
 }
+
+TEST_F(x1_machine, DISABLED_getters_level2)
+{
+    auto output = compile_and_run(R"(
+        b̲e̲g̲i̲n̲
+            p̲r̲o̲c̲e̲d̲u̲r̲e̲ pr(k, n); v̲a̲l̲u̲e̲ k, n; i̲n̲t̲e̲g̲e̲r̲ k, n; b̲e̲g̲i̲n̲
+                print(k, n);
+            e̲n̲d̲;
+            p̲r̲o̲c̲e̲d̲u̲r̲e̲ A(k); v̲a̲l̲u̲e̲ k; i̲n̲t̲e̲g̲e̲r̲ k; b̲e̲g̲i̲n̲
+                i̲n̲t̲e̲g̲e̲r̲ p̲r̲o̲c̲e̲d̲u̲r̲e̲ getk; b̲e̲g̲i̲n̲
+                    getk := k;
+                e̲n̲d̲;
+                p̲r̲o̲c̲e̲d̲u̲r̲e̲ B(n); v̲a̲l̲u̲e̲ n; i̲n̲t̲e̲g̲e̲r̲ n; b̲e̲g̲i̲n̲
+                    i̲n̲t̲e̲g̲e̲r̲ p̲r̲o̲c̲e̲d̲u̲r̲e̲ getn; b̲e̲g̲i̲n̲
+                        getn := n;
+                    e̲n̲d̲;
+                    print(k, n);
+                    pr(k, n);
+                    pr(getk, getn);
+                e̲n̲d̲;
+                B(456);
+            e̲n̲d̲;
+            A(123);
+        e̲n̲d̲
+    )");
+    const std::string expect = R"(123
+456
+)";
+    EXPECT_EQ(output, expect);
+}
