@@ -1473,7 +1473,7 @@ void Processor::store_value(const Stack_Cell &dest, const Stack_Cell &src)
 //
 void Processor::push_formal_address(unsigned dynamic_addr)
 {
-    unsigned arg = arg_descriptor(core.S);
+    unsigned arg = arg_descriptor(dynamic_addr);
     switch (arg >> 15 & 077) {
     case 000: {
         // Get real address.
@@ -1528,15 +1528,16 @@ void Processor::push_formal_value(unsigned dynamic_addr)
     }
     case 040: {
         // Call implicit subroutine.
-        // Need to figure out caller's display[] first.
-        unsigned caller_block_level, caller_frame_ptr;
-        get_formal_display(dynamic_addr, caller_block_level, caller_frame_ptr);
+        // Need to restore previous display[] first.
+        auto block_level  = get_block_level();
+        auto our_display  = display[block_level];
+        auto prev_display = stack.get(frame_ptr + Frame_Offset::DISPLAY).get_int();
+        update_display(block_level, prev_display);
 
         // Invoke implicit subroutine in caller's context.
         frame_create(OT, 0);
-        set_block_level(caller_block_level);
-        update_display(caller_block_level, caller_frame_ptr);
         machine.run(arg, OT);
+        update_display(block_level, our_display);
         break;
     }
     case 002: {

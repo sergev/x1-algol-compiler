@@ -35,7 +35,7 @@ TEST_F(x1_machine, man_or_boy)
 //
 // Simplified version for easy debug.
 //
-TEST_F(x1_machine, DISABLED_mob1)
+TEST_F(x1_machine, mob1)
 {
     auto output = compile_and_run(R"(
         b̲e̲g̲i̲n̲
