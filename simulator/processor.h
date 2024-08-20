@@ -107,7 +107,7 @@ private:
     Real load_real(unsigned addr);
 
     // Create frame in stack for new procedure block.
-    void frame_create(unsigned ret_addr, unsigned num_args);
+    void frame_create(unsigned ret_addr, unsigned num_args, bool need_result);
 
     // Deallocate frame in stack when leaving the procedure.
     // Return address is returned.
@@ -147,9 +147,6 @@ private:
 
     // Update display[n] value.
     void update_display(unsigned block_level, unsigned value);
-
-    // For a given formal parameter, get caller's block lever and frame pointer.
-    void get_formal_display(unsigned dynamic_addr, unsigned &caller_block_level, unsigned &caller_frame_ptr);
 };
 
 #endif // X1_PROCESSOR_H

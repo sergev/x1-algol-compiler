@@ -540,7 +540,7 @@ TEST_F(x1_machine, arg_from_previous_level)
     EXPECT_EQ(output, expect);
 }
 
-TEST_F(x1_machine, DISABLED_getters_level2)
+TEST_F(x1_machine, getters_level2)
 {
     auto output = compile_and_run(R"(
         b̲e̲g̲i̲n̲
@@ -565,6 +565,10 @@ TEST_F(x1_machine, DISABLED_getters_level2)
         e̲n̲d̲
     )");
     const std::string expect = R"(123
+456
+123
+456
+123
 456
 )";
     EXPECT_EQ(output, expect);

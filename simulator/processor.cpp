@@ -384,11 +384,9 @@ bool Processor::call_opc(unsigned opc)
         // extransmark result
         // Invoke a function which address is located in register B.
         // Number of arguments is present in register A.
-        frame_create(OT, core.A);
-        OT = core.B;
-
         // Expect result on return from procedure.
-        stack.get(frame_ptr + Frame_Offset::RESULT).type = Cell_Type::INTEGER_VALUE;
+        frame_create(OT, core.A, true);
+        OT = core.B;
         break;
 
     case OPC_ETMP:
@@ -399,7 +397,7 @@ bool Processor::call_opc(unsigned opc)
         // Note: descriptors of procedure arguments are located
         // in memory 3 words before the return address.
         machine.mem_store(51, OT - 8); // for PRINTTEXT
-        frame_create(OT, core.A);
+        frame_create(OT, core.A, false);
         OT = core.B;
         break;
 
@@ -1283,14 +1281,18 @@ bool Processor::call_opc(unsigned opc)
 //
 // Create frame in stack for new procedure block.
 //
-void Processor::frame_create(unsigned ret_addr, unsigned num_args)
+void Processor::frame_create(unsigned ret_addr, unsigned num_args, bool need_result)
 {
     auto new_frame_ptr = stack.count();
 
     stack.push_int_addr(frame_ptr);  // offset 0: previos frame pointer
     stack.push_int_addr(ret_addr);   // offset 1: return address
     stack.push_int_addr(stack_base); // offset 2: base of the stack
-    stack.push_null();               // offset 3: place for result
+    if (need_result) {
+        stack.push_int_value(0);     // offset 3: place for result
+    } else {
+        stack.push_null();
+    }
     stack.push_int_value(0);         // offset 4: place for block level
     stack.push_int_value(0);         // offset 5: place for saved display
 
@@ -1365,17 +1367,23 @@ unsigned Processor::address_in_stack(unsigned dynamic_addr)
 //
 unsigned Processor::address_in_caller_stack(unsigned block_level, unsigned offset)
 {
-    // Need to figure out caller's display[] first.
-    unsigned caller_level, caller_frame;
-    unsigned dynamic_addr = block_level + (offset * 32);
-    get_formal_display(dynamic_addr, caller_level, caller_frame);
-
     offset += Frame_Offset::ARG - 5;
-    if (block_level == caller_level) {
-        return caller_frame + offset;
-    } else {
-        return display[block_level] + offset;
+
+    auto const addr           = display[block_level] + offset;
+    auto const formal_display = stack.get(addr + 1).get_int();
+    auto const parent_level   = formal_display >> 22;
+    auto const parent_frame   = formal_display & BITS(22);
+    if (block_level == parent_level) {
+        return parent_frame + offset;
     }
+
+    auto our_level = get_block_level();
+    if (block_level == our_level) {
+        auto prev_display = stack.get(frame_ptr + Frame_Offset::DISPLAY).get_int();
+        return prev_display + offset;
+    }
+
+    return display[block_level] + offset;
 }
 
 //
@@ -1535,7 +1543,7 @@ void Processor::push_formal_value(unsigned dynamic_addr)
         update_display(block_level, prev_display);
 
         // Invoke implicit subroutine in caller's context.
-        frame_create(OT, 0);
+        frame_create(OT, 0, true);
         machine.run(arg, OT);
         update_display(block_level, our_display);
         break;
@@ -1557,18 +1565,6 @@ void Processor::push_formal_value(unsigned dynamic_addr)
     default:
         throw std::runtime_error("Unknown descriptor of formal argument: " + to_octal(arg));
     }
-}
-
-//
-// For a given formal parameter, get caller's block lever and frame pointer.
-//
-void Processor::get_formal_display(unsigned dynamic_addr, unsigned &caller_block_level, unsigned &caller_frame_ptr)
-{
-    auto const addr           = address_in_stack(dynamic_addr);
-    auto const formal_display = stack.get(addr + 1).get_int();
-
-    caller_block_level = formal_display >> 22;
-    caller_frame_ptr   = formal_display & BITS(22);
 }
 
 //
