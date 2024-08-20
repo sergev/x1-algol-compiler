@@ -54,3 +54,35 @@ TEST_F(x1_machine, array_negative_bound)
 )";
     EXPECT_EQ(output, expect);
 }
+
+TEST_F(x1_machine, array_local_real)
+{
+    auto output = compile_and_run(R"(
+        _b_e_g_i_n _i_n_t i;
+            _b_e_g_i_n _i_n_t a;
+                _r_e_a_l _a_r_r_a_y b[-1:11];
+                _i_n_t z;
+                a := 12345;
+                z := 54321;
+                b[-1] := -1.5;
+                b[11] := 11.25;
+                print(a);
+                print(z);
+                i := -1;
+                loop: _i_f i < 12 _t_h_e_n _b_e_g_i_n
+                    print(b[i]);
+                    i := i + 4;
+                    _g_o_t_o loop
+                _e_n_d
+            _e_n_d
+         _e_n_d
+)");
+    const std::string expect = R"(12345
+54321
+-1.5
+0
+0
+11.25
+)";
+    EXPECT_EQ(output, expect);
+}

@@ -863,18 +863,17 @@ bool Processor::call_opc(unsigned opc)
         // 2..2+ndim-1: element or dimension sizes in words
         // 2+ndim: number of words in the array, negated
         unsigned addr = storage_fn.get_addr();
-        int location  = x1_to_integer(machine.mem_load(addr));
-        int base      = machine.mem_load(addr + 1);
-        int limit     = x1_to_integer(machine.mem_load(addr + 2 + ndim));
+        int location  = x1_to_integer(load_word(addr));
+        int base      = load_word(addr + 1);
+        int limit     = x1_to_integer(load_word(addr + 2 + ndim));
         // The limit must look like a negative number with a reasonable absolute value.
         if (limit >= 0 || -limit > 32767) {
             throw std::runtime_error("A wrong number of indexes for an array");
         }
-        base = (base & BITS(26)) + (base >> 26);
         int elt_addr = base;
         int idx0     = 0; // for the error message
         for (unsigned i = 0; i < ndim; ++i) {
-            int dimsize = x1_to_integer(machine.mem_load(addr + 2 + i));
+            int dimsize = x1_to_integer(load_word(addr + 2 + i));
             int idx = idxs[i].is_int_value() ?
                 x1_to_integer(idxs[i].get_int()) :
                 (int)roundl(x1_to_ieee(idxs[i].get_real()));
@@ -885,7 +884,7 @@ bool Processor::call_opc(unsigned opc)
         elt_addr &= BITS(16); // 16 rather than 15 is to catch "negative" addresses
         if (elt_addr < location || elt_addr + limit >= location) {
             std::ostringstream ostr;
-            int elsize = x1_to_integer(machine.mem_load(addr + 2));
+            int elsize = x1_to_integer(load_word(addr + 2));
             if (ndim == 1) {
                 ostr << "Index " << idx0 << " is ";
             } else {
@@ -1209,11 +1208,42 @@ bool Processor::call_opc(unsigned opc)
         push_display(core.B, frame_ptr);
         break;
     }
-        // TODO: case OPC_RSF: // real arrays storage function frame
-        // TODO: case OPC_ISF: // integer arrays storage function frame
+    case OPC_RSF: {
+        // real arrays storage function frame
+        make_storage_function_frame(2);
+        break;
+    }
+    case OPC_ISF: {
+        // integer arrays storage function frame
+        make_storage_function_frame(1);
+        break;
+    }
         // TODO: case OPC_RVA: // real value array storage function frame
         // TODO: case OPC_IVA: // integer value array storage function frame
-        // TODO: case OPC_LAP: // local array positioning
+    case OPC_LAP: {
+        // local array positioning
+        unsigned addr = address_in_stack(core.S);
+        if (stack.get(addr).get_addr() != 0) {
+            throw std::runtime_error("Misplaced array storage function frame");
+        }
+        Cell_Type ct = stack.get(addr).type;
+        int pos;
+        // Find the first negative number in the storage function.
+        // It is the negated array length.
+        for (pos = 2; pos < 32; ++pos)
+            if (stack.get(addr + pos).is_int_value() &&
+                x1_to_integer(stack.get(addr + pos).get_int()) < 0)
+                break;
+        if (pos == 32)
+            throw std::runtime_error("Runaway array storage function frame");
+        unsigned words = -x1_to_integer(stack.get(addr + pos).get_int());
+        stack.set(addr, Stack_Cell{ct, stack_base + STACK_BASE});
+        int offset = x1_to_integer(stack.get(addr+1).get_int());
+        stack.set(addr+1, Stack_Cell{ct, stack_base - offset  + STACK_BASE});
+        allocate_stack(words);
+        stack_base += words;
+        break;
+    }
         // TODO: case OPC_VAP: // value array positioning
 
     case OPC_START:
@@ -1641,4 +1671,40 @@ unsigned Processor::get_display(unsigned block_level) const
         return 0;
     }
     return display[block_level].back();
+}
+
+void Processor::make_storage_function_frame(int elt_size)
+{
+    int ndim = core.S;
+    std::vector<std::pair<int, int>> dims;
+    for (int i = 0; i < ndim; ++i) {
+        int right = stack.pop_integer();
+        int left = stack.pop_integer();
+        dims.push_back(std::make_pair(left, right));
+    }
+    std::reverse(dims.begin(), dims.end());
+    if (elt_size == 1)
+        stack.push_int_addr(0);      // future base address
+    else
+        stack.push_real_addr(0);
+    stack.push_null();      // future "0 element" address
+    Stack_Cell & zero_base = stack.top();
+    int offset = 0;
+    int stride = elt_size;
+    for (int i = 0; i < ndim; ++i) {
+        stack.push_int_value(stride);
+        offset += stride * dims[i].first;
+        stride *= (dims[i].second - dims[i].first + 1);
+    }
+    zero_base = Stack_Cell{Cell_Type::INTEGER_VALUE, integer_to_x1(offset)};
+    stack.push_int_value(integer_to_x1(-stride));
+    stack_base += ndim + 3;
+}
+
+Word Processor::load_word(unsigned addr)
+{
+    if (addr < STACK_BASE)
+        return machine.mem_load(addr);
+    else
+        return stack.get(addr - STACK_BASE).get_int();
 }

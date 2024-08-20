@@ -149,6 +149,10 @@ private:
     void push_display(unsigned block_level, unsigned value);
     void pop_display(unsigned block_level);
     unsigned get_display(unsigned block_level) const;
+
+    // Helper methods for dynamic arrays.
+    void make_storage_function_frame(int elt_size);
+    Word load_word(unsigned addr);
 };
 
 #endif // X1_PROCESSOR_H
