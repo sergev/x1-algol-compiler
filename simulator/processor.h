@@ -61,7 +61,7 @@ private:
     unsigned stack_base{};
 
     // Frame pointers for each block level.
-    unsigned display[32]{};
+    std::vector<unsigned> display[32];
 
     // Stack contents is mapped to this virtual address.
     static unsigned const STACK_BASE = 0100000;
@@ -146,7 +146,9 @@ private:
     void set_block_level(unsigned block_level);
 
     // Update display[n] value.
-    void update_display(unsigned block_level, unsigned value);
+    void push_display(unsigned block_level, unsigned value);
+    void pop_display(unsigned block_level);
+    unsigned get_display(unsigned block_level) const;
 };
 
 #endif // X1_PROCESSOR_H
