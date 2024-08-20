@@ -66,6 +66,9 @@ private:
     // Stack contents is mapped to this virtual address.
     static unsigned const STACK_BASE = 0100000;
 
+    // Get formal address (TFA) or value (TFR).
+    bool need_formal_address{};
+
 public:
     // Stack of arguments for OPC.
     Virtual_Stack stack;
@@ -139,7 +142,6 @@ private:
 
     // Get value at dynamic address and push it on stack.
     void push_formal_value(unsigned dynamic_addr);
-    void push_formal_address(unsigned dynamic_addr);
 
     // Get/set lexical scope level, or block number (BN).
     unsigned get_block_level() const;

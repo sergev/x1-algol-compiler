@@ -465,7 +465,12 @@ bool Processor::call_opc(unsigned opc)
     case OPC_TFA: {
         // take formal address
         // Dynamic address is present in register S.
-        push_formal_address(core.S);
+        if (need_formal_address) {
+            throw std::runtime_error("Illegal argument expression");
+        }
+        need_formal_address = true;
+        push_formal_value(core.S);
+        need_formal_address = false;
         break;
     }
 
@@ -1508,59 +1513,31 @@ void Processor::store_value(const Stack_Cell &dest, const Stack_Cell &src)
 // of actual argument. It can hold either address of value, or address
 // of implicit subroutine. Call it to obtain actual argument value.
 //
-void Processor::push_formal_address(unsigned dynamic_addr)
-{
-    unsigned arg = arg_descriptor(dynamic_addr);
-    switch (arg >> 15 & 077) {
-    case 000: {
-        // Get real address.
-        stack.push_real_addr(arg);
-        break;
-    }
-    case 020: {
-        // Get integer address.
-        stack.push_int_addr(arg);
-        break;
-    }
-    case 040: {
-        // Call implicit subroutine.
-        throw std::runtime_error("Implicit subroutine not supported yet for formal address: " + to_octal(arg));
-    }
-    case 002: {
-        // Get real value from stack.
-        auto const addr = address_in_caller_stack(arg >> 22, arg & BITS(15));
-        stack.push_real_addr(addr + STACK_BASE);
-        break;
-    }
-    case 022: {
-        // Get integer value from stack.
-        auto const addr = address_in_caller_stack(arg >> 22, arg & BITS(15));
-        stack.push_int_addr(addr + STACK_BASE);
-        break;
-    }
-    default:
-        throw std::runtime_error("Unknown descriptor of formal argument: " + to_octal(arg));
-    }
-}
-
-//
-// Read word from memory at dynamic address - it contains descriptor
-// of actual argument. It can hold either address of value, or address
-// of implicit subroutine. Call it to obtain actual argument value.
+// When flag need_formal_address is set - instead of value, return it's address.
 //
 void Processor::push_formal_value(unsigned dynamic_addr)
 {
     unsigned arg = arg_descriptor(dynamic_addr);
     switch (arg >> 15 & 077) {
     case 000: {
-        // Get real value from memory.
-        stack.push_real_value(load_real(arg));
+        if (need_formal_address) {
+            // Get real address.
+            stack.push_real_addr(arg);
+        } else {
+            // Get real value from memory.
+            stack.push_real_value(load_real(arg));
+        }
         break;
     }
     case 020: {
-        // Get integer value from memory.
-        Word value = machine.mem_load(arg);
-        stack.push_int_value(value);
+        if (need_formal_address) {
+            // Get integer address.
+            stack.push_int_addr(arg);
+        } else {
+            // Get integer value from memory.
+            Word value = machine.mem_load(arg);
+            stack.push_int_value(value);
+        }
         break;
     }
     case 040: {
@@ -1577,17 +1554,27 @@ void Processor::push_formal_value(unsigned dynamic_addr)
         break;
     }
     case 002: {
-        // Get real value from stack.
-        auto const addr  = address_in_caller_stack(arg >> 22, arg & BITS(15));
-        auto const value = stack.get(addr).get_real();
-        stack.push_real_value(value);
+        auto const addr = address_in_caller_stack(arg >> 22, arg & BITS(15));
+        if (need_formal_address) {
+            // Get real address on stack.
+            stack.push_real_addr(addr + STACK_BASE);
+        } else {
+            // Get real value from stack.
+            auto const value = stack.get(addr).get_real();
+            stack.push_real_value(value);
+        }
         break;
     }
     case 022: {
-        // Get integer value from stack.
-        auto const addr  = address_in_caller_stack(arg >> 22, arg & BITS(15));
-        auto const value = stack.get(addr).get_int();
-        stack.push_int_value(value);
+        auto const addr = address_in_caller_stack(arg >> 22, arg & BITS(15));
+        if (need_formal_address) {
+            // Get integer address on stack.
+            stack.push_int_addr(addr + STACK_BASE);
+        } else {
+            // Get integer value from stack.
+            auto const value = stack.get(addr).get_int();
+            stack.push_int_value(value);
+        }
         break;
     }
     default:
