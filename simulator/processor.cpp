@@ -1399,22 +1399,19 @@ unsigned Processor::address_in_stack(unsigned dynamic_addr)
 // Convert dynamic address into static address.
 // Assume caller's context, as if restoring display[] for a moment.
 //
-unsigned Processor::address_in_caller_stack(unsigned block_level, unsigned offset)
+unsigned Processor::arg_address(unsigned dynamic_addr, unsigned arg_descr)
 {
+    unsigned block_level = arg_descr >> 22;
+    unsigned offset      = arg_descr & BITS(15);
+
     offset += Frame_Offset::ARG - 5;
 
-    auto const addr           = get_display(block_level) + offset;
+    auto const addr           = address_in_stack(dynamic_addr);
     auto const formal_display = stack.get(addr + 1).get_int();
     auto const parent_level   = formal_display >> 22;
     auto const parent_frame   = formal_display & BITS(22);
     if (block_level == parent_level) {
         return parent_frame + offset;
-    }
-
-    auto our_level = get_block_level();
-    if (block_level == our_level) {
-        auto prev_display = stack.get(frame_ptr + Frame_Offset::DISPLAY).get_int();
-        return prev_display + offset;
     }
 
     return get_display(block_level) + offset;
@@ -1441,6 +1438,15 @@ unsigned Processor::arg_descriptor(unsigned dynamic_addr)
     auto const arg_descr   = machine.mem_load(ret_addr - arg_num - 3);
 
     return arg_descr;
+}
+
+void Processor::get_arg_display(unsigned const dynamic_addr, unsigned &block_level, unsigned &prev_display)
+{
+    auto const addr           = address_in_stack(dynamic_addr);
+    auto const formal_display = stack.get(addr + 1).get_int();
+
+    block_level  = formal_display >> 22;
+    prev_display = formal_display & BITS(22);
 }
 
 //
@@ -1543,18 +1549,26 @@ void Processor::push_formal_value(unsigned dynamic_addr)
     case 040: {
         // Call implicit subroutine.
         // Need to restore previous display[] first.
-        auto block_level  = get_block_level();
-        auto prev_display = stack.get(frame_ptr + Frame_Offset::DISPLAY).get_int();
-        push_display(block_level, prev_display);
+        unsigned arg_level, arg_frame;
+        get_arg_display(dynamic_addr, arg_level, arg_frame);
+        unsigned block_level = get_block_level();
+        pop_display(block_level);
 
         // Invoke implicit subroutine in caller's context.
         frame_create(OT, 0, true);
+        if (arg_level > 0) {
+            set_block_level(arg_level);
+            push_display(arg_level, arg_frame);
+        }
         machine.run(arg, OT);
-        pop_display(block_level);
+        push_display(block_level, frame_ptr);
         break;
     }
     case 002: {
-        auto const addr = address_in_caller_stack(arg >> 22, arg & BITS(15));
+        unsigned block_level = get_block_level();
+        pop_display(block_level);
+        auto const addr = arg_address(dynamic_addr, arg);
+        push_display(block_level, frame_ptr);
         if (need_formal_address) {
             // Get real address on stack.
             stack.push_real_addr(addr + STACK_BASE);
@@ -1566,7 +1580,10 @@ void Processor::push_formal_value(unsigned dynamic_addr)
         break;
     }
     case 022: {
-        auto const addr = address_in_caller_stack(arg >> 22, arg & BITS(15));
+        unsigned block_level = get_block_level();
+        pop_display(block_level);
+        auto const addr = arg_address(dynamic_addr, arg);
+        push_display(block_level, frame_ptr);
         if (need_formal_address) {
             // Get integer address on stack.
             stack.push_int_addr(addr + STACK_BASE);
@@ -1606,10 +1623,12 @@ void Processor::set_block_level(unsigned block_level)
         bn.value = block_level;
         Machine::trace_stack(frame_ptr + Frame_Offset::BN, bn.to_string(), "Write");
 
-        auto &disp = stack.get(frame_ptr + Frame_Offset::DISPLAY);
-        disp.type  = Cell_Type::INTEGER_VALUE;
-        disp.value = get_display(block_level);
-        Machine::trace_stack(frame_ptr + Frame_Offset::DISPLAY, disp.to_string(), "Write");
+        // Remove this field from stack frame.
+        // As long as we use stacks for display, it's not needed.
+        //auto &disp = stack.get(frame_ptr + Frame_Offset::DISPLAY);
+        //disp.type  = Cell_Type::INTEGER_VALUE;
+        //disp.value = get_display(block_level);
+        //Machine::trace_stack(frame_ptr + Frame_Offset::DISPLAY, disp.to_string(), "Write");
     }
 }
 
@@ -1626,7 +1645,7 @@ void Processor::push_display(unsigned block_level, unsigned value)
         throw std::runtime_error("Bad block level");
     }
     display[block_level].push_back(value);
-    machine.trace_display(block_level, value);
+    machine.trace_display(block_level, display[block_level]);
 }
 
 void Processor::pop_display(unsigned block_level)
@@ -1642,7 +1661,7 @@ void Processor::pop_display(unsigned block_level)
         throw std::runtime_error("Cannot pop empty display");
     }
     display[block_level].pop_back();
-    machine.trace_display(block_level, get_display(block_level));
+    machine.trace_display(block_level, display[block_level]);
 }
 
 unsigned Processor::get_display(unsigned block_level) const

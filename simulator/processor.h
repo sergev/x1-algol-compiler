@@ -122,10 +122,11 @@ private:
     // Convert dynamic address of variable (relative to stack frame)
     // into offset in stack.
     unsigned address_in_stack(unsigned dynamic_addr);
-    unsigned address_in_caller_stack(unsigned block_level, unsigned offset);
 
     // Extract descriptor of actual argument.
     unsigned arg_descriptor(unsigned dynamic_addr);
+    unsigned arg_address(unsigned dynamic_addr, unsigned arg_descr);
+    void get_arg_display(unsigned const arg, unsigned &block_level, unsigned &prev_display);
 
     // Store value given by src cell.
     // Write it to memory address given by dest cell.

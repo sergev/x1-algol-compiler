@@ -98,13 +98,19 @@ void Machine::print_stack_op(unsigned offset, const std::string &value, const st
 //
 // Print display[] change.
 //
-void Machine::print_display(unsigned level, unsigned addr)
+void Machine::print_display(unsigned level, const std::vector<unsigned> &list)
 {
     auto &out       = Machine::get_trace_stream();
     auto save_flags = out.flags();
+    auto count      = list.size();
 
     out << "       Display [" << std::oct << level << "] = "
-        << std::setfill('0') << std::setw(5) << addr << std::endl;
+        << std::setfill('0') << std::setw(5) << list[count-1];
+
+    for (unsigned i = 1; i < count; i++) {
+        out << ", " << std::setfill('0') << std::setw(5) << list[count-1-i];
+    }
+    out << std::endl;
 
     // Restore.
     out.flags(save_flags);
