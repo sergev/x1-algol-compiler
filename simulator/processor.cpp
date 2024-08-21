@@ -1694,7 +1694,7 @@ void Processor::make_storage_function_frame(int elt_size)
     else
         stack.push_real_addr(0);
     stack.push_null();      // future "0 element" address
-    Stack_Cell & zero_base = stack.top();
+    unsigned zero_base = stack.count() - 1;
     int offset = 0;
     int stride = elt_size;
     for (int i = 0; i < ndim; ++i) {
@@ -1702,7 +1702,7 @@ void Processor::make_storage_function_frame(int elt_size)
         offset += stride * dims[i].first;
         stride *= (dims[i].second - dims[i].first + 1);
     }
-    zero_base = Stack_Cell{Cell_Type::INTEGER_VALUE, integer_to_x1(offset)};
+    stack.set(zero_base, Stack_Cell{Cell_Type::INTEGER_VALUE, integer_to_x1(offset)});
     stack.push_int_value(integer_to_x1(-stride));
     stack_base += ndim + 3;
 }
