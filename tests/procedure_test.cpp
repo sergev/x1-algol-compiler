@@ -573,3 +573,29 @@ TEST_F(x1_machine, getters_level2)
 )";
     EXPECT_EQ(output, expect);
 }
+
+TEST_F(x1_machine, arg_address_level2)
+{
+    auto output = compile_and_run(R"(
+        b̲e̲g̲i̲n̲
+            p̲r̲o̲c̲̲e̲d̲u̲r̲e̲ c(x); i̲n̲t̲̲e̲g̲e̲r̲ x; b̲e̲g̲i̲n̲
+                i̲n̲t̲̲e̲g̲e̲r̲ y;
+                p̲r̲o̲c̲ d(x); i̲n̲t̲ x;
+                    x := 12345;
+                d(x);
+            e̲n̲d̲;
+            p̲r̲o̲c̲̲e̲d̲u̲r̲e̲ a; b̲e̲g̲i̲n̲
+                i̲n̲t̲̲e̲g̲e̲r̲ x;
+                p̲r̲o̲c̲e̲d̲u̲r̲e̲ b(x); i̲n̲t̲̲e̲g̲e̲r̲ x; b̲e̲g̲i̲n̲
+                    i̲n̲t̲̲̲e̲g̲e̲r̲ y;
+                    c(x)
+                e̲n̲d̲;
+                b(x);
+                print(x);
+            e̲n̲d̲;
+            a;
+        e̲n̲d̲
+    )");
+    const std::string expect = "12345\n";
+    EXPECT_EQ(output, expect);
+}
