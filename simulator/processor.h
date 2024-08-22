@@ -61,7 +61,7 @@ private:
     unsigned stack_base{};
 
     // Frame pointers for each block level.
-    std::vector<unsigned> display[32];
+    unsigned display[32]{};
 
     // Stack contents is mapped to this virtual address.
     static unsigned const STACK_BASE = 0100000;
@@ -149,11 +149,10 @@ private:
 
     // Get/set lexical scope level, or block number (BN).
     unsigned get_block_level() const;
-    void set_block_level(unsigned block_level);
+    void set_block_level(unsigned block_level, unsigned this_frame, unsigned prev_frame);
 
     // Update display[n] value.
-    void push_display(unsigned block_level, unsigned value);
-    void pop_display(unsigned block_level);
+    void set_display(unsigned block_level, unsigned value);
     unsigned get_display(unsigned block_level) const;
 
     // Helper methods for dynamic arrays.

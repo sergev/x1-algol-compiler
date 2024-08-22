@@ -145,10 +145,10 @@ public:
             print_stack_op(offset, value, op);
     }
 
-    static void trace_display(unsigned level, const std::vector<unsigned> &list)
+    static void trace_display(unsigned level, unsigned value)
     {
         if (debug_flag)
-            print_display(level, list);
+            print_display(level, value);
     }
 
     void trace_instruction(unsigned opcode)
@@ -166,7 +166,7 @@ public:
     static void print_exception(const char *message);
     static void print_memory_access(unsigned addr, Word val, const char *opname);
     static void print_stack_op(unsigned offset, const std::string &value, const std::string &op);
-    static void print_display(unsigned level, const std::vector<unsigned> &list);
+    static void print_display(unsigned level, unsigned value);
 };
 
 //

@@ -1210,11 +1210,7 @@ bool Processor::call_opc(unsigned opc)
             throw std::runtime_error("Bad block level in SCC");
         }
         // Save display[n] and block level.
-        set_block_level(core.B);
-        push_display(core.B, frame_ptr);
-        if (core.B > 1) {
-            push_display(core.B - 1, get_display(core.B - 1));
-        }
+        set_block_level(core.B, frame_ptr, get_display(core.B - 1));
         break;
     }
     case OPC_RSF: {
@@ -1353,11 +1349,14 @@ unsigned Processor::frame_release()
     }
     auto block_level = get_block_level();
     if (block_level > 0) {
-        pop_display(block_level);
+        // Restore display of this level.
+        auto const this_saved = stack.get(frame_ptr + Frame_Offset::DISPLAY).get_int() & BITS(15);
+        set_display(block_level, this_saved);
 
-        // Pop display of previous block level.
+        // Restore display of previous level.
         if (block_level > 1) {
-            pop_display(block_level - 1);
+            auto const prev_saved = stack.get(frame_ptr + Frame_Offset::DISPLAY).get_int() >> 15 & BITS(15);
+            set_display(block_level - 1, prev_saved);
         }
     }
 
@@ -1569,26 +1568,17 @@ void Processor::push_formal_value(unsigned dynamic_addr)
         unsigned this_frame = frame_ptr;
         unsigned arg_level, arg_frame;
         get_arg_display(dynamic_addr, arg_level, arg_frame);
-        unsigned block_level = get_block_level();
-        pop_display(block_level);
 
         // Invoke implicit subroutine in caller's context.
         stack.push_int_value(0); // place for result
         frame_create(OT, 0);
-//std::cout << "--- lambda at level " << std::oct << arg_level << ", frame " << arg_frame << std::dec << '\n';
+//std::cerr << "--- lambda at level " << std::oct << arg_level << ", frame " << arg_frame << std::dec << '\n';
         if (arg_level > 0) {
-            set_block_level(arg_level);
-            push_display(arg_level, arg_frame);
-
-            // Push display of previous lexical level.
-            if (arg_level > 1) {
-                unsigned prev_frame = stack.get(arg_frame + Frame_Offset::DISPLAY).get_addr() >> 15;
-                push_display(arg_level - 1, prev_frame);
-            }
+            unsigned prev_frame = stack.get(arg_frame + Frame_Offset::DISPLAY).get_addr() >> 15;
+            set_block_level(arg_level, arg_frame, prev_frame);
         }
         machine.run(arg, OT, this_frame);
-//std::cout << "--- back to level " << block_level << '\n';
-        push_display(block_level, this_frame);
+//std::cerr << "--- back to level " << get_block_level() << '\n';
         break;
     }
     case 002: {
@@ -1635,7 +1625,7 @@ unsigned Processor::get_block_level() const
 //
 // Set lexical scope level for this frame.
 //
-void Processor::set_block_level(unsigned block_level)
+void Processor::set_block_level(unsigned block_level, unsigned this_frame, unsigned prev_frame)
 {
     // Store block level in stack frame.
     auto &bn = stack.get(frame_ptr + Frame_Offset::BN);
@@ -1654,12 +1644,18 @@ void Processor::set_block_level(unsigned block_level)
         }
         Machine::trace_stack(frame_ptr + Frame_Offset::DISPLAY, disp.to_string(), "Write");
     }
+    if (block_level > 0) {
+        set_display(block_level, this_frame);
+        if (block_level > 1) {
+            set_display(block_level - 1, prev_frame);
+        }
+    }
 }
 
 //
 // Update display[n] value.
 //
-void Processor::push_display(unsigned block_level, unsigned value)
+void Processor::set_display(unsigned block_level, unsigned value)
 {
     if (block_level == 0) {
         // Global level: ignore.
@@ -1668,24 +1664,8 @@ void Processor::push_display(unsigned block_level, unsigned value)
     if (block_level >= 32) {
         throw std::runtime_error("Bad block level");
     }
-    display[block_level].push_back(value);
-    machine.trace_display(block_level, display[block_level]);
-}
-
-void Processor::pop_display(unsigned block_level)
-{
-    if (block_level == 0) {
-        // Global level: ignore.
-        return;
-    }
-    if (block_level >= 32) {
-        throw std::runtime_error("Bad block level");
-    }
-    if (display[block_level].empty()) {
-        throw std::runtime_error("Cannot pop empty display");
-    }
-    display[block_level].pop_back();
-    machine.trace_display(block_level, display[block_level]);
+    display[block_level] = value;
+    machine.trace_display(block_level, value);
 }
 
 unsigned Processor::get_display(unsigned block_level) const
@@ -1697,10 +1677,7 @@ unsigned Processor::get_display(unsigned block_level) const
     if (block_level >= 32) {
         throw std::runtime_error("Bad block level");
     }
-    if (display[block_level].empty()) {
-        return 0;
-    }
-    return display[block_level].back();
+    return display[block_level];
 }
 
 void Processor::make_storage_function_frame(int elt_size)
