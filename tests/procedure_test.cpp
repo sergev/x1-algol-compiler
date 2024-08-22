@@ -599,3 +599,42 @@ TEST_F(x1_machine, arg_address_level2)
     const std::string expect = "12345\n";
     EXPECT_EQ(output, expect);
 }
+
+TEST_F(x1_machine, arg_by_name_recursive)
+{
+    auto output = compile_and_run(R"(
+        b̲e̲g̲i̲n̲
+            i̲n̲t̲̲e̲g̲e̲r̲̲ p̲r̲o̲c̲̲e̲d̲u̲r̲e̲ bar(a); i̲n̲t̲̲e̲g̲e̲r̲ a; b̲e̲g̲i̲n̲
+                bar := a
+            e̲n̲d̲;
+            print(bar(bar(123)));
+        e̲n̲d̲
+    )");
+    const std::string expect = "123\n";
+    EXPECT_EQ(output, expect);
+}
+
+TEST_F(x1_machine, args_by_value_level1)
+{
+    auto output = compile_and_run(R"(
+        b̲e̲g̲i̲n̲
+            c̲o̲m̲m̲e̲n̲t̲ v̲a̲l̲u̲e̲ is needed for the bug ;
+            i̲n̲t̲e̲g̲e̲r̲ p̲r̲o̲c̲e̲d̲u̲r̲e̲ bar(a, b); v̲a̲l̲u̲e̲ a, b; i̲n̲t̲e̲g̲e̲r̲ a, b; b̲e̲g̲i̲n̲
+                PRINTTEXT(`bar'); NLCR;
+                bar := 123;
+            e̲n̲d̲;
+            p̲r̲o̲c̲e̲d̲u̲r̲e̲ foo; b̲e̲g̲i̲n̲
+                i̲n̲t̲e̲g̲e̲r̲ a, b;
+                a := bar(bar(b, 0) - bar(a, 0), 0);
+                print(a);
+            e̲n̲d̲;
+            foo;
+        e̲n̲d̲
+    )");
+    const std::string expect = R"(bar
+bar
+bar
+123
+)";
+    EXPECT_EQ(output, expect);
+}
