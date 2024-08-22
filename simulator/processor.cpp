@@ -1401,18 +1401,33 @@ unsigned Processor::address_in_stack(unsigned dynamic_addr)
 //
 unsigned Processor::arg_address(unsigned dynamic_addr, unsigned arg_descr)
 {
-    unsigned block_level = arg_descr >> 22;
-    unsigned offset      = arg_descr & BITS(15);
+    // Split argument descriptor into lexical level and offset in frame.
+    auto const arg_level  = arg_descr >> 22;
+    auto const arg_offset = arg_descr & BITS(15);
 
+    // Get caller level and FP from formal descriptor.
     auto const addr           = address_in_stack(dynamic_addr);
     auto const formal_display = stack.get(addr + 1).get_int();
-    auto const parent_level   = formal_display >> 22;
-    auto const parent_frame   = formal_display & BITS(22);
-    if (block_level == parent_level) {
-        return parent_frame + offset;
+    auto const caller_level   = formal_display >> 22;
+    auto const caller_frame   = formal_display & BITS(22);
+    if (arg_level == caller_level) {
+        // Argument is located in caller stack.
+        return caller_frame + arg_offset;
     }
 
-    return get_display(block_level) + offset;
+    auto const this_level = get_block_level();
+    if (arg_level == this_level) {
+        // Argument matches current block level - get saved display.
+        auto const saved_display = stack.get(frame_ptr + Frame_Offset::DISPLAY).get_int() & BITS(15);
+        return saved_display + arg_offset;
+    }
+    if (arg_level == this_level - 1) {
+        // Argument matches previous lexical level - get saved display.
+        auto const saved_display = stack.get(frame_ptr + Frame_Offset::DISPLAY).get_int() >> 15 & BITS(15);
+        return saved_display + arg_offset;
+    }
+
+    return get_display(arg_level) + arg_offset;
 }
 
 //
@@ -1571,15 +1586,7 @@ void Processor::push_formal_value(unsigned dynamic_addr)
         break;
     }
     case 002: {
-        unsigned block_level = get_block_level();
-        unsigned saved_display = display[block_level - 1].back();
-        if (block_level > 1) {
-            display[block_level - 1].back() = stack.get(frame_ptr + Frame_Offset::DISPLAY).get_int();
-        }
         auto const addr = arg_address(dynamic_addr, arg);
-        if (block_level > 1) {
-            display[block_level - 1].back() = saved_display;
-        }
         if (need_formal_address) {
             // Get real address on stack.
             stack.push_real_addr(addr + STACK_BASE);
@@ -1591,15 +1598,7 @@ void Processor::push_formal_value(unsigned dynamic_addr)
         break;
     }
     case 022: {
-        unsigned block_level = get_block_level();
-        unsigned saved_display = display[block_level - 1].back();
-        if (block_level > 1) {
-            display[block_level - 1].back() = stack.get(frame_ptr + Frame_Offset::DISPLAY).get_int();
-        }
         auto const addr = arg_address(dynamic_addr, arg);
-        if (block_level > 1) {
-            display[block_level - 1].back() = saved_display;
-        }
         if (need_formal_address) {
             // Get integer address on stack.
             stack.push_int_addr(addr + STACK_BASE);
@@ -1639,13 +1638,15 @@ void Processor::set_block_level(unsigned block_level)
         bn.value = block_level;
         Machine::trace_stack(frame_ptr + Frame_Offset::BN, bn.to_string(), "Write");
 
-        // Save display of previous lexical level.
+        // Save display.
+        auto &disp = stack.get(frame_ptr + Frame_Offset::DISPLAY);
+        disp.type  = Cell_Type::INTEGER_VALUE;
+        disp.value = get_display(block_level);
         if (block_level > 1) {
-            auto &disp = stack.get(frame_ptr + Frame_Offset::DISPLAY);
-            disp.type  = Cell_Type::INTEGER_VALUE;
-            disp.value = get_display(block_level - 1);
-            Machine::trace_stack(frame_ptr + Frame_Offset::DISPLAY, disp.to_string(), "Write");
+            // Save display of previous lexical level.
+            disp.value |= get_display(block_level - 1) << 15;
         }
+        Machine::trace_stack(frame_ptr + Frame_Offset::DISPLAY, disp.to_string(), "Write");
     }
 }
 
