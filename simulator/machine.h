@@ -151,6 +151,18 @@ public:
             print_display(level, value);
     }
 
+    void trace_level(unsigned level, unsigned frame)
+    {
+        if (debug_flag)
+            print_level(level, frame);
+    }
+
+    void trace_level()
+    {
+        if (debug_flag)
+            print_level();
+    }
+
     void trace_instruction(unsigned opcode)
     {
         if (debug_flag)
@@ -167,6 +179,8 @@ public:
     static void print_memory_access(unsigned addr, Word val, const char *opname);
     static void print_stack_op(unsigned offset, const std::string &value, const std::string &op);
     static void print_display(unsigned level, unsigned value);
+    void print_level(unsigned level, unsigned frame);
+    void print_level();
 };
 
 //

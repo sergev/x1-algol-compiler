@@ -1568,17 +1568,17 @@ void Processor::push_formal_value(unsigned dynamic_addr)
         unsigned this_frame = frame_ptr;
         unsigned arg_level, arg_frame;
         get_arg_display(dynamic_addr, arg_level, arg_frame);
+        machine.trace_level(arg_level, arg_frame);
 
         // Invoke implicit subroutine in caller's context.
         stack.push_int_value(0); // place for result
         frame_create(OT, 0);
-//std::cerr << "--- lambda at level " << std::oct << arg_level << ", frame " << arg_frame << std::dec << '\n';
         if (arg_level > 0) {
             unsigned prev_frame = stack.get(arg_frame + Frame_Offset::DISPLAY).get_addr() >> 15;
             set_block_level(arg_level, arg_frame, prev_frame);
         }
         machine.run(arg, OT, this_frame);
-//std::cerr << "--- back to level " << get_block_level() << '\n';
+        machine.trace_level();
         break;
     }
     case 002: {

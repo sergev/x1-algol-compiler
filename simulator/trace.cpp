@@ -112,6 +112,40 @@ void Machine::print_display(unsigned level, unsigned value)
 }
 
 //
+// Print change of lexical level.
+//
+void Machine::print_level(unsigned new_level, unsigned new_frame)
+{
+    unsigned old_level = cpu.get_block_level();
+    unsigned old_frame = cpu.get_display(old_level);
+
+    auto &out       = Machine::get_trace_stream();
+    auto save_flags = out.flags();
+
+    out << "       Change Level " << std::oct << old_level << ", Frame " << old_frame
+        << " -> Level " << new_level << ", Frame " << new_frame
+        << std::endl;
+
+    // Restore.
+    out.flags(save_flags);
+}
+
+void Machine::print_level()
+{
+    unsigned old_level = cpu.get_block_level();
+    unsigned old_frame = cpu.get_display(old_level);
+
+    auto &out       = Machine::get_trace_stream();
+    auto save_flags = out.flags();
+
+    out << "       Restore Level " << std::oct << old_level << ", Frame " << old_frame
+        << std::endl;
+
+    // Restore.
+    out.flags(save_flags);
+}
+
+//
 // Print instruction address, opcode from OR and mnemonics.
 //
 void Processor::print_instruction()

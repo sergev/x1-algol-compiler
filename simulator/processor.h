@@ -104,6 +104,10 @@ public:
     void print_instruction();
     void print_registers();
 
+    // Get lexical scope level, or block number (BN).
+    unsigned get_block_level() const;
+    unsigned get_display(unsigned block_level) const;
+
 private:
     // Invoke run-time routine.
     // Return true when the processor is stopped.
@@ -147,13 +151,11 @@ private:
     // Get value at dynamic address and push it on stack.
     void push_formal_value(unsigned dynamic_addr);
 
-    // Get/set lexical scope level, or block number (BN).
-    unsigned get_block_level() const;
+    // Set lexical scope level, or block number (BN).
     void set_block_level(unsigned block_level, unsigned this_frame, unsigned prev_frame);
 
     // Update display[n] value.
     void set_display(unsigned block_level, unsigned value);
-    unsigned get_display(unsigned block_level) const;
 
     // Helper methods for dynamic arrays.
     void make_storage_function_frame(int elt_size);
