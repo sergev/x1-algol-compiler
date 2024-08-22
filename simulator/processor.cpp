@@ -1355,6 +1355,10 @@ unsigned Processor::frame_release()
     auto block_level = get_block_level();
     if (block_level > 0) {
         pop_display(block_level);
+        //TODO: pop display of previous block level
+        //if (block_level > 1) {
+        //    pop_display(block_level - 1);
+        //}
     }
 
     auto new_stack_ptr = frame_ptr;
@@ -1557,11 +1561,17 @@ void Processor::push_formal_value(unsigned dynamic_addr)
 
         // Invoke implicit subroutine in caller's context.
         frame_create(OT, 0, true);
+//std::cout << "--- lambda at level " << std::oct << arg_level << ", frame " << arg_frame << std::dec << '\n';
         if (arg_level > 0) {
             set_block_level(arg_level);
             push_display(arg_level, arg_frame);
+            // TODO: push display of previous static level (1 in this case)
+            //if (arg_level > 1) {
+            //    push_display(arg_level - 1, stack.get(frame_ptr + Frame_Offset::DISPLAY).get_addr());
+            //}
         }
         machine.run(arg, OT, this_frame);
+//std::cout << "--- back to level " << block_level << '\n';
         push_display(block_level, this_frame);
         break;
     }
