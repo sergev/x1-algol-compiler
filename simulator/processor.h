@@ -25,13 +25,13 @@ struct CoreState {
 //
 namespace Frame_Offset {
     enum {
+        RESULT = -1, // Result to be returned
         FP = 0,      // Caller's frame pointer
         PC = 1,      // Caller's program counter
         SP = 2,      // Caller's stack base
-        RESULT = 3,  // Result to be returned
-        BN = 4,      // Lexical scope block level (number)
-        DISPLAY = 5, // Previous display[bn]
-        ARG = 6,     // First argument of procedure
+        BN = 3,      // Lexical scope block level (number)
+        DISPLAY = 4, // Previous display[bn]
+        ARG = 5,     // First argument of procedure, must be 5
     };
 };
 
@@ -113,7 +113,7 @@ private:
     Real load_real(unsigned addr);
 
     // Create frame in stack for new procedure block.
-    void frame_create(unsigned ret_addr, unsigned num_args, bool need_result);
+    void frame_create(unsigned ret_addr, unsigned num_args);
 
     // Deallocate frame in stack when leaving the procedure.
     // Return address is returned.

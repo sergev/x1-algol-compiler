@@ -385,7 +385,8 @@ bool Processor::call_opc(unsigned opc)
         // Invoke a function which address is located in register B.
         // Number of arguments is present in register A.
         // Expect result on return from procedure.
-        frame_create(OT, core.A, true);
+        stack.push_int_value(0); // place for result
+        frame_create(OT, core.A);
         OT = core.B;
         break;
 
@@ -397,7 +398,8 @@ bool Processor::call_opc(unsigned opc)
         // Note: descriptors of procedure arguments are located
         // in memory 3 words before the return address.
         machine.mem_store(51, OT - 8); // for PRINTTEXT
-        frame_create(OT, core.A, false);
+        stack.push_null(); // place for result
+        frame_create(OT, core.A);
         OT = core.B;
         break;
 
@@ -419,11 +421,10 @@ bool Processor::call_opc(unsigned opc)
     case OPC_RET: {
         // return from procedure
         // Jump to address from stack.
-        auto result = stack.get(frame_ptr + Frame_Offset::RESULT);
-        OT          = frame_release();
-        if (!result.is_null()) {
-            // Push result on stack.
-            stack.push(result);
+        OT = frame_release();
+        if (stack.top().is_null()) {
+            // Drop empty result.
+            stack.pop();
         }
         break;
     }
@@ -431,7 +432,7 @@ bool Processor::call_opc(unsigned opc)
         // end of implicit subroutine
         auto item = stack.pop();
         OT        = frame_release();
-        stack.push(item);
+        stack.top() = item;
         break;
     }
     case OPC_TRAD: {
@@ -1316,20 +1317,15 @@ bool Processor::call_opc(unsigned opc)
 //
 // Create frame in stack for new procedure block.
 //
-void Processor::frame_create(unsigned ret_addr, unsigned num_args, bool need_result)
+void Processor::frame_create(unsigned ret_addr, unsigned num_args)
 {
     auto new_frame_ptr = stack.count();
 
     stack.push_int_addr(frame_ptr);  // offset 0: previos frame pointer
     stack.push_int_addr(ret_addr);   // offset 1: return address
     stack.push_int_addr(stack_base); // offset 2: base of the stack
-    if (need_result) {
-        stack.push_int_value(0);     // offset 3: place for result
-    } else {
-        stack.push_null();
-    }
-    stack.push_int_value(0);         // offset 4: place for block level
-    stack.push_int_value(0);         // offset 5: place for saved display
+    stack.push_int_value(0);         // offset 3: place for block level
+    stack.push_int_value(0);         // offset 4: place for saved display
 
     // For each parameter, store info about parent display.
     auto parent_display = get_block_level() << 22 | frame_ptr;
@@ -1394,7 +1390,7 @@ void Processor::allocate_stack(unsigned nwords)
 unsigned Processor::address_in_stack(unsigned dynamic_addr)
 {
     auto const block_level = dynamic_addr % 32;
-    auto const offset      = (dynamic_addr / 32) + Frame_Offset::ARG - 5;
+    auto const offset      = (dynamic_addr / 32);
 
     return get_display(block_level) + offset;
 }
@@ -1407,8 +1403,6 @@ unsigned Processor::arg_address(unsigned dynamic_addr, unsigned arg_descr)
 {
     unsigned block_level = arg_descr >> 22;
     unsigned offset      = arg_descr & BITS(15);
-
-    offset += Frame_Offset::ARG - 5;
 
     auto const addr           = address_in_stack(dynamic_addr);
     auto const formal_display = stack.get(addr + 1).get_int();
@@ -1560,7 +1554,8 @@ void Processor::push_formal_value(unsigned dynamic_addr)
         pop_display(block_level);
 
         // Invoke implicit subroutine in caller's context.
-        frame_create(OT, 0, true);
+        stack.push_int_value(0); // place for result
+        frame_create(OT, 0);
 //std::cout << "--- lambda at level " << std::oct << arg_level << ", frame " << arg_frame << std::dec << '\n';
         if (arg_level > 0) {
             set_block_level(arg_level);
