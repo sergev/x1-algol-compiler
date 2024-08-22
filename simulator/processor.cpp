@@ -1572,9 +1572,14 @@ void Processor::push_formal_value(unsigned dynamic_addr)
     }
     case 002: {
         unsigned block_level = get_block_level();
-        pop_display(block_level);
+        unsigned saved_display = display[block_level - 1].back();
+        if (block_level > 1) {
+            display[block_level - 1].back() = stack.get(frame_ptr + Frame_Offset::DISPLAY).get_int();
+        }
         auto const addr = arg_address(dynamic_addr, arg);
-        push_display(block_level, frame_ptr);
+        if (block_level > 1) {
+            display[block_level - 1].back() = saved_display;
+        }
         if (need_formal_address) {
             // Get real address on stack.
             stack.push_real_addr(addr + STACK_BASE);
@@ -1587,9 +1592,14 @@ void Processor::push_formal_value(unsigned dynamic_addr)
     }
     case 022: {
         unsigned block_level = get_block_level();
-        pop_display(block_level);
+        unsigned saved_display = display[block_level - 1].back();
+        if (block_level > 1) {
+            display[block_level - 1].back() = stack.get(frame_ptr + Frame_Offset::DISPLAY).get_int();
+        }
         auto const addr = arg_address(dynamic_addr, arg);
-        push_display(block_level, frame_ptr);
+        if (block_level > 1) {
+            display[block_level - 1].back() = saved_display;
+        }
         if (need_formal_address) {
             // Get integer address on stack.
             stack.push_int_addr(addr + STACK_BASE);
@@ -1629,12 +1639,13 @@ void Processor::set_block_level(unsigned block_level)
         bn.value = block_level;
         Machine::trace_stack(frame_ptr + Frame_Offset::BN, bn.to_string(), "Write");
 
-        // Remove this field from stack frame.
-        // As long as we use stacks for display, it's not needed.
-        //auto &disp = stack.get(frame_ptr + Frame_Offset::DISPLAY);
-        //disp.type  = Cell_Type::INTEGER_VALUE;
-        //disp.value = get_display(block_level);
-        //Machine::trace_stack(frame_ptr + Frame_Offset::DISPLAY, disp.to_string(), "Write");
+        // Save display of previous lexical level.
+        if (block_level > 1) {
+            auto &disp = stack.get(frame_ptr + Frame_Offset::DISPLAY);
+            disp.type  = Cell_Type::INTEGER_VALUE;
+            disp.value = get_display(block_level - 1);
+            Machine::trace_stack(frame_ptr + Frame_Offset::DISPLAY, disp.to_string(), "Write");
+        }
     }
 }
 
