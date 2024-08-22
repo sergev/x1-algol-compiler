@@ -97,6 +97,9 @@ public:
     Word get_a() const { return core.A; }
     Word get_s() const { return core.S; }
 
+    // Have we reached given address?
+    bool at_address(unsigned addr, unsigned fp) const { return OT == addr && frame_ptr == fp; }
+
     // Print trace info.
     void print_instruction();
     void print_registers();

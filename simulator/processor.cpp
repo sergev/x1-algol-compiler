@@ -1552,6 +1552,7 @@ void Processor::push_formal_value(unsigned dynamic_addr)
         unsigned arg_level, arg_frame;
         get_arg_display(dynamic_addr, arg_level, arg_frame);
         unsigned block_level = get_block_level();
+        auto this_frame = frame_ptr;
         pop_display(block_level);
 
         // Invoke implicit subroutine in caller's context.
@@ -1560,8 +1561,8 @@ void Processor::push_formal_value(unsigned dynamic_addr)
             set_block_level(arg_level);
             push_display(arg_level, arg_frame);
         }
-        machine.run(arg, OT);
-        push_display(block_level, frame_ptr);
+        machine.run(arg, OT, this_frame);
+        push_display(block_level, this_frame);
         break;
     }
     case 002: {

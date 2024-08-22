@@ -81,7 +81,7 @@ public:
     void compile_and_run();
 
     // Run simulation.
-    void run(unsigned start_addr, unsigned finish_addr = 0);
+    void run(unsigned start_addr, unsigned finish_addr = 0, unsigned finish_frame = 0);
 
     // Get address by name from symbol table.
     unsigned get_symbol(const std::string &name) { return symbol_table.at(name); }

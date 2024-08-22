@@ -82,7 +82,7 @@ void Machine::compile_and_run()
 //
 // Run the machine until completion, or until PC address reached.
 //
-void Machine::run(unsigned start_addr, unsigned finish_addr)
+void Machine::run(unsigned start_addr, unsigned finish_addr, unsigned finish_frame)
 {
     // Jump to the first entry.
     cpu.set_ot(start_addr);
@@ -105,7 +105,7 @@ void Machine::run(unsigned start_addr, unsigned finish_addr)
             // Halted by 'STOP' code.
             return;
         }
-        if (finish_addr != 0 && cpu.get_ot() == finish_addr) {
+        if (finish_addr != 0 && cpu.at_address(finish_addr, finish_frame)) {
             // End of implicit subroutine.
             return;
         }

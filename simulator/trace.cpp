@@ -104,11 +104,14 @@ void Machine::print_display(unsigned level, const std::vector<unsigned> &list)
     auto save_flags = out.flags();
     auto count      = list.size();
 
-    out << "       Display [" << std::oct << level << "] = "
-        << std::setfill('0') << std::setw(5) << list[count-1];
-
-    for (unsigned i = 1; i < count; i++) {
-        out << ", " << std::setfill('0') << std::setw(5) << list[count-1-i];
+    out << "       Display [" << std::oct << level << "] = ";
+    if (count > 0) {
+        out << std::setfill('0') << std::setw(5) << list[count-1];
+        for (unsigned i = 1; i < count; i++) {
+            out << ", " << std::setfill('0') << std::setw(5) << list[count-1-i];
+        }
+    } else {
+        out << "empty";
     }
     out << std::endl;
 
