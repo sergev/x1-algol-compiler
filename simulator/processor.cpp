@@ -1212,6 +1212,9 @@ bool Processor::call_opc(unsigned opc)
         // Save display[n] and block level.
         set_block_level(core.B);
         push_display(core.B, frame_ptr);
+        if (core.B > 1) {
+            push_display(core.B - 1, get_display(core.B - 1));
+        }
         break;
     }
     case OPC_RSF: {
@@ -1351,10 +1354,11 @@ unsigned Processor::frame_release()
     auto block_level = get_block_level();
     if (block_level > 0) {
         pop_display(block_level);
-        //TODO: pop display of previous block level
-        //if (block_level > 1) {
-        //    pop_display(block_level - 1);
-        //}
+
+        // Pop display of previous block level.
+        if (block_level > 1) {
+            pop_display(block_level - 1);
+        }
     }
 
     auto new_stack_ptr = frame_ptr;
@@ -1562,10 +1566,10 @@ void Processor::push_formal_value(unsigned dynamic_addr)
     case 040: {
         // Call implicit subroutine.
         // Need to restore previous display[] first.
+        unsigned this_frame = frame_ptr;
         unsigned arg_level, arg_frame;
         get_arg_display(dynamic_addr, arg_level, arg_frame);
         unsigned block_level = get_block_level();
-        auto this_frame = frame_ptr;
         pop_display(block_level);
 
         // Invoke implicit subroutine in caller's context.
@@ -1575,10 +1579,12 @@ void Processor::push_formal_value(unsigned dynamic_addr)
         if (arg_level > 0) {
             set_block_level(arg_level);
             push_display(arg_level, arg_frame);
-            // TODO: push display of previous static level (1 in this case)
-            //if (arg_level > 1) {
-            //    push_display(arg_level - 1, stack.get(frame_ptr + Frame_Offset::DISPLAY).get_addr());
-            //}
+
+            // Push display of previous lexical level.
+            if (arg_level > 1) {
+                unsigned prev_frame = stack.get(arg_frame + Frame_Offset::DISPLAY).get_addr() >> 15;
+                push_display(arg_level - 1, prev_frame);
+            }
         }
         machine.run(arg, OT, this_frame);
 //std::cout << "--- back to level " << block_level << '\n';
