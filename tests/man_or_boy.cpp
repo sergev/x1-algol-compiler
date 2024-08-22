@@ -117,7 +117,7 @@ TEST_F(x1_machine, mob0)
 //
 // Two levels of recursion.
 //
-TEST_F(x1_machine, DISABLED_mob2)
+TEST_F(x1_machine, mob2)
 {
     auto output = compile_and_run(R"(
         b̲e̲g̲i̲n̲
@@ -133,12 +133,12 @@ TEST_F(x1_machine, DISABLED_mob2)
                 e̲n̲d̲;
                 A := i̲f̲ k < 1 t̲h̲e̲n̲ x4 + x5 e̲l̲s̲e̲ B;
             e̲n̲d̲;
-            print(A(2, 1.0, -1.0, -1.0, 1.0, 0.0));
+            print(A(2, 11.0, 22.0, 33.0, 44.0, 0.0));
         e̲n̲d̲
     )");
     const std::string expect = R"(1
 0
--2
+55
 )";
     EXPECT_EQ(output, expect);
 }

@@ -1574,7 +1574,7 @@ void Processor::push_formal_value(unsigned dynamic_addr)
         stack.push_int_value(0); // place for result
         frame_create(OT, 0);
         if (arg_level > 0) {
-            unsigned prev_frame = stack.get(arg_frame + Frame_Offset::DISPLAY).get_addr() >> 15;
+            unsigned prev_frame = stack.get(arg_frame + Frame_Offset::DISPLAY).get_int() >> 15;
             set_block_level(arg_level, arg_frame, prev_frame);
         }
         machine.run(arg, OT, this_frame);
