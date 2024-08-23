@@ -1331,7 +1331,7 @@ void Processor::frame_create(unsigned ret_addr, unsigned num_args)
     // the block in which the corresponding procedure statement is given." (E.W.Dijkstra)
     //
     auto parent_level   = get_block_level();
-    auto parent_display = parent_level << 22 | frame_ptr;
+    auto parent_display = parent_level << 15 | frame_ptr;
 
     for (unsigned i = 0; i < num_args; i++) {
         // Allocate formal parameters: two cells per parameter.
@@ -1403,12 +1403,9 @@ unsigned Processor::arg_address(unsigned dynamic_addr, unsigned arg_descr)
     auto const arg_offset = arg_descr & BITS(15);
 
     // Get caller level and FP from formal descriptor.
-    auto const addr           = address_in_stack(dynamic_addr);
-    auto const formal_display = stack.get(addr + 1).get_int();
-    auto const caller_level   = formal_display >> 22;
-    auto const caller_frame   = formal_display & BITS(22);
-    unsigned level = caller_level;
-    for (unsigned fp = caller_frame; level > 0; level--) {
+    unsigned level, fp;
+    get_arg_display(dynamic_addr, level, fp);
+    for (; level > 0; level--) {
         if (arg_level == level) {
             return fp + arg_offset;
         }
@@ -1445,8 +1442,8 @@ void Processor::get_arg_display(unsigned const dynamic_addr, unsigned &block_lev
     auto const addr           = address_in_stack(dynamic_addr);
     auto const formal_display = stack.get(addr + 1).get_int();
 
-    block_level  = formal_display >> 22;
-    prev_display = formal_display & BITS(22);
+    block_level  = formal_display >> 15;
+    prev_display = formal_display & BITS(15);
 }
 
 //
@@ -1523,25 +1520,26 @@ void Processor::store_value(const Stack_Cell &dest, const Stack_Cell &src)
 //
 void Processor::push_formal_value(unsigned dynamic_addr)
 {
-    unsigned arg = arg_descriptor(dynamic_addr);
-    switch (arg >> 15 & 077) {
+    unsigned const arg_descr = arg_descriptor(dynamic_addr);
+    unsigned const arg_addr  = arg_descr & BITS(15);
+    switch (arg_descr >> 15 & 077) {
     case 000: {
         if (need_formal_address) {
             // Get real address.
-            stack.push_real_addr(arg);
+            stack.push_real_addr(arg_addr);
         } else {
             // Get real value from memory.
-            stack.push_real_value(load_real(arg));
+            stack.push_real_value(load_real(arg_addr));
         }
         break;
     }
     case 020: {
         if (need_formal_address) {
             // Get integer address.
-            stack.push_int_addr(arg);
+            stack.push_int_addr(arg_addr);
         } else {
             // Get integer value from memory.
-            Word value = machine.mem_load(arg);
+            Word value = machine.mem_load(arg_addr);
             stack.push_int_value(value);
         }
         break;
@@ -1561,12 +1559,12 @@ void Processor::push_formal_value(unsigned dynamic_addr)
             unsigned prev_frame = stack.get(arg_frame + Frame_Offset::DISPLAY).get_addr();
             set_block_level(arg_level, arg_frame, prev_frame);
         }
-        machine.run(arg, OT, this_frame);
+        machine.run(arg_addr, OT, this_frame);
         machine.trace_level();
         break;
     }
     case 002: {
-        auto const addr = arg_address(dynamic_addr, arg);
+        auto const addr = arg_address(dynamic_addr, arg_descr);
         if (need_formal_address) {
             // Get real address on stack.
             stack.push_real_addr(addr + STACK_BASE);
@@ -1578,7 +1576,7 @@ void Processor::push_formal_value(unsigned dynamic_addr)
         break;
     }
     case 022: {
-        auto const addr = arg_address(dynamic_addr, arg);
+        auto const addr = arg_address(dynamic_addr, arg_descr);
         if (need_formal_address) {
             // Get integer address on stack.
             stack.push_int_addr(addr + STACK_BASE);
@@ -1590,7 +1588,7 @@ void Processor::push_formal_value(unsigned dynamic_addr)
         break;
     }
     default:
-        throw std::runtime_error("Unknown descriptor of formal argument: " + to_octal(arg));
+        throw std::runtime_error("Unknown descriptor of formal argument: " + to_octal(arg_descr));
     }
 }
 
