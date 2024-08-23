@@ -669,28 +669,66 @@ TEST_F(x1_machine, DISABLED_easter_sunday)
         v̲a̲l̲u̲e̲ y; i̲n̲t̲e̲g̲e̲r̲ y;
            b̲e̲g̲i̲n̲ i̲n̲t̲e̲g̲e̲r̲ a, b, c, h;
            a := rem(y, 19);
-           b := y / 100; c := rem(y, 100);
-           h := rem((19 * a + b - b / 4 + 15 - ((8 * b + 13) / 25)), 30);
-           c := rem((2 * (rem(b, 4) + c / 4) - h - rem(c, 4) + 32), 7);
-           _c h := h + c - 7 * ((a + 11 * h + 19 * c) / 433);
-           _c a := (h + 90) / 25;
-           easter sunday := rem(100 * a + (33 * a + h + 19), 32)
+           b := y _: 100; c := rem(y, 100);
+           h := rem((19 * a + b - b _: 4 + 15 - ((8 * b + 13) _: 25)), 30);
+           _c c := rem((2 * (b-b_:4*4 + c _: 4) - h - (c-c_:4*4) + 32), 7) works;
+           c := rem((2 * (rem(b, 4) + c _: 4) - h - rem(c, 4) + 32), 7);
+           h := h + c - 7 * ((a + 11 * h + 19 * c) _: 433);
+           a := (h + 90) _: 25;
+           easter sunday := rem(33 * a + h + 19, 32);
            e̲n̲d̲ easter sunday;
 
-           year := 2010; 
-           _c loop: _i_f year < 2030 _t_h_e_n     b̲e̲g̲i̲n̲; 
-           day := easter sunday(year);
-           _c month := day / 100; 
-           _c day := day - 100 * month;
-
-           _c print(year);
-           _c i̲f̲ month = 3 t̲h̲e̲n̲ PRINTTEXT(` March') e̲l̲s̲e̲ PRINTTEXT(` April');
-           _c print( day); year := year + 1; 
-           _c _g_o_t_o loop;
+           f̲o̲r̲ year := 2010 s̲t̲e̲p̲ 1 u̲n̲t̲i̲l̲ 2030 d̲o̲
+           b̲e̲g̲i̲n̲
+               day := easter sunday(year);
+               print(year);
+               i̲f̲ day < 25 t̲h̲e̲n̲ b̲e̲g̲i̲n̲  PRINTTEXT(` April '); print(day) e̲n̲d̲
+               e̲l̲s̲e̲ b̲e̲g̲i̲n̲ PRINTTEXT(` March '); print(day) e̲n̲d̲;
            e̲n̲d̲
         e̲n̲d̲
- )");
-    const std::string expect = R"(
+)");
+    const std::string expect = R"(2010
+ April 4
+2011
+ April 24
+2012
+ April 8
+2013
+ March 31
+2014
+ April 20
+2015
+ April 5
+2016
+ March 27
+2017
+ April 16
+2018
+ April 1
+2019
+ April 21
+2020
+ April 12
+2021
+ April 4
+2022
+ April 17
+2023
+ April 9
+2024
+ March 31
+2025
+ April 20
+2026
+ April 5
+2027
+ March 28
+2028
+ April 16
+2029
+ April 1
+2030
+ April 21
 )";
     EXPECT_EQ(output, expect);
 }
