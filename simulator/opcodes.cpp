@@ -46,10 +46,10 @@ bool Processor::call_opc(unsigned opc)
         // Drop the unneeded address of the controlled variable.
         stack.pop();
         // The loop subroutine returns nothing.
-        stack.set(frame_ptr + Frame_Offset::RESULT, Stack_Cell{ Cell_Type::NUL, 0 });
+        stack.set_null(frame_ptr + Frame_Offset::RESULT);
 
         // Return from the loop subroutine using the provided destination.
-        stack.set(frame_ptr + Frame_Offset::PC, Stack_Cell{ Cell_Type::INTEGER_ADDRESS, core.S });
+        stack.set_int_addr(frame_ptr + Frame_Offset::PC, core.S);
         // In the complex, FOR8 jumps to RET.
         // FALLTHRU
 
@@ -113,7 +113,7 @@ bool Processor::call_opc(unsigned opc)
     case OPC_FOR1:
         // Save the execution link (which points to a jump to the loop body)
         // in the local variable.
-        stack.set(frame_ptr + Frame_Offset::ARG, Stack_Cell{ Cell_Type::INTEGER_ADDRESS, OT });
+        stack.set_int_addr(frame_ptr + Frame_Offset::ARG, OT);
         // When starting to execute a new loop element,
         // jump to it (initially PC points to under the ETMP for the loop,
         // then it gets advanced by the OPCs of the loop elements
@@ -123,7 +123,7 @@ bool Processor::call_opc(unsigned opc)
 
     case OPC_FOR2: {
         // The element does not repeat.
-        stack.set(frame_ptr + Frame_Offset::PC, Stack_Cell{ Cell_Type::INTEGER_ADDRESS, OT });
+        stack.set_int_addr(frame_ptr + Frame_Offset::PC, OT);
         // Store the next value of the loop variable.
         auto src  = stack.pop();
         auto dest = stack.pop();
@@ -150,15 +150,15 @@ bool Processor::call_opc(unsigned opc)
             OT = stack.get(frame_ptr + Frame_Offset::ARG).get_addr();
         } else {
             // Indicate end of the 'while' element, continue to the next one.
-            stack.set(frame_ptr + Frame_Offset::PC, Stack_Cell{ Cell_Type::INTEGER_ADDRESS, OT });
+            stack.set_int_addr(frame_ptr + Frame_Offset::PC, OT);
         }
         break;
 
     case OPC_FOR5:
         // Indicate entering the step-until element.
-        stack.set(frame_ptr + Frame_Offset::RESULT, Stack_Cell{ Cell_Type::NUL, 0 });
+        stack.set_null(frame_ptr + Frame_Offset::RESULT);
         // The job of FOR5 is done.
-        stack.set(frame_ptr + Frame_Offset::PC, Stack_Cell{ Cell_Type::INTEGER_ADDRESS, OT });
+        stack.set_int_addr(frame_ptr + Frame_Offset::PC, OT);
         break;
 
     case OPC_FOR6: {
@@ -177,8 +177,7 @@ bool Processor::call_opc(unsigned opc)
             stack.push(var);
             stack.push(value);
         }
-        stack.set(frame_ptr + Frame_Offset::RESULT,
-                  Stack_Cell{ Cell_Type::INTEGER_VALUE, integer_to_x1(step_dir) });
+        stack.set_int_value(frame_ptr + Frame_Offset::RESULT, integer_to_x1(step_dir));
         break;
     }
 
@@ -191,7 +190,7 @@ bool Processor::call_opc(unsigned opc)
         if ((step_dir > 0 && limit.is_less(value)) || (step_dir < 0 && value.is_less(limit))) {
             // Element exhausted.
             stack.push(var); // For the sake of the next loop element.
-            stack.set(frame_ptr + Frame_Offset::PC, Stack_Cell{ Cell_Type::INTEGER_ADDRESS, OT });
+            stack.set_int_addr(frame_ptr + Frame_Offset::PC, OT);
         } else {
             // Go to the loop iteration.
             OT = stack.get(frame_ptr + Frame_Offset::ARG).get_addr();

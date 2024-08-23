@@ -746,7 +746,7 @@ void Processor::make_storage_function_frame(int elt_size)
         offset += stride * dims[i].first;
         stride *= (dims[i].second - dims[i].first + 1);
     }
-    stack.set(zero_base, Stack_Cell{ Cell_Type::INTEGER_VALUE, integer_to_x1(offset) });
+    stack.set_int_value(zero_base, integer_to_x1(offset));
     stack.push_int_value(integer_to_x1(-stride));
     stack_base += ndim + 3;
 }

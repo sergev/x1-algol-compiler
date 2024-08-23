@@ -139,7 +139,14 @@ public:
     {
         set(index, { Cell_Type::REAL_VALUE, value });
     }
-    void set_real_addr(unsigned index, Word addr) { set(index, { Cell_Type::REAL_ADDRESS, addr }); }
+    void set_real_addr(unsigned index, Word addr)
+    {
+        set(index, { Cell_Type::REAL_ADDRESS, addr });
+    }
+    void set_null(unsigned index)
+    {
+        set(index, { Cell_Type::NUL, 0 });
+    }
 };
 
 #endif // X1_VIRTUAL_STACK_H
