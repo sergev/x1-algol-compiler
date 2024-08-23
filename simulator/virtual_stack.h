@@ -1,8 +1,9 @@
 #ifndef X1_VIRTUAL_STACK_H
 #define X1_VIRTUAL_STACK_H
 
-#include "x1_arch.h"
 #include <vector>
+
+#include "x1_arch.h"
 
 //
 // Tag to indicate whether the cell contains the address of an integer variable
@@ -126,10 +127,19 @@ public:
 
     // Set item by index.
     void set(unsigned index, const Stack_Cell &item);
-    void set_int_value(unsigned index, Word value) { set(index, {Cell_Type::INTEGER_VALUE, value}); }
-    void set_int_addr(unsigned index, Word addr) { set(index, {Cell_Type::INTEGER_ADDRESS, addr}); }
-    void set_real_value(unsigned index, Real value) { set(index, {Cell_Type::REAL_VALUE, value}); }
-    void set_real_addr(unsigned index, Word addr) { set(index, {Cell_Type::REAL_ADDRESS, addr}); }
+    void set_int_value(unsigned index, Word value)
+    {
+        set(index, { Cell_Type::INTEGER_VALUE, value });
+    }
+    void set_int_addr(unsigned index, Word addr)
+    {
+        set(index, { Cell_Type::INTEGER_ADDRESS, addr });
+    }
+    void set_real_value(unsigned index, Real value)
+    {
+        set(index, { Cell_Type::REAL_VALUE, value });
+    }
+    void set_real_addr(unsigned index, Word addr) { set(index, { Cell_Type::REAL_ADDRESS, addr }); }
 };
 
 #endif // X1_VIRTUAL_STACK_H

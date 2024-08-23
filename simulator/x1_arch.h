@@ -85,7 +85,7 @@ std::string to_octal(unsigned val);
 // Boolean constants.
 //
 enum {
-    X1_TRUE = 0,
+    X1_TRUE  = 0,
     X1_FALSE = 1,
 };
 

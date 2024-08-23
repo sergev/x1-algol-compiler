@@ -306,7 +306,8 @@ Real Processor::load_real(unsigned addr)
     return x1_words_to_real(hi, lo);
 }
 
-Stack_Cell Processor::load_value(const Stack_Cell & src) {
+Stack_Cell Processor::load_value(const Stack_Cell &src)
+{
     auto addr = src.get_addr();
     if (src.is_int_addr()) {
         Word result;
@@ -317,7 +318,7 @@ Stack_Cell Processor::load_value(const Stack_Cell & src) {
             // From stack.
             result = stack.get(addr - STACK_BASE).get_int();
         }
-        return Stack_Cell{Cell_Type::INTEGER_VALUE, result};
+        return Stack_Cell{ Cell_Type::INTEGER_VALUE, result };
     } else if (src.is_real_addr()) {
         Real result;
         if (addr < STACK_BASE) {
@@ -327,7 +328,7 @@ Stack_Cell Processor::load_value(const Stack_Cell & src) {
             // From stack.
             result = stack.get(addr - STACK_BASE).get_real();
         }
-        return Stack_Cell{Cell_Type::REAL_VALUE, result};
+        return Stack_Cell{ Cell_Type::REAL_VALUE, result };
     } else {
         throw std::runtime_error("load_value() invoked on a non-address operand");
     }
@@ -378,7 +379,7 @@ void Processor::frame_create(unsigned ret_addr, unsigned num_args)
         stack.push_int_value(0);
         stack.push_int_addr(parent_display);
     }
-    frame_ptr = new_frame_ptr;
+    frame_ptr  = new_frame_ptr;
     stack_base = stack.count();
 }
 
@@ -477,7 +478,8 @@ unsigned Processor::arg_descriptor(unsigned dynamic_addr)
     return arg_descr;
 }
 
-void Processor::get_arg_display(unsigned const dynamic_addr, unsigned &block_level, unsigned &prev_display)
+void Processor::get_arg_display(unsigned const dynamic_addr, unsigned &block_level,
+                                unsigned &prev_display)
 {
     auto const addr           = address_in_stack(dynamic_addr);
     auto const formal_display = stack.get(addr + 1).get_int();
@@ -650,7 +652,7 @@ unsigned Processor::get_block_level() const
 void Processor::set_block_level(unsigned block_level, unsigned this_frame, unsigned prev_frame)
 {
     // Store block level in stack frame.
-    auto &bn = stack.get(frame_ptr + Frame_Offset::BN);
+    auto &bn   = stack.get(frame_ptr + Frame_Offset::BN);
     auto &disp = stack.get(frame_ptr + Frame_Offset::DISPLAY);
     if (bn.value == 0) {
         bn.value = block_level;
@@ -725,24 +727,24 @@ void Processor::make_storage_function_frame(int elt_size)
     std::vector<std::pair<int, int>> dims;
     for (int i = 0; i < ndim; ++i) {
         int right = stack.pop_integer();
-        int left = stack.pop_integer();
+        int left  = stack.pop_integer();
         dims.push_back(std::make_pair(left, right));
     }
     std::reverse(dims.begin(), dims.end());
     if (elt_size == 1)
-        stack.push_int_addr(0);      // future base address
+        stack.push_int_addr(0); // future base address
     else
         stack.push_real_addr(0);
-    stack.push_null();      // future "0 element" address
+    stack.push_null(); // future "0 element" address
     unsigned zero_base = stack.count() - 1;
-    int offset = 0;
-    int stride = elt_size;
+    int offset         = 0;
+    int stride         = elt_size;
     for (int i = 0; i < ndim; ++i) {
         stack.push_int_value(stride);
         offset += stride * dims[i].first;
         stride *= (dims[i].second - dims[i].first + 1);
     }
-    stack.set(zero_base, Stack_Cell{Cell_Type::INTEGER_VALUE, integer_to_x1(offset)});
+    stack.set(zero_base, Stack_Cell{ Cell_Type::INTEGER_VALUE, integer_to_x1(offset) });
     stack.push_int_value(integer_to_x1(-stride));
     stack_base += ndim + 3;
 }

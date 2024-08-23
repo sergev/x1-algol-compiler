@@ -1,8 +1,9 @@
 #include "virtual_stack.h"
-#include "machine.h"
 
-#include <sstream>
 #include <cmath>
+#include <sstream>
+
+#include "machine.h"
 
 //
 // Compare (relatively) this item and another one.
@@ -52,7 +53,7 @@ bool Stack_Cell::is_equal(const Stack_Cell &another) const
             return this_int == x1_to_ieee(another.get_real());
         case Cell_Type::INTEGER_ADDRESS:
         case Cell_Type::REAL_ADDRESS:
-            return this_int == (int) another.get_addr();
+            return this_int == (int)another.get_addr();
         default:
             throw std::runtime_error("Bad cell type");
         }
@@ -73,7 +74,7 @@ bool Stack_Cell::is_equal(const Stack_Cell &another) const
         auto this_addr = get_addr();
         switch (another.type) {
         case Cell_Type::INTEGER_VALUE:
-            return (int) this_addr == x1_to_integer(another.get_int());
+            return (int)this_addr == x1_to_integer(another.get_int());
         case Cell_Type::REAL_VALUE:
             throw std::runtime_error("Cannot compare address with real");
         case Cell_Type::INTEGER_ADDRESS:
@@ -187,10 +188,9 @@ void Stack_Cell::multiply(const Stack_Cell &another)
     }
 
     // Multiply two values with real result.
-    long double a = is_real_value() ? x1_to_ieee(get_real()) :
-                                      x1_to_integer(get_int());
-    long double b = another.is_real_value() ? x1_to_ieee(another.get_real()) :
-                                      x1_to_integer(another.get_int());
+    long double a = is_real_value() ? x1_to_ieee(get_real()) : x1_to_integer(get_int());
+    long double b =
+        another.is_real_value() ? x1_to_ieee(another.get_real()) : x1_to_integer(another.get_int());
     value = ieee_to_x1(a * b);
     type  = Cell_Type::REAL_VALUE;
 }
@@ -198,8 +198,7 @@ void Stack_Cell::multiply(const Stack_Cell &another)
 void Stack_Cell::multiply_real(Real another)
 {
     // Multiply two values with real result.
-    long double a = is_real_value() ? x1_to_ieee(get_real()) :
-                                      x1_to_integer(get_int());
+    long double a = is_real_value() ? x1_to_ieee(get_real()) : x1_to_integer(get_int());
     long double b = x1_to_ieee(another);
 
     value = ieee_to_x1(a * b);
@@ -212,10 +211,9 @@ void Stack_Cell::multiply_real(Real another)
 void Stack_Cell::divide(const Stack_Cell &another)
 {
     // Divide two values with real result.
-    long double a = is_real_value() ? x1_to_ieee(get_real()) :
-                                      x1_to_integer(get_int());
-    long double b = another.is_real_value() ? x1_to_ieee(another.get_real()) :
-                                      x1_to_integer(another.get_int());
+    long double a = is_real_value() ? x1_to_ieee(get_real()) : x1_to_integer(get_int());
+    long double b =
+        another.is_real_value() ? x1_to_ieee(another.get_real()) : x1_to_integer(another.get_int());
     if (b == 0) {
         throw std::runtime_error("Divide by zero");
     }
@@ -237,10 +235,9 @@ void Stack_Cell::add(const Stack_Cell &another)
     }
 
     // Add two real/integer values with real result.
-    long double a = is_real_value() ? x1_to_ieee(get_real()) :
-                                      x1_to_integer(get_int());
-    long double b = another.is_real_value() ? x1_to_ieee(another.get_real()) :
-                                      x1_to_integer(another.get_int());
+    long double a = is_real_value() ? x1_to_ieee(get_real()) : x1_to_integer(get_int());
+    long double b =
+        another.is_real_value() ? x1_to_ieee(another.get_real()) : x1_to_integer(another.get_int());
     value = ieee_to_x1(a + b);
     type  = Cell_Type::REAL_VALUE;
 }
@@ -259,10 +256,9 @@ void Stack_Cell::subtract(const Stack_Cell &another)
     }
 
     // Add two real/integer values with real result.
-    long double a = is_real_value() ? x1_to_ieee(get_real()) :
-                                      x1_to_integer(get_int());
-    long double b = another.is_real_value() ? x1_to_ieee(another.get_real()) :
-                                      x1_to_integer(another.get_int());
+    long double a = is_real_value() ? x1_to_ieee(get_real()) : x1_to_integer(get_int());
+    long double b =
+        another.is_real_value() ? x1_to_ieee(another.get_real()) : x1_to_integer(another.get_int());
     value = ieee_to_x1(a - b);
     type  = Cell_Type::REAL_VALUE;
 }
@@ -321,8 +317,8 @@ void Stack_Cell::exponentiate_int(int a, const Stack_Cell &another)
             if (a == 0) {
                 throw std::runtime_error("Division by zero");
             }
-            type = Cell_Type::REAL_VALUE;
-            value = ieee_to_x1(power(1.0L/a, -i));
+            type  = Cell_Type::REAL_VALUE;
+            value = ieee_to_x1(power(1.0L / a, -i));
         }
         break;
     }
@@ -330,7 +326,7 @@ void Stack_Cell::exponentiate_int(int a, const Stack_Cell &another)
         auto r = x1_to_ieee(another.get_real());
         if (a > 0) {
             // exp(r × ln(a)), of type real.
-            type = Cell_Type::REAL_VALUE;
+            type  = Cell_Type::REAL_VALUE;
             value = ieee_to_x1(expl(r * logl(a)));
         } else if (a == 0) {
             // if r>0: 0.0, of type real.
@@ -338,7 +334,7 @@ void Stack_Cell::exponentiate_int(int a, const Stack_Cell &another)
             if (r <= 0) {
                 throw std::runtime_error("Cannot raise zero to negative or zero power");
             }
-            type = Cell_Type::REAL_VALUE;
+            type  = Cell_Type::REAL_VALUE;
             value = 0;
         } else {
             // always undefined.
@@ -373,7 +369,7 @@ void Stack_Cell::exponentiate_real(long double a, const Stack_Cell &another)
             if (a == 0) {
                 throw std::runtime_error("Division by zero");
             }
-            value = ieee_to_x1(power(1/a, -i));
+            value = ieee_to_x1(power(1 / a, -i));
         }
         break;
     }

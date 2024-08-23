@@ -1,11 +1,12 @@
 #include "x1_arch.h"
-#include "opc.h"
 
 #include <bitset>
 #include <cmath>
 #include <iomanip>
 #include <iostream>
 #include <sstream>
+
+#include "opc.h"
 
 //
 // Create real value from two words.
@@ -90,11 +91,9 @@ long double x1_to_ieee(Real input)
     // Rearrange so that sign bit becomes a sign of int64.
     // So mantissa equals real mantissa multiplied by 2**63.
     //
-    const auto mantissa = (long double) (int64_t) (
-        (input >> 27 << (64 - 27)) |
-        (((input >> 12) & BITS(14)) << (37 - 14))
-    );
-    const int exponent = input & BITS(12);
+    const auto mantissa = (long double)(int64_t)((input >> 27 << (64 - 27)) |
+                                                 (((input >> 12) & BITS(14)) << (37 - 14)));
+    const int exponent  = input & BITS(12);
 
     // Add exponent with offset.
     // Compensate for 63 bits in mantissa.
@@ -130,7 +129,7 @@ int x1_to_integer(Word input)
 {
     if (input & ONEBIT(26)) {
         // Negative.
-        return - (input ^ BITS(27));
+        return -(input ^ BITS(27));
     } else {
         // Positive.
         return input & BITS(27);
@@ -174,10 +173,10 @@ void x1_print_instruction(std::ostream &out, unsigned cmd)
     case 052'23:
         out << "if !C then T := " << addr;
         break;
-    //TODO: process other instructions
+    // TODO: process other instructions
     case 0:
         switch (addr) {
-        // clang-format off
+            // clang-format off
         case OPC_ETMR: out << "ETMR extransmark result"; break;
         case OPC_ETMP: out << "ETMP extransmark procedure"; break;
         case OPC_FTMR: out << "FTMR formtransmark result"; break;
@@ -280,7 +279,7 @@ void x1_print_instruction(std::ostream &out, unsigned cmd)
         case OPC_stop: out << "stop"; break;
         case OPC_P21:  out << "P21"; break;
         default: out << "OPC #" << addr; break;
-        // clang-format on
+            // clang-format on
         }
         break;
     default:
@@ -367,8 +366,8 @@ void x1_print_integer(std::ostream &out, Word value)
 void x1_print_real(std::ostream &out, Real value)
 {
     auto native = x1_to_ieee(value);
-    auto fmt = "%.13Lg";
-    int nbytes = 1 + std::snprintf(nullptr, 0, fmt, native);
+    auto fmt    = "%.13Lg";
+    int nbytes  = 1 + std::snprintf(nullptr, 0, fmt, native);
     std::vector<char> buf(nbytes);
     std::snprintf(buf.data(), nbytes, fmt, native);
     out << buf.data();

@@ -4,8 +4,8 @@
 #include <cstdint>
 #include <string>
 
-#include "x1_arch.h"
 #include "virtual_stack.h"
+#include "x1_arch.h"
 
 class Machine;
 
@@ -13,26 +13,26 @@ class Machine;
 // Internal state of the processor.
 //
 struct CoreState {
-    unsigned B;  // stack address + sign bit
-    Word A;      // accumulator
-    Word S;      // extension of accumulator
-    bool C;      // condition
-    bool L;      // sign bit at the last condition-setting instruction
+    unsigned B; // stack address + sign bit
+    Word A;     // accumulator
+    Word S;     // extension of accumulator
+    bool C;     // condition
+    bool L;     // sign bit at the last condition-setting instruction
 };
 
 //
 // Offsets in stack relative to frame_ptr.
 //
 namespace Frame_Offset {
-    enum {
-        RESULT = -1, // Result to be returned
-        FP = 0,      // Caller's frame pointer
-        PC = 1,      // Caller's program counter
-        SP = 2,      // Caller's stack base
-        BN = 3,      // Lexical scope block level (number)
-        DISPLAY = 4, // Previous display[bn]
-        ARG = 5,     // First argument of procedure, must be 5
-    };
+enum {
+    RESULT  = -1, // Result to be returned
+    FP      = 0,  // Caller's frame pointer
+    PC      = 1,  // Caller's program counter
+    SP      = 2,  // Caller's stack base
+    BN      = 3,  // Lexical scope block level (number)
+    DISPLAY = 4,  // Previous display[bn]
+    ARG     = 5,  // First argument of procedure, must be 5
+};
 };
 
 //
@@ -44,10 +44,10 @@ private:
     Machine &machine;
 
     // Current state.
-    struct CoreState core{};
+    struct CoreState core {};
 
     // Previous state, for tracing.
-    struct CoreState prev{};
+    struct CoreState prev {};
     unsigned prev_frame_ptr{};
     unsigned prev_stack_ptr{};
 

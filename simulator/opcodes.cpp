@@ -32,23 +32,22 @@ bool Processor::call_opc(unsigned opc)
         // Note: descriptors of procedure arguments are located
         // in memory 3 words before the return address.
         machine.mem_store(51, OT - 8); // for PRINTTEXT
-        stack.push_null(); // place for result
+        stack.push_null();             // place for result
         frame_create(OT, core.A);
         OT = core.B;
         break;
 
-    // TODO: case OPC_FTMR: // formtransmark result
-    // TODO: case OPC_FTMP: // formtransmark procedure
+        // TODO: case OPC_FTMR: // formtransmark result
+        // TODO: case OPC_FTMP: // formtransmark procedure
 
     case OPC_FOR8:
         // Drop the unneeded address of the controlled variable.
         stack.pop();
         // The loop subroutine returns nothing.
-        stack.set(frame_ptr + Frame_Offset::RESULT, Stack_Cell{Cell_Type::NUL, 0});
+        stack.set(frame_ptr + Frame_Offset::RESULT, Stack_Cell{ Cell_Type::NUL, 0 });
 
         // Return from the loop subroutine using the provided destination.
-        stack.set(frame_ptr + Frame_Offset::PC,
-                  Stack_Cell{Cell_Type::INTEGER_ADDRESS, core.S});
+        stack.set(frame_ptr + Frame_Offset::PC, Stack_Cell{ Cell_Type::INTEGER_ADDRESS, core.S });
         // In the complex, FOR8 jumps to RET.
         // FALLTHRU
 
@@ -64,8 +63,8 @@ bool Processor::call_opc(unsigned opc)
     }
     case OPC_EIS: {
         // end of implicit subroutine
-        auto item = stack.pop();
-        OT        = frame_release();
+        auto item   = stack.pop();
+        OT          = frame_release();
         stack.top() = item;
         break;
     }
@@ -112,8 +111,7 @@ bool Processor::call_opc(unsigned opc)
     case OPC_FOR1:
         // Save the execution link (which points to a jump to the loop body)
         // in the local variable.
-        stack.set(frame_ptr + Frame_Offset::ARG,
-                  Stack_Cell{Cell_Type::INTEGER_ADDRESS, OT});
+        stack.set(frame_ptr + Frame_Offset::ARG, Stack_Cell{ Cell_Type::INTEGER_ADDRESS, OT });
         // When starting to execute a new loop element,
         // jump to it (initially PC points to under the ETMP for the loop,
         // then it gets advanced by the OPCs of the loop elements
@@ -123,8 +121,7 @@ bool Processor::call_opc(unsigned opc)
 
     case OPC_FOR2: {
         // The element does not repeat.
-        stack.set(frame_ptr + Frame_Offset::PC,
-                  Stack_Cell{Cell_Type::INTEGER_ADDRESS, OT});
+        stack.set(frame_ptr + Frame_Offset::PC, Stack_Cell{ Cell_Type::INTEGER_ADDRESS, OT });
         // Store the next value of the loop variable.
         auto src  = stack.pop();
         auto dest = stack.pop();
@@ -138,7 +135,7 @@ bool Processor::call_opc(unsigned opc)
         auto src  = stack.pop();
         auto dest = stack.pop();
         store_value(dest, src);
-        stack.push(dest);        // for the next element in case of exhaustion
+        stack.push(dest); // for the next element in case of exhaustion
         break;
     }
 
@@ -146,27 +143,24 @@ bool Processor::call_opc(unsigned opc)
         // Check the while condition.
         core.C = stack.pop_boolean();
         if (core.C) {
-            stack.pop();        // address pushed by FOR3 not needed
+            stack.pop(); // address pushed by FOR3 not needed
             // Go to the loop iteration.
             OT = stack.get(frame_ptr + Frame_Offset::ARG).get_addr();
         } else {
             // Indicate end of the 'while' element, continue to the next one.
-            stack.set(frame_ptr + Frame_Offset::PC,
-                      Stack_Cell{Cell_Type::INTEGER_ADDRESS, OT});
+            stack.set(frame_ptr + Frame_Offset::PC, Stack_Cell{ Cell_Type::INTEGER_ADDRESS, OT });
         }
         break;
 
     case OPC_FOR5:
         // Indicate entering the step-until element.
-        stack.set(frame_ptr + Frame_Offset::RESULT,
-                  Stack_Cell{Cell_Type::NUL, 0});
+        stack.set(frame_ptr + Frame_Offset::RESULT, Stack_Cell{ Cell_Type::NUL, 0 });
         // The job of FOR5 is done.
-        stack.set(frame_ptr + Frame_Offset::PC,
-                  Stack_Cell{Cell_Type::INTEGER_ADDRESS, OT});
+        stack.set(frame_ptr + Frame_Offset::PC, Stack_Cell{ Cell_Type::INTEGER_ADDRESS, OT });
         break;
 
     case OPC_FOR6: {
-        auto incr = stack.pop();
+        auto incr    = stack.pop();
         int step_dir = incr.sign();
         if (stack.get(frame_ptr + Frame_Offset::RESULT).is_null()) {
             // First iteration: the actual value of the step is ignored,
@@ -174,7 +168,7 @@ bool Processor::call_opc(unsigned opc)
             // The initial value is now on top of the stack, pending FOR7 check.
         } else {
             // A subsequent iteration: load and increment the controlled variable.
-            auto var = stack.pop();
+            auto var   = stack.pop();
             auto value = load_value(var);
             value.add(incr);
             // Prepare the stack for storing the new value of the variable.
@@ -182,22 +176,20 @@ bool Processor::call_opc(unsigned opc)
             stack.push(value);
         }
         stack.set(frame_ptr + Frame_Offset::RESULT,
-                  Stack_Cell{Cell_Type::INTEGER_VALUE, integer_to_x1(step_dir)});
+                  Stack_Cell{ Cell_Type::INTEGER_VALUE, integer_to_x1(step_dir) });
         break;
     }
 
     case OPC_FOR7: {
         auto limit = stack.pop();
         auto value = stack.pop();
-        auto var = stack.pop();
+        auto var   = stack.pop();
         store_value(var, value);
         int step_dir = x1_to_integer(stack.get(frame_ptr + Frame_Offset::RESULT).get_int());
-        if ((step_dir > 0 && limit.is_less(value)) ||
-            (step_dir < 0 && value.is_less(limit))) {
+        if ((step_dir > 0 && limit.is_less(value)) || (step_dir < 0 && value.is_less(limit))) {
             // Element exhausted.
-            stack.push(var);    // For the sake of the next loop element.
-            stack.set(frame_ptr + Frame_Offset::PC,
-                      Stack_Cell{Cell_Type::INTEGER_ADDRESS, OT});
+            stack.push(var); // For the sake of the next loop element.
+            stack.set(frame_ptr + Frame_Offset::PC, Stack_Cell{ Cell_Type::INTEGER_ADDRESS, OT });
         } else {
             // Go to the loop iteration.
             OT = stack.get(frame_ptr + Frame_Offset::ARG).get_addr();
@@ -514,9 +506,8 @@ bool Processor::call_opc(unsigned opc)
         int idx0     = 0; // for the error message
         for (unsigned i = 0; i < ndim; ++i) {
             int dimsize = x1_to_integer(load_word(addr + 2 + i));
-            int idx = idxs[i].is_int_value() ?
-                x1_to_integer(idxs[i].get_int()) :
-                (int)roundl(x1_to_ieee(idxs[i].get_real()));
+            int idx     = idxs[i].is_int_value() ? x1_to_integer(idxs[i].get_int())
+                                                 : (int)roundl(x1_to_ieee(idxs[i].get_real()));
             if (i == 0)
                 idx0 = idx;
             elt_addr += idx * dimsize;
@@ -555,7 +546,7 @@ bool Processor::call_opc(unsigned opc)
     }
     case OPC_TAR: {
         // take result
-        auto src  = stack.pop();
+        auto src = stack.pop();
         stack.push(load_value(src));
         break;
     }
@@ -706,7 +697,7 @@ bool Processor::call_opc(unsigned opc)
         // Function sign(E) - the sign of the value of E (+1 for E > 0, 0 for E = 0, −1 for E < 0)
         // Yield value of type integer.
         // Argument can be either of type real or integer.
-        auto item = stack.pop();
+        auto item   = stack.pop();
         Word result = integer_to_x1(item.sign());
         stack.push_int_value(result);
         break;
@@ -830,9 +821,9 @@ bool Processor::call_opc(unsigned opc)
     case OPC_FOR0: {
         // Enters an implicit subroutine with one local word.
         // In the complex, B := BN + 1; where BN is M[52]
-      auto prev_fp = stack.get(frame_ptr + Frame_Offset::FP).get_addr();
-      auto prev_bn = stack.get(prev_fp + Frame_Offset::BN).get_int();
-        core.B = prev_bn + 1;
+        auto prev_fp = stack.get(frame_ptr + Frame_Offset::FP).get_addr();
+        auto prev_bn = stack.get(prev_fp + Frame_Offset::BN).get_int();
+        core.B       = prev_bn + 1;
         allocate_stack(1);
         stack_base += 1;
         // In the complex, FOR0 jumps to SCC.
@@ -877,9 +868,9 @@ bool Processor::call_opc(unsigned opc)
         if (pos == 32)
             throw std::runtime_error("Runaway array storage function frame");
         unsigned words = -x1_to_integer(stack.get(addr + pos).get_int());
-        stack.set(addr, Stack_Cell{ct, stack_base + STACK_BASE});
-        int offset = x1_to_integer(stack.get(addr+1).get_int());
-        stack.set(addr+1, Stack_Cell{ct, stack_base - offset  + STACK_BASE});
+        stack.set(addr, Stack_Cell{ ct, stack_base + STACK_BASE });
+        int offset = x1_to_integer(stack.get(addr + 1).get_int());
+        stack.set(addr + 1, Stack_Cell{ ct, stack_base - offset + STACK_BASE });
         allocate_stack(words);
         stack_base += words;
         break;
