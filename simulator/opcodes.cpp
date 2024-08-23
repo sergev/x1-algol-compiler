@@ -1,3 +1,5 @@
+#include <algorithm>
+#include <cmath>
 #include <sstream>
 
 #include "encoding.h"
