@@ -1323,16 +1323,20 @@ void Processor::frame_create(unsigned ret_addr, unsigned num_args)
     stack.push_int_addr(frame_ptr);  // offset 0: previos frame pointer
     stack.push_int_addr(ret_addr);   // offset 1: return address
     stack.push_int_addr(stack_base); // offset 2: base of the stack
-    stack.push_int_value(0);         // offset 3: place for block level
-    stack.push_int_value(0);         // offset 4: place for saved display
+    stack.push_int_addr(0);          // offset 3: place for block level
+    stack.push_int_addr(0);          // offset 4: place for saved display
 
-    // For each parameter, store info about parent display.
-    auto parent_display = get_block_level() << 22 | frame_ptr;
+    // For each parameter, store info about parent display (PARD).
+    // "The second word contains the FP value and the block number belonging to
+    // the block in which the corresponding procedure statement is given." (E.W.Dijkstra)
+    //
+    auto parent_level   = get_block_level();
+    auto parent_display = parent_level << 22 | frame_ptr;
 
     for (unsigned i = 0; i < num_args; i++) {
         // Allocate formal parameters: two cells per parameter.
         stack.push_int_value(0);
-        stack.push_int_value(parent_display);
+        stack.push_int_addr(parent_display);
     }
     frame_ptr = new_frame_ptr;
     stack_base = stack.count();
@@ -1347,24 +1351,14 @@ unsigned Processor::frame_release()
     if (frame_ptr >= stack.count()) {
         throw std::runtime_error("No frame stack to release");
     }
-    auto block_level = get_block_level();
-    if (block_level > 0) {
-        // Restore display of this level.
-        auto const this_saved = stack.get(frame_ptr + Frame_Offset::DISPLAY).get_int() & BITS(15);
-        set_display(block_level, this_saved);
-
-        // Restore display of previous level.
-        if (block_level > 1) {
-            auto const prev_saved = stack.get(frame_ptr + Frame_Offset::DISPLAY).get_int() >> 15 & BITS(15);
-            set_display(block_level - 1, prev_saved);
-        }
-    }
-
     auto new_stack_ptr = frame_ptr;
     auto ret_addr      = stack.get(frame_ptr + Frame_Offset::PC).get_addr();
     stack_base         = stack.get(frame_ptr + Frame_Offset::SP).get_addr();
     frame_ptr          = stack.get(frame_ptr + Frame_Offset::FP).get_addr();
     stack.erase(new_stack_ptr);
+
+    // Update display[BN...0] by unwinding stack.
+    update_display();
 
     return ret_addr;
 }
@@ -1413,24 +1407,14 @@ unsigned Processor::arg_address(unsigned dynamic_addr, unsigned arg_descr)
     auto const formal_display = stack.get(addr + 1).get_int();
     auto const caller_level   = formal_display >> 22;
     auto const caller_frame   = formal_display & BITS(22);
-    if (arg_level == caller_level) {
-        // Argument is located in caller stack.
-        return caller_frame + arg_offset;
+    unsigned level = caller_level;
+    for (unsigned fp = caller_frame; level > 0; level--) {
+        if (arg_level == level) {
+            return fp + arg_offset;
+        }
+        fp = stack.get(fp + Frame_Offset::DISPLAY).get_addr();
     }
-
-    auto const this_level = get_block_level();
-    if (arg_level == this_level) {
-        // Argument matches current block level - get saved display.
-        auto const saved_display = stack.get(frame_ptr + Frame_Offset::DISPLAY).get_int() & BITS(15);
-        return saved_display + arg_offset;
-    }
-    if (arg_level == this_level - 1) {
-        // Argument matches previous lexical level - get saved display.
-        auto const saved_display = stack.get(frame_ptr + Frame_Offset::DISPLAY).get_int() >> 15 & BITS(15);
-        return saved_display + arg_offset;
-    }
-
-    return get_display(arg_level) + arg_offset;
+    throw std::runtime_error("Cannot find arg address");
 }
 
 //
@@ -1574,7 +1558,7 @@ void Processor::push_formal_value(unsigned dynamic_addr)
         stack.push_int_value(0); // place for result
         frame_create(OT, 0);
         if (arg_level > 0) {
-            unsigned prev_frame = stack.get(arg_frame + Frame_Offset::DISPLAY).get_int() >> 15;
+            unsigned prev_frame = stack.get(arg_frame + Frame_Offset::DISPLAY).get_addr();
             set_block_level(arg_level, arg_frame, prev_frame);
         }
         machine.run(arg, OT, this_frame);
@@ -1619,7 +1603,7 @@ unsigned Processor::get_block_level() const
         // At global level: no frame in stack yet.
         return 0;
     }
-    return stack.get(frame_ptr + Frame_Offset::BN).get_int();
+    return stack.get(frame_ptr + Frame_Offset::BN).get_addr();
 }
 
 //
@@ -1629,26 +1613,29 @@ void Processor::set_block_level(unsigned block_level, unsigned this_frame, unsig
 {
     // Store block level in stack frame.
     auto &bn = stack.get(frame_ptr + Frame_Offset::BN);
+    auto &disp = stack.get(frame_ptr + Frame_Offset::DISPLAY);
     if (bn.value == 0) {
-        bn.type  = Cell_Type::INTEGER_VALUE;
         bn.value = block_level;
         Machine::trace_stack(frame_ptr + Frame_Offset::BN, bn.to_string(), "Write");
 
         // Save display.
-        auto &disp = stack.get(frame_ptr + Frame_Offset::DISPLAY);
-        disp.type  = Cell_Type::INTEGER_VALUE;
-        disp.value = get_display(block_level);
         if (block_level > 1) {
             // Save display of previous lexical level.
-            disp.value |= get_display(block_level - 1) << 15;
-        }
-        Machine::trace_stack(frame_ptr + Frame_Offset::DISPLAY, disp.to_string(), "Write");
-    }
-    if (block_level > 0) {
-        set_display(block_level, this_frame);
-        if (block_level > 1) {
+            disp.value = get_display(block_level - 1);
+            Machine::trace_stack(frame_ptr + Frame_Offset::DISPLAY, disp.to_string(), "Write");
+
             set_display(block_level - 1, prev_frame);
         }
+    } else {
+        if (block_level > 1) {
+            // Modify saved display of previous lexical level.
+            disp.value = get_display(block_level - 1);
+            Machine::trace_stack(frame_ptr + Frame_Offset::DISPLAY, disp.to_string(), "Write");
+        }
+    }
+
+    if (block_level > 0) {
+        set_display(block_level, this_frame);
     }
 }
 
@@ -1678,6 +1665,20 @@ unsigned Processor::get_display(unsigned block_level) const
         throw std::runtime_error("Bad block level");
     }
     return display[block_level];
+}
+
+//
+// Update all display[] entries.
+// Unwind stack starting from current frame.
+//
+void Processor::update_display()
+{
+    unsigned level = get_block_level();
+
+    for (unsigned fp = frame_ptr; level > 0; level--) {
+        set_display(level, fp);
+        fp = stack.get(fp + Frame_Offset::DISPLAY).get_addr();
+    }
 }
 
 void Processor::make_storage_function_frame(int elt_size)

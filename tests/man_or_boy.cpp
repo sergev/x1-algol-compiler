@@ -4,8 +4,7 @@
 
 TEST_F(x1_machine, man_or_boy)
 {
-    // Only compile for now.
-    compile(R"(
+    auto output = compile_and_run(R"(
         b̲e̲g̲i̲n̲
             r̲e̲a̲l̲ p̲r̲o̲c̲e̲d̲u̲r̲e̲ A(k, x1, x2, x3, x4, x5);
             v̲a̲l̲u̲e̲ k; i̲n̲t̲e̲g̲e̲r̲ k;
@@ -21,6 +20,8 @@ TEST_F(x1_machine, man_or_boy)
             print(A(10, 1.0, -1.0, -1.0, 1.0, 0.0));
         e̲n̲d̲
     )");
+    const std::string expect = "-67\n";
+    EXPECT_EQ(output, expect);
 
     // Check symbol table.
     EXPECT_EQ(machine->get_symbol("A"), 2);
@@ -28,8 +29,6 @@ TEST_F(x1_machine, man_or_boy)
 
     // Check entry address.
     EXPECT_EQ(machine->get_entry(0), 10048);
-
-    //TODO: run and check result
 }
 
 //
@@ -146,7 +145,7 @@ TEST_F(x1_machine, mob2)
 //
 // Four levels of recursion.
 //
-TEST_F(x1_machine, DISABLED_mob4)
+TEST_F(x1_machine, mob4)
 {
     auto output = compile_and_run(R"(
         b̲e̲g̲i̲n̲

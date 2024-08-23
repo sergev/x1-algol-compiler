@@ -108,6 +108,9 @@ public:
     unsigned get_block_level() const;
     unsigned get_display(unsigned block_level) const;
 
+    // Update all display[] entries.
+    void update_display();
+
 private:
     // Invoke run-time routine.
     // Return true when the processor is stopped.

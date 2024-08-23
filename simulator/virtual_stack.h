@@ -35,6 +35,8 @@ struct Stack_Cell {
     Word get_int() const { return value & BITS(27); }
     Real get_real() const { return value & BITS(54); }
 
+    void set(uint64_t v) { value = v; }
+
     // Convert the value to string.
     std::string to_string() const;
 
@@ -98,7 +100,6 @@ public:
     // Get item by index.
     Stack_Cell &get(unsigned index);
     const Stack_Cell &get(unsigned index) const;
-    void set(unsigned index, const Stack_Cell &item);
 
     // Push any item on stack.
 
@@ -119,6 +120,13 @@ public:
 
     // Push null item.
     void push_null() { push(Cell_Type::NUL, 0); }
+
+    // Set item by index.
+    void set(unsigned index, const Stack_Cell &item);
+    void set_int_value(unsigned index, Word value) { set(index, {Cell_Type::INTEGER_VALUE, value}); }
+    void set_int_addr(unsigned index, Word addr) { set(index, {Cell_Type::INTEGER_ADDRESS, addr}); }
+    void set_real_value(unsigned index, Real value) { set(index, {Cell_Type::REAL_VALUE, value}); }
+    void set_real_addr(unsigned index, Word addr) { set(index, {Cell_Type::REAL_ADDRESS, addr}); }
 };
 
 #endif // X1_VIRTUAL_STACK_H
