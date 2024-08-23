@@ -1196,8 +1196,9 @@ bool Processor::call_opc(unsigned opc)
     case OPC_FOR0: {
         // Enters an implicit subroutine with one local word.
         // In the complex, B := BN + 1; where BN is M[52]
-        unsigned block_level = get_block_level();
-        core.B = block_level + 1;
+      auto prev_fp = stack.get(frame_ptr + Frame_Offset::FP).get_addr();
+      auto prev_bn = stack.get(prev_fp + Frame_Offset::BN).get_int();
+        core.B = prev_bn + 1;
         allocate_stack(1);
         stack_base += 1;
         // In the complex, FOR0 jumps to SCC.

@@ -652,3 +652,45 @@ bar
 )";
     EXPECT_EQ(output, expect);
 }
+
+TEST_F(x1_machine, DISABLED_easter_sunday)
+{
+    auto output = compile_and_run(R"(
+        b̲e̲g̲i̲n̲
+        i̲n̲t̲e̲g̲e̲r̲ year, month, day;
+
+           i̲n̲t̲e̲g̲e̲r̲ p̲r̲o̲c̲e̲d̲u̲r̲e̲ rem(a, b);
+           v̲a̲l̲u̲e̲ a, b; i̲n̲t̲e̲g̲e̲r̲ a, b;
+              b̲e̲g̲i̲n̲ i̲n̲t̲e̲g̲e̲r̲ c;
+              c := a _: b; rem := a - b * c
+              e̲n̲d̲ rem;
+
+        i̲n̲t̲e̲g̲e̲r̲ p̲r̲o̲c̲e̲d̲u̲r̲e̲ easter sunday(y);
+        v̲a̲l̲u̲e̲ y; i̲n̲t̲e̲g̲e̲r̲ y;
+           b̲e̲g̲i̲n̲ i̲n̲t̲e̲g̲e̲r̲ a, b, c, h;
+           a := rem(y, 19);
+           b := y / 100; c := rem(y, 100);
+           h := rem((19 * a + b - b / 4 + 15 - ((8 * b + 13) / 25)), 30);
+           c := rem((2 * (rem(b, 4) + c / 4) - h - rem(c, 4) + 32), 7);
+           _c h := h + c - 7 * ((a + 11 * h + 19 * c) / 433);
+           _c a := (h + 90) / 25;
+           easter sunday := rem(100 * a + (33 * a + h + 19), 32)
+           e̲n̲d̲ easter sunday;
+
+           year := 2010; 
+           _c loop: _i_f year < 2030 _t_h_e_n     b̲e̲g̲i̲n̲; 
+           day := easter sunday(year);
+           _c month := day / 100; 
+           _c day := day - 100 * month;
+
+           _c print(year);
+           _c i̲f̲ month = 3 t̲h̲e̲n̲ PRINTTEXT(` March') e̲l̲s̲e̲ PRINTTEXT(` April');
+           _c print( day); year := year + 1; 
+           _c _g_o_t_o loop;
+           e̲n̲d̲
+        e̲n̲d̲
+ )");
+    const std::string expect = R"(
+)";
+    EXPECT_EQ(output, expect);
+}

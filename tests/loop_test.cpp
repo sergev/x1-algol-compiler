@@ -95,3 +95,33 @@ TEST_F(x1_machine, loop_fibonacci)
 )";
     EXPECT_EQ(output, expect);
 }
+
+TEST_F(x1_machine, loop_locarray)
+{
+    auto output = compile_and_run(R"(
+        b̲e̲g̲i̲n̲ 
+            b̲e̲g̲i̲n̲ i̲n̲t̲ a;
+                r̲e̲a̲l̲ a̲r̲r̲a̲y̲ b[-1:11];
+                i̲n̲t̲ z, i;
+                a := 12345;
+                z := 54321;
+                b[-1] := -1.5;
+                b[11] := 11.25;
+                print(a);
+                print(z);
+                f̲o̲r̲ i := -1 s̲t̲e̲p̲ 4 u̲n̲t̲i̲l̲ 11 d̲o̲
+                b̲e̲g̲i̲n̲
+                    print(b[i]);
+                e̲n̲d̲
+            e̲n̲d̲
+        e̲n̲d̲
+)");
+    const std::string expect = R"(12345
+54321
+-1.5
+0
+0
+11.25
+)";
+    EXPECT_EQ(output, expect);
+}
