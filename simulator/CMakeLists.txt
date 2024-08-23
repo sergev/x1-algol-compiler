@@ -3,6 +3,7 @@ add_library(simulator STATIC
     x1_arch.cpp
     machine.cpp
     processor.cpp
+    opcodes.cpp
     trace.cpp
     virtual_stack.cpp
     encoding.cpp

@@ -35,6 +35,9 @@ struct Stack_Cell {
     Word get_int() const { return value & BITS(27); }
     Real get_real() const { return value & BITS(54); }
 
+    // Get sign: +1, 0 or -1.
+    int sign() const;
+
     void set(uint64_t v) { value = v; }
 
     // Convert the value to string.

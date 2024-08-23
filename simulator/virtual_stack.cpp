@@ -123,6 +123,25 @@ std::string Stack_Cell::to_string() const
 }
 
 //
+// Get sign: +1, 0 or -1.
+//
+int Stack_Cell::sign() const
+{
+    switch (type) {
+    case Cell_Type::INTEGER_VALUE: {
+        auto i = x1_to_integer(get_int());
+        return (i > 0) ? 1 : (i < 0) ? -1 : 0;
+    }
+    case Cell_Type::REAL_VALUE: {
+        auto r = x1_to_ieee(get_real());
+        return (r > 0.0) ? 1 : (r < 0.0) ? -1 : 0;
+    }
+    default:
+        throw std::runtime_error("Cannot get sign");
+    }
+}
+
+//
 // Raise this item to the power given by another cell.
 //
 // Writing i for a number of integer type, r for a number of real type,
