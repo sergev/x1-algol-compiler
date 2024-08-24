@@ -653,7 +653,7 @@ bar
     EXPECT_EQ(output, expect);
 }
 
-TEST_F(x1_machine, DISABLED_easter_sunday)
+TEST_F(x1_machine, easter_sunday)
 {
     auto output = compile_and_run(R"(
         b̲e̲g̲i̲n̲
