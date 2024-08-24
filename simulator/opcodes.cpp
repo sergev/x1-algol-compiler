@@ -66,6 +66,7 @@ bool Processor::call_opc(unsigned opc)
     case OPC_EIS: {
         // end of implicit subroutine
         auto item   = stack.pop();
+        frame_ptr   = stack_base + Frame_Offset::FP - Frame_Offset::ARG;
         OT          = frame_release();
         stack.top() = item;
         break;
@@ -835,6 +836,10 @@ bool Processor::call_opc(unsigned opc)
         // Numeric argument is present in register B.
         if (core.B > 31) {
             throw std::runtime_error("Bad block level in SCC");
+        }
+        if (get_block_level() != 0) {
+            // Convert implicit subroutine into procedure.
+            frame_ptr = stack_base + Frame_Offset::FP - Frame_Offset::ARG;
         }
         set_block_level(core.B);
         update_display(core.B, frame_ptr);

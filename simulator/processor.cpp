@@ -600,7 +600,8 @@ void Processor::push_formal_value(unsigned dynamic_addr)
         stack.push_int_value(0); // place for result
         frame_create(OT, 0);
         if (arg_level > 0) {
-            set_block_level(arg_level);
+            // Use caller's frame.
+            frame_ptr = arg_frame;
             update_display(arg_level, arg_frame);
         }
         machine.run(arg_addr, OT, this_frame);
