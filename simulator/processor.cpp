@@ -401,7 +401,7 @@ unsigned Processor::frame_release()
     stack.erase(new_stack_ptr);
 
     // Update display[BN...0] by unwinding stack.
-    update_display();
+    update_display(get_block_level(), frame_ptr);
 
     return ret_addr;
 }
@@ -600,8 +600,7 @@ void Processor::push_formal_value(unsigned dynamic_addr)
         stack.push_int_value(0); // place for result
         frame_create(OT, 0);
         if (arg_level > 0) {
-            unsigned prev_frame = stack.get(arg_frame + Frame_Offset::DISPLAY).get_addr();
-            set_block_level(arg_level, arg_frame, prev_frame);
+            set_block_level(arg_level, arg_frame);
         }
         machine.run(arg_addr, OT, this_frame);
         machine.trace_level();
@@ -651,34 +650,28 @@ unsigned Processor::get_block_level() const
 //
 // Set lexical scope level for this frame.
 //
-void Processor::set_block_level(unsigned block_level, unsigned this_frame, unsigned prev_frame)
+void Processor::set_block_level(unsigned block_level, unsigned this_frame)
 {
-    // Store block level in stack frame.
     auto &bn   = stack.get(frame_ptr + Frame_Offset::BN);
     auto &disp = stack.get(frame_ptr + Frame_Offset::DISPLAY);
+
+    if (block_level == 0) {
+        throw std::runtime_error("Bad set_block_level");
+    }
+
+    // Store block level in stack frame.
     if (bn.value == 0) {
         bn.value = block_level;
         Machine::trace_stack(frame_ptr + Frame_Offset::BN, bn.to_string(), "Write");
-
-        // Save display.
-        if (block_level > 1) {
-            // Save display of previous lexical level.
-            disp.value = get_display(block_level - 1);
-            Machine::trace_stack(frame_ptr + Frame_Offset::DISPLAY, disp.to_string(), "Write");
-
-            set_display(block_level - 1, prev_frame);
-        }
-    } else {
-        if (block_level > 1) {
-            // Modify saved display of previous lexical level.
-            disp.value = get_display(block_level - 1);
-            Machine::trace_stack(frame_ptr + Frame_Offset::DISPLAY, disp.to_string(), "Write");
-        }
     }
 
-    if (block_level > 0) {
-        set_display(block_level, this_frame);
+    // Save display of previous lexical level.
+    if (block_level > 1) {
+        disp.value = get_display(block_level - 1);
+        Machine::trace_stack(frame_ptr + Frame_Offset::DISPLAY, disp.to_string(), "Write");
     }
+
+    update_display(block_level, this_frame);
 }
 
 //
@@ -713,12 +706,11 @@ unsigned Processor::get_display(unsigned block_level) const
 // Update all display[] entries.
 // Unwind stack starting from current frame.
 //
-void Processor::update_display()
+void Processor::update_display(unsigned level, unsigned fp)
 {
-    unsigned level = get_block_level();
-
-    for (unsigned fp = frame_ptr; level > 0; level--) {
+    while (level > 0) {
         set_display(level, fp);
+        level--;
         fp = stack.get(fp + Frame_Offset::DISPLAY).get_addr();
     }
 }

@@ -109,7 +109,7 @@ public:
     unsigned get_display(unsigned block_level) const;
 
     // Update all display[] entries.
-    void update_display();
+    void update_display(unsigned block_level, unsigned frame);
 
 private:
     // Invoke run-time routine.
@@ -155,7 +155,7 @@ private:
     void push_formal_value(unsigned dynamic_addr);
 
     // Set lexical scope level, or block number (BN).
-    void set_block_level(unsigned block_level, unsigned this_frame, unsigned prev_frame);
+    void set_block_level(unsigned block_level, unsigned this_frame);
 
     // Update display[n] value.
     void set_display(unsigned block_level, unsigned value);
