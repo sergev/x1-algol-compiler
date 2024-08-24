@@ -836,8 +836,8 @@ bool Processor::call_opc(unsigned opc)
         if (core.B > 31) {
             throw std::runtime_error("Bad block level in SCC");
         }
-        // Save display[n] and block level.
-        set_block_level(core.B, frame_ptr);
+        set_block_level(core.B);
+        update_display(core.B, frame_ptr);
         break;
     }
     case OPC_RSF: {

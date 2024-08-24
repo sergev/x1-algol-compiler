@@ -600,7 +600,8 @@ void Processor::push_formal_value(unsigned dynamic_addr)
         stack.push_int_value(0); // place for result
         frame_create(OT, 0);
         if (arg_level > 0) {
-            set_block_level(arg_level, arg_frame);
+            set_block_level(arg_level);
+            update_display(arg_level, arg_frame);
         }
         machine.run(arg_addr, OT, this_frame);
         machine.trace_level();
@@ -650,7 +651,7 @@ unsigned Processor::get_block_level() const
 //
 // Set lexical scope level for this frame.
 //
-void Processor::set_block_level(unsigned block_level, unsigned this_frame)
+void Processor::set_block_level(unsigned block_level)
 {
     auto &bn   = stack.get(frame_ptr + Frame_Offset::BN);
     auto &disp = stack.get(frame_ptr + Frame_Offset::DISPLAY);
@@ -670,8 +671,6 @@ void Processor::set_block_level(unsigned block_level, unsigned this_frame)
         disp.value = get_display(block_level - 1);
         Machine::trace_stack(frame_ptr + Frame_Offset::DISPLAY, disp.to_string(), "Write");
     }
-
-    update_display(block_level, this_frame);
 }
 
 //

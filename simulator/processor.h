@@ -155,7 +155,7 @@ private:
     void push_formal_value(unsigned dynamic_addr);
 
     // Set lexical scope level, or block number (BN).
-    void set_block_level(unsigned block_level, unsigned this_frame);
+    void set_block_level(unsigned block_level);
 
     // Update display[n] value.
     void set_display(unsigned block_level, unsigned value);
