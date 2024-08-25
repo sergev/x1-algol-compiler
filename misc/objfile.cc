@@ -482,7 +482,7 @@ int main(int argc, char*argv[]) {
         }
         exit(EXIT_SUCCESS);
     }
-    std::string s{"30"};
+    std::string s = "30";
     while (!store.empty()) {
         if (!s.empty()) s += ' ';
         s += std::to_string(store.back());

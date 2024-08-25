@@ -74,7 +74,7 @@ int P_eof(FILE *f)
 // MCP_xxx_LEN is the object bitstream length,
 // not the final procedure length in  memory.
 #define MCP_PRINTTEXT_LEN 22
-#define MCP_EVEN_LEN 12
+#define MCP_EVEN_LEN 14
 
 #ifdef MCP_PRINTTEXT
 #define MCP_EVEN_BASE MCP_PRINTTEXT_LEN
@@ -3738,7 +3738,7 @@ int main(int argc, char *argv[])
     /* Length of MCP0 is 30, not needed by any other MCP, etc. */
     put_crf_entry(&ii, 30, 0, 7680); /* SUM */
     put_crf_entry(&ii, 20, 1, 7680); /* PRINTTEXT */
-    put_crf_entry(&ii, 12, 2, 7680); /* EVEN */
+    put_crf_entry(&ii, 14, 2, 7680); /* EVEN */
     put_crf_entry(&ii, 63, 3, 7680); /* arctan */
     put_crf_entry(&ii, 15, 4, 3, 7680); /* MCP4 is needed by MCP3 */
     put_crf_entry(&ii, 100, 5, 7680);   /* FLOT */
@@ -3761,8 +3761,9 @@ int main(int argc, char *argv[])
     store[mcpb + MCP_EVEN_BASE + 8] = 0362037707;
     store[mcpb + MCP_EVEN_BASE + 9] = 0477515460;
     store[mcpb + MCP_EVEN_BASE + 10] = 0554077777;
-    store[mcpb + MCP_EVEN_BASE + 11] = 0000224376;
-    store[mcpb + MCP_EVEN_BASE + 12] = 0000040030;
+    store[mcpb + MCP_EVEN_BASE + 11] = 0766420376;
+    store[mcpb + MCP_EVEN_BASE + 12] = 0000114066;
+    store[mcpb + MCP_EVEN_BASE + 13] = 0000020016;
 #endif
 #ifdef MCP_PRINTTEXT
     /* output of objfile -w 1 misc/printtext.src */
