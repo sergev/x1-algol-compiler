@@ -653,6 +653,42 @@ bar
     EXPECT_EQ(output, expect);
 }
 
+//TODO: need to implement FTMP
+TEST_F(x1_machine, DISABLED_procedure_as_arg)
+{
+    auto output = compile_and_run(R"(
+        b̲e̲g̲i̲n̲
+            p̲r̲o̲c̲e̲d̲u̲r̲e̲ apply(f, x); p̲r̲o̲c̲e̲d̲u̲r̲e̲ f; i̲n̲t̲e̲g̲e̲r̲ x;
+                f(x);
+
+            p̲r̲o̲c̲e̲d̲u̲r̲e̲ pr(k); i̲n̲t̲e̲g̲e̲r̲ k;
+                print(k);
+
+            apply(pr, 123);
+        e̲n̲d̲
+    )");
+    const std::string expect = "123\n";
+    EXPECT_EQ(output, expect);
+}
+
+//TODO: need to implement FTMR
+TEST_F(x1_machine, DISABLED_function_as_arg)
+{
+    auto output = compile_and_run(R"(
+        b̲e̲g̲i̲n̲
+            i̲n̲t̲e̲g̲e̲r̲ p̲r̲o̲c̲e̲d̲u̲r̲e̲ apply(f, x); i̲n̲t̲e̲g̲e̲r̲ p̲r̲o̲c̲e̲d̲u̲r̲e̲ f; i̲n̲t̲e̲g̲e̲r̲ x;
+                apply := f(x);
+
+            i̲n̲t̲e̲g̲e̲r̲ p̲r̲o̲c̲e̲d̲u̲r̲e̲ incr(x); i̲n̲t̲e̲g̲e̲r̲ x;
+                incr := x + 1;
+
+            print(apply(incr, 123));
+        e̲n̲d̲
+    )");
+    const std::string expect = "124\n";
+    EXPECT_EQ(output, expect);
+}
+
 TEST_F(x1_machine, easter_sunday)
 {
     auto output = compile_and_run(R"(
