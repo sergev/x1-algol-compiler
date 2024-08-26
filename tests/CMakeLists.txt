@@ -22,6 +22,7 @@ add_executable(x1test EXCLUDE_FROM_ALL
     loop_test.cpp
     machine_test.cpp
     procedure_test.cpp
+    label_test.cpp
     man_or_boy.cpp
 )
 add_dependencies(x1test x1sim)
