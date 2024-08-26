@@ -71,11 +71,25 @@ void Machine::show_progress()
 //
 void Machine::compile_and_run()
 {
-    const auto input_stem   = std::filesystem::path(input_file).stem();
-    const auto obj_filename = input_stem.string() + ".x1";
+    const auto input_path = std::filesystem::path(input_file);
+    const auto extension  = input_path.extension().string();
 
-    compile(input_file, obj_filename);
-    load_object_program(obj_filename);
+    if (extension == ".a60") {
+        //
+        // Compile file.a60 to file.x1, then load.
+        //
+        const auto obj_filename = input_path.stem().string() + ".x1";
+        compile(input_file, obj_filename);
+        load_object_program(obj_filename);
+
+    } else if (extension == ".x1") {
+        //
+        // Load binary file.x1.
+        //
+        load_object_program(input_file);
+    } else {
+        throw std::runtime_error("Unknown file extension: " + extension);
+    }
     run(get_entry(0));
 }
 

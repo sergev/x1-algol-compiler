@@ -28,6 +28,7 @@ static void print_usage(std::ostream &out, const char *prog_name)
     out << "    " << prog_name << " [options...] file.alg\n";
     out << "Input files:\n";
     out << "    file.alg                Algol-60 program source\n";
+    out << "    file.x1                 Binary program for Electrologica X1\n";
     out << "Options:\n";
     out << "    -h, --help              Display available options\n";
     out << "    -V, --version           Print the version number and exit\n";
