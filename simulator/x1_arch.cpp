@@ -167,6 +167,9 @@ void x1_print_instruction(std::ostream &out, unsigned cmd)
     case 042'20:
         out << "B := " << addr;
         break;
+    case 051'00:
+        out << "T -= 1 + M[" << addr << "]";
+        break;
     case 052'20:
         out << "T := " << addr;
         break;

@@ -227,6 +227,10 @@ bool Processor::step()
         machine.mem_store(addr, core.B);
         break;
 
+    case 051'00:
+        OT -= 1 + machine.mem_load(addr);
+        break;
+
     case 052'20:
         OT = addr;
         break;

@@ -225,7 +225,12 @@ bool Processor::call_opc(unsigned opc)
         stack.pop();
         return true;
 
-    // TODO: case OPC_SSI: // store switch index
+    case OPC_SSI: {
+        // store switch index
+        auto index = stack.pop().get_int();
+        machine.mem_store(060, index);
+        break;
+    }
     case OPC_CAC:
         // copy boolean acc. into condition
         core.C = stack.pop_boolean();
