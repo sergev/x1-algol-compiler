@@ -422,6 +422,22 @@ void Processor::allocate_stack(unsigned nwords)
 }
 
 //
+// Find a frame with given previous frame.
+//
+unsigned Processor::frame_find_prev(unsigned need_fp)
+{
+    unsigned fp = frame_ptr;
+    while (fp > 0) {
+        unsigned prev_fp = stack.get(fp + Frame_Offset::FP).get_addr();
+        if (prev_fp == need_fp) {
+            return fp;
+        }
+        fp = prev_fp;
+    }
+    throw std::runtime_error("Cannot find frame " + std::to_string(need_fp));
+}
+
+//
 // Convert dynamic address of variable (relative to stack frame)
 // into static address.
 //

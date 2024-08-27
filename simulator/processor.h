@@ -126,6 +126,9 @@ private:
     // Return address is returned.
     unsigned frame_release();
 
+    // Find a frame by lexical level of previous frame.
+    unsigned frame_find_prev(unsigned fp);
+
     // Allocate local variables.
     void allocate_stack(unsigned nwords);
 
