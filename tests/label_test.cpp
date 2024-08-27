@@ -77,6 +77,42 @@ TEST_F(x1_machine, jump_one_two_three)
     EXPECT_EQ(output, expect);
 }
 
+TEST_F(x1_machine, switch_xyzt)
+{
+    auto output = compile_and_run(R"(
+        b̲e̲g̲i̲n̲
+            b̲o̲o̲l̲e̲a̲n̲ b;
+            i̲n̲t̲e̲g̲e̲r̲ i;
+            s̲w̲i̲t̲c̲h̲ s := x, y, i̲f̲ b t̲h̲e̲n̲ z e̲l̲s̲e̲ t;
+
+            p̲r̲o̲c̲e̲d̲u̲r̲e̲ p(s); s̲w̲i̲t̲c̲h̲ s;
+                g̲o̲t̲o̲ s[i];
+
+            b := t̲r̲u̲e̲;
+            i:= 1;
+            p(s);
+        t:
+            PRINTTEXT(`t'); NLCR;
+            g̲o̲t̲o̲ e;
+        y:
+            i := 3;
+            PRINTTEXT(`y');
+            p(s);
+        z:
+            b := f̲a̲l̲s̲e̲;
+            PRINTTEXT(`z');
+            p(s);
+        x:
+            i := 2;
+            PRINTTEXT(`x');
+            p(s);
+        e:
+        e̲n̲d̲
+    )");
+    const std::string expect = "xyzt\n";
+    EXPECT_EQ(output, expect);
+}
+
 TEST_F(x1_machine, DISABLED_switch_at_level1)
 {
     auto output = compile_and_run(R"(
