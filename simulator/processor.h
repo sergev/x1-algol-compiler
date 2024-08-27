@@ -153,6 +153,7 @@ private:
 
     // Get value at dynamic address and push it on stack.
     void push_formal_value(unsigned dynamic_addr);
+    unsigned get_formal_proc(unsigned dynamic_addr);
 
     // Set lexical scope level, or block number (BN).
     void set_block_level(unsigned block_level);

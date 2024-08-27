@@ -562,6 +562,25 @@ void Processor::store_value(const Stack_Cell &dest, const Stack_Cell &src)
 //
 // When flag need_formal_address is set - instead of value, return it's address.
 //
+unsigned Processor::get_formal_proc(unsigned dynamic_addr)
+{
+    unsigned const arg_descr = arg_descriptor(dynamic_addr);
+    unsigned const arg_addr  = arg_descr & BITS(15);
+    switch (arg_descr >> 15 & 077) {
+    case 040:
+        return arg_addr;
+    default:
+        throw std::runtime_error("Unknown descriptor of formal procedure: " + to_octal(arg_descr));
+    }
+}
+
+//
+// Read word from memory at dynamic address - it contains descriptor
+// of actual argument. It can hold either address of value, or address
+// of implicit subroutine. Call it to obtain actual argument value.
+//
+// When flag need_formal_address is set - instead of value, return it's address.
+//
 void Processor::push_formal_value(unsigned dynamic_addr)
 {
     unsigned const arg_descr = arg_descriptor(dynamic_addr);

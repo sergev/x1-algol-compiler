@@ -31,17 +31,35 @@ bool Processor::call_opc(unsigned opc)
         // Invoke a procedure which address is located in register B.
         // Number of arguments is present in register A.
         // Save return address on stack.
-        // Note: descriptors of procedure arguments are located
-        // in memory 3 words before the return address.
         machine.mem_store(51, OT - 8); // for PRINTTEXT
         stack.push_null();             // place for result
         frame_create(OT, core.A);
         OT = core.B;
         break;
 
-        // TODO: case OPC_FTMR: // formtransmark result
-        // TODO: case OPC_FTMP: // formtransmark procedure
-
+    case OPC_FTMR: {
+        // formtransmark result
+        // Invoke a function which dynamic address is located in register S.
+        // Number of arguments is present in register A.
+        // Expect result on return from procedure.
+        unsigned addr = get_formal_proc(core.S);
+        stack.push_int_value(0); // place for result
+        frame_create(OT, core.A);
+        OT = addr;
+        break;
+    }
+    case OPC_FTMP: {
+        // formtransmark procedure
+        // Invoke a procedure which dynamic address is located in register S.
+        // Number of arguments is present in register A.
+        // Save return address on stack.
+        unsigned addr = get_formal_proc(core.S);
+        machine.mem_store(51, OT - 8); // for PRINTTEXT
+        stack.push_null();             // place for result
+        frame_create(OT, core.A);
+        OT = addr;
+        break;
+    }
     case OPC_FOR8:
         // Drop the unneeded address of the controlled variable.
         stack.pop();
