@@ -147,3 +147,33 @@ TEST_F(x1_machine, DISABLED_switch_at_level1)
 )";
     EXPECT_EQ(output, expect);
 }
+
+TEST_F(x1_machine, DISABLED_goto_recursive)
+{
+    auto output = compile_and_run(R"(
+        b̲e̲g̲i̲n̲
+            p̲r̲o̲c̲e̲d̲u̲r̲e̲ m(i, x, y);
+                v̲a̲l̲u̲e̲ i;
+                i̲n̲t̲e̲g̲e̲r̲ i;
+                l̲a̲b̲e̲l̲ x, y;
+            b̲e̲g̲i̲n̲
+                i̲f̲ i < 20 t̲h̲e̲n̲ b̲e̲g̲i̲n̲
+                    m(i+1, y, pr);
+                    g̲o̲t̲o̲ x;
+                e̲n̲d̲ e̲l̲s̲e̲ i̲f̲ f̲a̲l̲s̲e̲ t̲h̲e̲n̲
+    pr:             print(i);
+            e̲n̲d̲;
+
+            m(0, done, done);
+    done:
+        e̲n̲d̲
+    )");
+    const std::string expect = R"(17
+14
+11
+8
+5
+2
+)";
+    EXPECT_EQ(output, expect);
+}
