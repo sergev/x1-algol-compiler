@@ -2,8 +2,7 @@
 
 #include "fixture.h"
 
-//TODO: implement GTA
-TEST_F(x1_machine, DISABLED_label_arg)
+TEST_F(x1_machine, label_arg)
 {
     auto output = compile_and_run(R"(
         b̲e̲g̲i̲n̲

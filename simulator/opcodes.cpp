@@ -199,7 +199,14 @@ bool Processor::call_opc(unsigned opc)
         break;
     }
 
-    // TODO: case OPC_GTA: // goto adjustment
+    case OPC_GTA:
+        // goto adjustment
+        // Exit to block level given in register B.
+        frame_ptr = display[core.B + 1];
+        frame_release();
+        stack.pop();
+        return true;
+
     // TODO: case OPC_SSI: // store switch index
     case OPC_CAC:
         // copy boolean acc. into condition
@@ -842,7 +849,7 @@ bool Processor::call_opc(unsigned opc)
             frame_ptr = stack_base + Frame_Offset::FP - Frame_Offset::ARG;
         }
         set_block_level(core.B);
-        update_display(core.B, frame_ptr);
+        update_display(core.B);
         break;
     }
     case OPC_RSF: {

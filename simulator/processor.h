@@ -108,8 +108,8 @@ public:
     unsigned get_block_level() const;
     unsigned get_display(unsigned block_level) const;
 
-    // Update all display[] entries.
-    void update_display(unsigned block_level, unsigned frame);
+    // Update all display[] entries starting from given level.
+    void update_display(unsigned block_level);
 
 private:
     // Invoke run-time routine.

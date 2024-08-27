@@ -401,7 +401,7 @@ unsigned Processor::frame_release()
     stack.erase(new_stack_ptr);
 
     // Update display[BN...0] by unwinding stack.
-    update_display(get_block_level(), frame_ptr);
+    update_display(get_block_level());
 
     return ret_addr;
 }
@@ -602,7 +602,7 @@ void Processor::push_formal_value(unsigned dynamic_addr)
         if (arg_level > 0) {
             // Use caller's frame.
             frame_ptr = arg_frame;
-            update_display(arg_level, arg_frame);
+            update_display(arg_level);
         }
         machine.run(arg_addr, OT, this_frame);
         machine.trace_level();
@@ -706,8 +706,9 @@ unsigned Processor::get_display(unsigned block_level) const
 // Update all display[] entries.
 // Unwind stack starting from current frame.
 //
-void Processor::update_display(unsigned level, unsigned fp)
+void Processor::update_display(unsigned level)
 {
+    unsigned fp = frame_ptr;
     while (level > 0) {
         set_display(level, fp);
         level--;

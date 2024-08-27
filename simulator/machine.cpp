@@ -117,6 +117,7 @@ void Machine::run(unsigned start_addr, unsigned finish_addr, unsigned finish_fra
 
         if (done) {
             // Halted by 'STOP' code.
+            // Also GOTO to upper block level.
             return;
         }
         if (finish_addr != 0 && cpu.at_address(finish_addr, finish_frame)) {
