@@ -132,6 +132,7 @@ Static int nas_stock, pos_;
 Static int word_del_table[29];
 Static int ascii_table[128];
 Static int opc_table[113];
+Static int alnum_table[64];
 
 Static int rlib, mcpe;
 
@@ -1719,6 +1720,40 @@ Local boolean do_in_t_list()
         return false;
 } /*do_in_t_list*/
 
+Void show_word1(int word)
+{
+    int s;
+    int b = 0;
+    for (s = 3; s <= 21; s += 6) {
+        int c = (word >> s) & 077;
+        b |= c;
+        if (b)
+            putchar(alnum_table[c]);
+    }
+}
+
+Void show_word2(int word)
+{
+    int s;
+    for (s = 3; s <= 21; s += 6) {
+        int c = (word >> s) & 077;
+        if (c == 077)
+            break;
+        putchar(alnum_table[c]);
+    }
+}
+
+Void show_id(int word1, int word2)
+{
+    if (word1 % 8 == 0) {
+        show_word1(word1);
+    } else {
+        putchar(alnum_table[(word1 & 7) << 3 | (word2 & 7)]);
+        show_word1(word1);
+        show_word2(word2);
+    }
+}
+
 Local Void look_for_name()
 {
     /*HZ*/
@@ -1740,6 +1775,7 @@ _L1:
         i -= 3;
     if (i > nlib)
         goto _L1;
+    show_id(inw, fnw);
     stop(7, "Identifier not declared");
 _L2:
     nid   = i - nlib - 1;
@@ -3598,6 +3634,10 @@ int main(int argc, char *argv[])
     ascii_table[':']  = 124;
     ascii_table['|']  = 162;
     ascii_table['_']  = 163;
+
+    for (ii = 0; ii < 128; ++ii)
+        if (ascii_table[ii] >= 0 && ascii_table[ii] < 64)
+            alnum_table[ascii_table[ii]] = ii;
 
     /*preparation of prescan*/
     /*LE*/
