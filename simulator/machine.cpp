@@ -104,8 +104,19 @@ void Machine::run(unsigned start_addr, unsigned finish_addr, unsigned finish_fra
     // Show initial state.
     trace_registers();
 
+    auto const frame_base = cpu.get_frame_ptr();
     for (;;) {
-        bool done = cpu.step();
+        bool done{};
+        try {
+            done = cpu.step();
+
+        } catch (const Non_Local_Goto&) {
+            // Non-local GOTO: check whether this machine is the target.
+            if (cpu.get_frame_ptr() < frame_base) {
+                // Send to previous level.
+                throw;
+            }
+        }
 
         // Show changed registers.
         trace_registers();
@@ -117,7 +128,6 @@ void Machine::run(unsigned start_addr, unsigned finish_addr, unsigned finish_fra
 
         if (done) {
             // Halted by 'STOP' code.
-            // Also GOTO to upper block level.
             return;
         }
         if (finish_addr != 0 && cpu.at_address(finish_addr, finish_frame)) {

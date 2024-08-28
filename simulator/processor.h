@@ -100,6 +100,9 @@ public:
     // Have we reached given address?
     bool at_address(unsigned addr, unsigned fp) const { return OT == addr && frame_ptr == fp; }
 
+    // Get frame pointer.
+    unsigned get_frame_ptr() const { return frame_ptr; }
+
     // Print trace info.
     void print_instruction();
     void print_registers();
@@ -167,6 +170,13 @@ private:
     // Helper methods for dynamic arrays.
     void make_storage_function_frame(int elt_size);
     Word load_word(unsigned addr);
+};
+
+//
+// Non-local gotos are implemented as exceptions.
+//
+class Non_Local_Goto {
+    // Empty.
 };
 
 #endif // X1_PROCESSOR_H

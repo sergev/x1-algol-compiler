@@ -224,7 +224,7 @@ bool Processor::call_opc(unsigned opc)
         frame_ptr = frame_find_prev(display[core.B]);
         frame_release();
         stack.pop();
-        return true;
+        throw Non_Local_Goto();
 
     case OPC_SSI: {
         // store switch index
@@ -326,7 +326,7 @@ bool Processor::call_opc(unsigned opc)
     case OPC_ADF: {
         // add formal
         // Left argument is on stack.
-        // Register S has fynamic address of right argument.
+        // Register S has dynamic address of right argument.
         push_formal_value(core.S);
         auto b = stack.pop();
         auto a = stack.pop();
@@ -379,7 +379,7 @@ bool Processor::call_opc(unsigned opc)
     case OPC_SUF: {
         // subtract formal
         // Left argument is on stack.
-        // Register S has fynamic address of right argument.
+        // Register S has dynamic address of right argument.
         push_formal_value(core.S);
         auto b = stack.pop();
         stack.top().subtract(b);
@@ -438,7 +438,7 @@ bool Processor::call_opc(unsigned opc)
     case OPC_MUF: {
         // multiply formal
         // Left argument is on stack.
-        // Register S has fynamic address of right argument.
+        // Register S has dynamic address of right argument.
         push_formal_value(core.S);
         auto b = stack.pop();
         stack.top().multiply(b);
@@ -496,7 +496,7 @@ bool Processor::call_opc(unsigned opc)
     case OPC_DIF: {
         // divide formal
         // Left argument is on stack.
-        // Register S has fynamic address of right argument.
+        // Register S has dynamic address of right argument.
         push_formal_value(core.S);
         auto b = stack.pop();
         stack.top().divide(b);

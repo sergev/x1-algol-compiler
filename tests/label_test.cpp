@@ -148,7 +148,7 @@ TEST_F(x1_machine, switch_at_level1)
     EXPECT_EQ(output, expect);
 }
 
-TEST_F(x1_machine, DISABLED_goto_recursive)
+TEST_F(x1_machine, goto_recursive)
 {
     auto output = compile_and_run(R"(
         b̲e̲g̲i̲n̲
