@@ -422,19 +422,27 @@ void Processor::allocate_stack(unsigned nwords)
 }
 
 //
-// Find a frame with given previous frame.
+// Roll stack back to the 'goto' frame, starting from base.
+// Return true on success.
+// Return false when the base is reached.
 //
-unsigned Processor::frame_find_prev(unsigned need_fp)
+bool Processor::roll_back(unsigned frame_base)
 {
+    if (goto_frame < frame_base) {
+        return false;
+    }
     unsigned fp = frame_ptr;
-    while (fp > 0) {
+    while (fp >= frame_base) {
         unsigned prev_fp = stack.get(fp + Frame_Offset::FP).get_addr();
-        if (prev_fp == need_fp) {
-            return fp;
+        if (prev_fp == goto_frame) {
+            frame_ptr = fp;
+            frame_release();
+            stack.pop();
+            return true;
         }
         fp = prev_fp;
     }
-    throw std::runtime_error("Cannot find frame " + std::to_string(need_fp));
+    return false;
 }
 
 //

@@ -111,11 +111,12 @@ void Machine::run(unsigned start_addr, unsigned finish_addr, unsigned finish_fra
             done = cpu.step();
 
         } catch (const Non_Local_Goto&) {
-            // Non-local GOTO: check whether this machine is the target.
-            if (cpu.get_frame_ptr() < frame_base) {
-                // Send to previous level.
+            // Non-local GOTO: roll stack back.
+            if (!cpu.roll_back(frame_base)) {
+                // Jump to previous level.
                 throw;
             }
+            trace_level();
         }
 
         // Show changed registers.
@@ -128,6 +129,10 @@ void Machine::run(unsigned start_addr, unsigned finish_addr, unsigned finish_fra
 
         if (done) {
             // Halted by 'STOP' code.
+            if (goto_flag) {
+                goto_flag = false;
+                throw Non_Local_Goto();
+            }
             return;
         }
         if (finish_addr != 0 && cpu.at_address(finish_addr, finish_frame)) {

@@ -60,6 +60,10 @@ private:
     // Base of stack in current block.
     unsigned stack_base{};
 
+    // Target of a non-local goto.
+    unsigned goto_frame{};
+    bool goto_flag{};
+
     // Frame pointers for each block level.
     unsigned display[32]{};
 
@@ -114,6 +118,9 @@ public:
     // Update all display[] entries starting from given level.
     void update_display(unsigned block_level);
 
+    // Roll stack back to the 'goto' frame, starting from base.
+    bool roll_back(unsigned frame_base);
+
 private:
     // Invoke run-time routine.
     // Return true when the processor is stopped.
@@ -128,9 +135,6 @@ private:
     // Deallocate frame in stack when leaving the procedure.
     // Return address is returned.
     unsigned frame_release();
-
-    // Find a frame by lexical level of previous frame.
-    unsigned frame_find_prev(unsigned fp);
 
     // Allocate local variables.
     void allocate_stack(unsigned nwords);

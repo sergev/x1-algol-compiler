@@ -221,10 +221,9 @@ bool Processor::call_opc(unsigned opc)
         // goto adjustment
         // Exit to block level given in register B.
         frame_ptr = stack_base + Frame_Offset::FP - Frame_Offset::ARG;
-        frame_ptr = frame_find_prev(display[core.B]);
-        frame_release();
-        stack.pop();
-        throw Non_Local_Goto();
+        goto_frame = display[core.B];
+        machine.set_goto_flag();
+        return true;
 
     case OPC_SSI: {
         // store switch index
