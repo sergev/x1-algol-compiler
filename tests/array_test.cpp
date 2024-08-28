@@ -144,3 +144,29 @@ TEST_F(x1_machine, value_array_integer)
 )";
     EXPECT_EQ(output, expect);
 }
+
+TEST_F(x1_machine, value_array_multidim_conv)
+{
+    auto output = compile_and_run(R"(
+        _b_e_g_i_n
+            _r_e_a_l _a_r_r_a_y r[1:3,3:6];
+            _i_n_t_e_g_e_r _a_r_r_a_y i[2:3,3:5];
+            _p_r_o_c asint(x); _v_a_l_u_e x; _i_n_t_e_g_e_r _a_r_r_a_y x;
+                print(x[3,3]);
+            _p_r_o_c asreal(x); _v_a_l_u_e x; _r_e_a_l _a_r_r_a_y x;
+                print(x[3,3]/2);
+            r[3,3] := 2.75;
+            i[3,3] := 275;
+            asint(i);
+            asreal(r);
+            asint(r);
+            asreal(i);
+        _e_n_d
+)");
+const std::string expect = R"(275
+1.375
+3
+137.5
+)";
+    EXPECT_EQ(output, expect);
+}

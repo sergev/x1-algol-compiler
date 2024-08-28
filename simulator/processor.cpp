@@ -810,7 +810,10 @@ void Processor::make_value_array_function_frame(int elt_size)
         auto w = load_word(storage_fn + i);
         int val = x1_to_integer(w);
         if (i == 2 && val != elt_size) {
-            throw std::runtime_error("NYI: Value array type conversion");
+            // There are two possibilities for val and elt-size: (1, 2) and (2, 1),
+            // to indicate, we use 21 for real to integer, 12 for integer to real, as the
+            // (impossible) element size.
+            w = val * 10 + elt_size;
         }
         stack.push_int_value(w);
         seen_limit |= val < 0 && -val <= 32767;

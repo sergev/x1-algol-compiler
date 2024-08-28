@@ -930,9 +930,23 @@ bool Processor::call_opc(unsigned opc)
         // value array positioning
         unsigned storage_fn = address_in_stack(core.S);
         unsigned actual = stack.get(storage_fn).get_addr();
-        unsigned zero_base = stack.get(storage_fn + 1).get_addr();
+        unsigned zero_base = stack.get(storage_fn + 1).get_addr() & 0xFFFF; // remove stray high bits
         unsigned elt_size = stack.get(storage_fn + 2).get_int();
-        Cell_Type ct = elt_size == 1 ? Cell_Type::INTEGER_ADDRESS : Cell_Type::REAL_ADDRESS;
+        Cell_Type ct = elt_size % 2 == 1 ? Cell_Type::INTEGER_ADDRESS : Cell_Type::REAL_ADDRESS;
+        // Element size correctors for type conversion.
+        int mul = 1, div = 1;
+        switch (elt_size) {
+        case 21:                 // real to integer
+            div = 2;
+            break;
+        case 12:                 // integer to real
+            mul = 2;
+            break;
+        case 1: case 2:
+            break;
+        default:
+            throw std::runtime_error("Impossible type conversion in VAP");
+        }
         int pos;
         // Find the first negative number in the storage function.
         // It is the negated array length.
@@ -942,16 +956,37 @@ bool Processor::call_opc(unsigned opc)
                 break;
         if (pos == 8)
             throw std::runtime_error("Runaway value array storage function frame");
+        if (mul != 1 || div != 1) {
+            // Correcting dimension sizes and the word count.
+            for (int i = 3; i <= pos; ++i) {
+                int value = x1_to_integer(stack.get(storage_fn + i).get_int());
+                stack.set_int_value(storage_fn + i, integer_to_x1(value * mul / div));
+            }
+        }
         unsigned words = -x1_to_integer(stack.get(storage_fn + pos).get_int());
         stack.set(storage_fn, Stack_Cell{ ct, stack_base + STACK_BASE });
         int offset =  actual - zero_base;
+        offset = offset*mul/div;
         stack.set(storage_fn + 1, Stack_Cell{ ct, stack_base - offset + STACK_BASE });
         for (unsigned i = 0; i < words; ++i) {
-            if (elt_size == 2) {
-                stack.push_real_value(load_real(actual + i));
-            } else {
+            switch (elt_size) {
+            case 1:
                 stack.push_int_value(load_word(actual + i));
+                break;
+            case 2:
+                stack.push_real_value(load_real(actual + i));
+                break;
+            case 21:             // real to integer
+                stack.push_int_value(integer_to_x1(roundl(x1_to_ieee(load_real(actual + 2*i)))));
+                break;
+            case 12:             // integer to real
+                stack.push_real_value(ieee_to_x1((long double)x1_to_integer(load_word(actual + i/2))));
+                break;
             }
+        }
+        if (elt_size > 2) {
+            // Finally, store the true element size.
+            stack.set_int_value(storage_fn + 2, elt_size % 10);
         }
         stack_base += words;
         break;
