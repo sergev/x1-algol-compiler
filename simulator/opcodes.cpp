@@ -760,6 +760,13 @@ bool Processor::call_opc(unsigned opc)
         stack.push_ieee(cosl(stack.pop_ieee()));
         break;
     }
+    case OPC_arctan: {
+        // Function arctan(E) - arc tangent function of E
+        // Yield value of type real.
+        // Argument can be either of type real or integer.
+        stack.push_ieee(atanl(stack.pop_ieee()));
+        break;
+    }
     case OPC_ln: {
         // Function ln(E) - natural logarithm of the value of E
         // Yield value of type real.

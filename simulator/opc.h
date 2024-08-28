@@ -90,6 +90,7 @@ enum {
     OPC_sqrt   = 78,
     OPC_sin    = 79,
     OPC_cos    = 80,
+    OPC_arctan = 81,
     OPC_ln     = 82,
     OPC_exp    = 83,
     OPC_entier = 84,

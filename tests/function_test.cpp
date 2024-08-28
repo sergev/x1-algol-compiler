@@ -143,7 +143,7 @@ TEST_F(x1_machine, function_cos)
 // "Need MCP 3"
 // "Need MCP 4"
 //
-TEST_F(x1_machine, DISABLED_function_arctan)
+TEST_F(x1_machine, function_arctan)
 {
     auto output = compile_and_run(R"(
         b̲e̲g̲i̲n̲
@@ -157,14 +157,14 @@ TEST_F(x1_machine, DISABLED_function_arctan)
             print(arctan(-999.9));
         e̲n̲d̲
     )");
-    const std::string expect = R"(0.000100
--0.000100
-0.463648
--0.463648
-1.107149
--1.107149
-1.569796
--1.569796
+    const std::string expect = R"(9.99999996667e-05
+-9.99999996667e-05
+0.4636476090009
+-0.4636476090009
+1.107148717794
+-1.107148717794
+1.569796227119
+-1.569796227119
 )";
     EXPECT_EQ(output, expect);
 }
