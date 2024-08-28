@@ -202,3 +202,21 @@ TEST_F(x1_machine, print_reals)
 )";
     EXPECT_EQ(output, expect);
 }
+
+TEST_F(x1_machine, print_spaces)
+{
+    auto output = compile_and_run(R"(
+        b̲e̲g̲i̲n̲
+            PRINTTEXT(`/'); SPACE(1); PRINTTEXT(`/'); NLCR;
+            PRINTTEXT(`/'); SPACE(2); PRINTTEXT(`/'); NLCR;
+            PRINTTEXT(`/'); SPACE(33); PRINTTEXT(`/'); NLCR;
+            PRINTTEXT(`/'); SPACE(0); PRINTTEXT(`/'); NLCR;
+        e̲n̲d̲
+    )");
+    const std::string expect = R"(/ /
+/  /
+/                                 /
+//
+)";
+    EXPECT_EQ(output, expect);
+}

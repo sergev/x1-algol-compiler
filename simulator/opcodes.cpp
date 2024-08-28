@@ -969,7 +969,15 @@ bool Processor::call_opc(unsigned opc)
         break;
 
         // TODO: case OPC_XEEN:
-        // TODO: case OPC_SPACE:
+    case OPC_SPACE: {
+        // Print N spaces.
+        auto a = stack.pop_integer();
+        while (a-- > 0) {
+            std::cout << ' ';
+        }
+        std::cout << std::flush;
+        break;
+    }
         // TODO: case OPC_stop:
         // TODO: case OPC_P21:
 
