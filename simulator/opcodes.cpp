@@ -892,8 +892,16 @@ bool Processor::call_opc(unsigned opc)
         make_storage_function_frame(1);
         break;
     }
-        // TODO: case OPC_RVA: // real value array storage function frame
-        // TODO: case OPC_IVA: // integer value array storage function frame
+    case OPC_RVA: {
+        // real value array storage function frame
+        make_value_array_function_frame(2);
+        break;
+    }
+    case OPC_IVA: {
+        // integer value array storage function frame
+        make_value_array_function_frame(1);
+        break;
+    }
     case OPC_LAP: {
         // local array positioning
         unsigned addr = address_in_stack(core.S);
@@ -918,8 +926,36 @@ bool Processor::call_opc(unsigned opc)
         stack_base += words;
         break;
     }
-        // TODO: case OPC_VAP: // value array positioning
-
+    case OPC_VAP: {
+        // value array positioning
+        unsigned storage_fn = address_in_stack(core.S);
+        unsigned actual = stack.get(storage_fn).get_addr();
+        unsigned zero_base = stack.get(storage_fn + 1).get_addr();
+        unsigned elt_size = stack.get(storage_fn + 2).get_int();
+        Cell_Type ct = elt_size == 1 ? Cell_Type::INTEGER_ADDRESS : Cell_Type::REAL_ADDRESS;
+        int pos;
+        // Find the first negative number in the storage function.
+        // It is the negated array length.
+        for (pos = 2; pos < 8; ++pos)
+            if (stack.get(storage_fn + pos).is_int_value() &&
+                x1_to_integer(stack.get(storage_fn + pos).get_int()) < 0)
+                break;
+        if (pos == 8)
+            throw std::runtime_error("Runaway value array storage function frame");
+        unsigned words = -x1_to_integer(stack.get(storage_fn + pos).get_int());
+        stack.set(storage_fn, Stack_Cell{ ct, stack_base + STACK_BASE });
+        int offset =  actual - zero_base;
+        stack.set(storage_fn + 1, Stack_Cell{ ct, stack_base - offset + STACK_BASE });
+        for (unsigned i = 0; i < words; ++i) {
+            if (elt_size == 2) {
+                stack.push_real_value(load_real(actual + i));
+            } else {
+                stack.push_int_value(load_word(actual + i));
+            }
+        }
+        stack_base += words;
+        break;
+    }
     case OPC_START:
         // Start of the object program.
         break;

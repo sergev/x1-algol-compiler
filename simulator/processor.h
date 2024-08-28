@@ -173,6 +173,7 @@ private:
 
     // Helper methods for dynamic arrays.
     void make_storage_function_frame(int elt_size);
+    void make_value_array_function_frame(int elt_size);
     Word load_word(unsigned addr);
 };
 

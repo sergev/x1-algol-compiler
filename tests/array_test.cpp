@@ -86,3 +86,61 @@ TEST_F(x1_machine, array_local_real)
 )";
     EXPECT_EQ(output, expect);
 }
+
+TEST_F(x1_machine, value_array_real)
+{
+    auto output = compile_and_run(R"(
+        _b_e_g_i_n _r_e_a_l _a_r_r_a_y a[7:8];
+            _p_r_o_c_e_d_u_r_e p(x);
+            _v_a_l_u_e x; _a_r_r_a_y x;
+            _b_e_g_i_n
+                print(x[7], x[8]);
+                x[8] := -1;
+            _e_n_d;
+            a[7] := 7.75; a[8] := 8.875;
+            p(a); print(a[8]);
+            _b_e_g_i_n
+                _r_e_a_l _a_r_r_a_y b[1:10];
+                b[7] := -7.5; b[8] := -8.25;
+                p(b); print(b[8]);
+            _e_n_d
+        _e_n_d
+)");
+    const std::string expect = R"(7.75
+8.875
+8.875
+-7.5
+-8.25
+-8.25
+)";
+    EXPECT_EQ(output, expect);
+}
+
+TEST_F(x1_machine, value_array_integer)
+{
+    auto output = compile_and_run(R"(
+        _b_e_g_i_n _i_n_t_e_g_e_r _a_r_r_a_y a[7:8];
+            _p_r_o_c_e_d_u_r_e p(x);
+            _v_a_l_u_e x; _i_n_t_e_g_e_r _a_r_r_a_y x;
+            _b_e_g_i_n
+                print(x[7], x[8]);
+                x[8] := -1;
+            _e_n_d;
+            a[7] := 7; a[8] := 8;
+            p(a); print(a[8]);
+            _b_e_g_i_n
+                _i_n_t_e_g_e_r _a_r_r_a_y b[1:10];
+                b[7] := -7; b[8] := -8;
+                p(b); print(b[8]);
+            _e_n_d
+        _e_n_d
+)");
+    const std::string expect = R"(7
+8
+8
+-7
+-8
+-8
+)";
+    EXPECT_EQ(output, expect);
+}

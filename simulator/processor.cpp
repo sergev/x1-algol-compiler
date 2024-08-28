@@ -307,33 +307,25 @@ bool Processor::step()
 //
 Real Processor::load_real(unsigned addr)
 {
-    Word hi = machine.mem_load(addr);
-    Word lo = machine.mem_load(addr + 1);
-    return x1_words_to_real(hi, lo);
+    if (addr < STACK_BASE) {
+        // From memory.
+        Word hi = machine.mem_load(addr);
+        Word lo = machine.mem_load(addr + 1);
+        return x1_words_to_real(hi, lo);
+    } else {
+        // From stack.
+        return stack.get(addr - STACK_BASE).get_real();
+    }
 }
 
 Stack_Cell Processor::load_value(const Stack_Cell &src)
 {
     auto addr = src.get_addr();
     if (src.is_int_addr()) {
-        Word result;
-        if (addr < STACK_BASE) {
-            // From memory.
-            result = machine.mem_load(addr);
-        } else {
-            // From stack.
-            result = stack.get(addr - STACK_BASE).get_int();
-        }
+        Word result = load_word(addr);
         return Stack_Cell{ Cell_Type::INTEGER_VALUE, result };
     } else if (src.is_real_addr()) {
-        Real result;
-        if (addr < STACK_BASE) {
-            // From memory.
-            result = load_real(addr);
-        } else {
-            // From stack.
-            result = stack.get(addr - STACK_BASE).get_real();
-        }
+        Real result = load_real(addr);
         return Stack_Cell{ Cell_Type::REAL_VALUE, result };
     } else {
         throw std::runtime_error("load_value() invoked on a non-address operand");
@@ -797,4 +789,34 @@ Word Processor::load_word(unsigned addr)
         return machine.mem_load(addr);
     else
         return stack.get(addr - STACK_BASE).get_int();
+}
+
+void Processor::make_value_array_function_frame(int elt_size)
+{
+    need_formal_address = true;
+    push_formal_value(core.S);
+    need_formal_address = false;
+    unsigned storage_fn = stack.pop_addr();
+    unsigned addr = load_word(storage_fn);
+    if (elt_size == 2) {
+        stack.push_real_addr(addr);
+        stack.push_real_addr(load_word(storage_fn + 1));
+    } else {
+        stack.push_int_addr(addr);
+        stack.push_int_addr(load_word(storage_fn + 1));
+    }
+    bool seen_limit = false;
+    for (int i = 2; i < 8; ++i) {
+        auto w = load_word(storage_fn + i);
+        int val = x1_to_integer(w);
+        if (i == 2 && val != elt_size) {
+            throw std::runtime_error("NYI: Value array type conversion");
+        }
+        stack.push_int_value(w);
+        seen_limit |= val < 0 && -val <= 32767;
+    }
+    if (!seen_limit) {
+        throw std::runtime_error("Too many dimensions for value array");
+    }
+    stack_base += 8;
 }
