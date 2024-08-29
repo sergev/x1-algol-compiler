@@ -130,6 +130,12 @@ public:
     // Read number from stream.
     static long double input_real(std::istream &stream);
 
+    // Print number in floating-point representation.
+    static void print_floating_point(std::ostream &stream, int n, int m, long double x);
+
+    // Print number in fixed-point representation, with or without a sign.
+    static void print_fixed_point(std::ostream &stream, int n, int m, long double x, bool need_sign);
+
     //
     // Trace methods.
     //

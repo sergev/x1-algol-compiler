@@ -12,7 +12,7 @@ As input device a tape reader is available, with a speed of
 1000 punches/second for 5-, 7-, or 8-hole punched tape. There
 are three input procedures for the tape reader:
 
-*7.2.3.* `real procedure READ;`
+**7.2.3.** `real procedure READ;`
 
 The function designator READ has meaning only if the input tape
 is punched according to the punching conventions for number
@@ -26,7 +26,7 @@ The relation <number> = READ is true if the decimal
 representation of <number> in the ALGOL text and of the number
 found by READ on the number tape are the same.
 
-*7.2.4.* `real procedure read; read:= READ;`
+**7.2.4.** `real procedure read; read:= READ;`
 
 `read` is just another name for READ.
 
@@ -50,7 +50,7 @@ case of doubt, you can:
   * output the intermediate results on the line printer,
   * punch the final answers.
 
-*7.3.1.2.* `procedure SPACE (n); value n; integer n;`
+**7.3.1.2.** `procedure SPACE (n); value n; integer n;`
 
 SPACE basically increases the position on the line by n. If the
 number of symbols on the line threatens to exceed 144, the
@@ -61,7 +61,7 @@ than:
 
     begin integer i; for i := 1 step 1 until n do PRSYM (93) end;
 
-*7.3.1.3.* `procedure TAB;`
+**7.3.1.3.** `procedure TAB;`
 
 TAB in principle increases the position on the line by at least
 2 and at most 9, so that an 8-fold is achieved (the positions
@@ -70,14 +70,14 @@ therefore located at the positions numbered 8, 16, 24, ... 136).
 If the line width is exceeded, a line advance is inserted
 and the position on the line is reduced by 144.
 
-*7.3.1.4.* `procedure NLCR;`
+**7.3.1.4.** `procedure NLCR;`
 
 NLCR provides a line feed and resets the position on the line
 to 0. If executing NLCR would cause the number of lines on the
 page to exceed 60, a transition to a new page is accomplished
 instead of a line feed.
 
-*7.3.1.8.* `procedure ABSFIXT (n,m,x); value n,m,x; integer n,m; real x;`
+**7.3.1.8.** `procedure ABSFIXT (n,m,x); value n,m,x; integer n,m; real x;`
 
 The absolute value of x is generally printed by the procedure
 ABSFIXT in fixed-point representation with n digits before the
@@ -97,13 +97,13 @@ the line by if m = 0 then n + 2 else n + m + 3. If this would
 cause the number of symbols on the line to exceed 144, the
 system will insert an NLCR before printing starts.
 
-*7.3.1.9.* `procedure FIXT (n,m,x); value n,m,x; integer n,m; real x;`
+**7.3.1.9.** `procedure FIXT (n,m,x); value n,m,x; integer n,m; real x;`
 
 The FIXT procedure differs from the ABSFIXT procedure only in
 that instead of the space immediately preceding the first digit
 or the decimal point, the sign of x (+ or -) is printed.
 
-*7.3.1.10.* `procedure FLOT (n,m,x); value n,m,x; integer n,m; real x;`
+**7.3.1.10.** `procedure FLOT (n,m,x); value n,m,x; integer n,m; real x;`
 
 The FLOT procedure prints the value of x in floating-point
 representation. The sign of x and the decimal point are
@@ -121,7 +121,7 @@ exponent thus obtained cannot be printed in m digits, or
 if 1 <= n <= 13, 1 <= m <= 3 does not apply, FLOT (n,m,x) is
 replaced by FLOT (13,3,x).
 
-*7.3.1.11.* `procedure PRINT (x); value x; real x;`
+**7.3.1.11.** `procedure PRINT (x); value x; real x;`
 
 If the absolute value of x is an integer less than
 1,099,511,627,776, x is printed according to FIXT (13,0,x),
@@ -130,11 +130,11 @@ to FLOT (13,3,x). In both cases, the position on the line is
 increased by 21, but if necessary, a NLCR is inserted first by
 the system.
 
-*7.3.1.12.* `procedure print (x); PRINT (x);`
+**7.3.1.12.** `procedure print (x); PRINT (x);`
 
 `print` is just another name for PRINT.
 
-*7.3.1.13.* `procedure PRINTTEXT (s); strings;`
+**7.3.1.13.** `procedure PRINTTEXT (s); strings;`
 
 The actual parameter in a call to PRINTTEXT may only be: a
 string, or a formal identifier (the case of a "passed" formal
@@ -155,7 +155,7 @@ programs from the two-minute service and will be extremely
 expensive because of the time the operator needs for his
 decisions and actions.
 
-*7.4.2.* `integer procedure XEEN (n); value n; integer n;`
+**7.4.2.** `integer procedure XEEN (n); value n; integer n;`
 
 The value of the function designator XEEN is a function of two
 parameters; the first is nothing but the argument of XEEN, n,
@@ -197,7 +197,7 @@ program, the operator will again be given the opportunity to
 give the system a value. The procedure is then exactly as
 described above.
 
-*7.4.3.* `procedure STOP;`
+**7.4.3.** `procedure STOP;`
 
 The procedure statement STOP has the sole effect that the next
 time XEEN is called, the previously specified value of the
@@ -206,7 +206,7 @@ no longer used, but the operator is asked for a new value.
 
 ### 7.5. Miscellaneous procedures
 
-*7.5.1.* `real procedure SUM (i, a, b, x);`
+**7.5.1.** `real procedure SUM (i, a, b, x);`
 
     value b;
     integer i, a, b;
@@ -223,7 +223,7 @@ The function designator SUM returns the sum of the values of
 the current expression corresponding to x, evaluated for values
 of i = a...b. For b < a, SUM returns the value 0.
 
-*7.5.3.* `integer procedure EVEN (n); value n; integer n;`
+**7.5.3.** `integer procedure EVEN (n); value n; integer n;`
 
     EVEN := if n ÷ 2 × 2 = n then 1 else -1;
 

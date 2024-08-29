@@ -342,3 +342,56 @@ void Machine::print_string(std::ostream &out, unsigned addr)
     }
     out << '\n';
 }
+
+//
+// Print number in fixed-point representation, with or without a sign.
+//
+// The value of x is generally printed in fixed-point representation
+// with n digits before the decimal point, m digits after it, the whole
+// preceded and followed by a space (when sign is not needed).
+// If m = 0, printing of the decimal point is suppressed.
+// In the integer part of x, non-significant zeros are replaced by
+// spaces, except for the zero at the units position when m = 0
+// (i.e., when the fractional part is missing).
+//
+// When flag need_sign is set, instead of the space immediately preceding
+// the first digit or the decimal point, the sign of x (+ or -) is printed.
+//
+// The number to be printed is rounded exactly to the last decimal
+// place to be printed. If after this its absolute value is > 10^n,
+// or if the relations n >= 0, m >= 0, n + m <= 21 are not
+// satisfied, the system replaces FIXT(n, m, x) by FLOT(13, 3, x).
+//
+// A call to FIXT(n, m, x) essentially increases the position on the
+// line by if m = 0 then n + 2 else n + m + 3.
+//
+void Machine::print_fixed_point(std::ostream &stream, int n, int m, long double x, bool need_sign)
+{
+    //TODO
+    stream << "TODO";
+}
+
+//
+// Print number in floating-point representation.
+//
+// The FLOT procedure prints the value of x in floating-point
+// representation. The sign of x and the decimal point are
+// followed by an n-digit mantissa, the symbol "10", the sign of
+// the decimal exponent, the absolute value of that exponent in m
+// digits (with insignificant zeros, except in the ones position,
+// replaced by spaces), and finally a space.
+//
+// For x = 0, a mantissa 0 and a decimal exponent 0, both with the
+// correct number of digits, are printed.
+//
+// For x ≠ 10, the decimal exponent is determined such that the
+// mantissa in absolute value is >= .1 and < 1. If the decimal
+// exponent thus obtained cannot be printed in m digits, or if 1
+// <= n <= 13, 1 <= m <= 3 does not apply, FLOT(n, m, x) is
+// replaced by FLOT(13, 3, x).
+//
+void Machine::print_floating_point(std::ostream &stream, int n, int m, long double x)
+{
+    //TODO
+    stream << "TODO";
+}

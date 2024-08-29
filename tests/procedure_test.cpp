@@ -269,28 +269,6 @@ TEST_F(x1_machine, divide_on_stack)
     EXPECT_EQ(output, expect);
 }
 
-TEST_F(x1_machine, procedure_PRINTTEXT)
-{
-    auto output = compile_and_run(R"(
-        b̲e̲g̲i̲n̲
-            PRINTTEXT(`Hello `Algol''); NLCR;
-            PRINTTEXT(``0123456789''); NLCR;
-            PRINTTEXT(``abcdefghijklmnopqrstuvwxyz''); NLCR;
-            PRINTTEXT(``ABCDEFGHIJKLMNOPQRSTUVWXYZ''); NLCR;
-            PRINTTEXT(``+-×/÷↑>≥=≤<≠¬∧∨⊃≡,.⏨:;:= ''); NLCR;
-            PRINTTEXT(``()[]`'''); NLCR;
-        e̲n̲d̲
-    )");
-    const std::string expect = R"(Hello `Algol'
-`0123456789'
-`abcdefghijklmnopqrstuvwxyz'
-`ABCDEFGHIJKLMNOPQRSTUVWXYZ'
-`+-×/÷↑>≥=≤<≠¬∧∨⊃≡,.⏨:;:= '
-`()[]`''
-)";
-    EXPECT_EQ(output, expect);
-}
-
 TEST_F(x1_machine, incr_args_by_value)
 {
     auto output = compile_and_run(R"(

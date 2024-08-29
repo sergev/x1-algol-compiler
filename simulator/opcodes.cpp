@@ -1055,6 +1055,31 @@ bool Processor::call_opc(unsigned opc)
         // TODO: case OPC_stop:
         // TODO: case OPC_P21:
 
+    case OPC_FLOT: {
+        // Print number in floating-point representation.
+        auto x = stack.pop_ieee();
+        auto m = stack.pop_integer();
+        auto n = stack.pop_integer();
+        Machine::print_floating_point(std::cout, n, m, x);
+        break;
+    }
+    case OPC_FIXT: {
+        // Print number in fixed-point representation, with sign.
+        auto x = stack.pop_ieee();
+        auto m = stack.pop_integer();
+        auto n = stack.pop_integer();
+        Machine::print_fixed_point(std::cout, n, m, x, true);
+        break;
+    }
+    case OPC_ABSFIXT: {
+        // Print absolute value in fixed-point representation, no sign.
+        auto x = stack.pop_ieee();
+        auto m = stack.pop_integer();
+        auto n = stack.pop_integer();
+        Machine::print_fixed_point(std::cout, n, m, x, false);
+        break;
+    }
+
     default: {
         std::ostringstream ostr;
         x1_print_instruction(ostr, opc);
