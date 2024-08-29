@@ -212,6 +212,7 @@ next:   i̲f̲ b ≠ x t̲h̲e̲n̲ b̲e̲g̲i̲n̲
         PRINTTEXT(`T = ');
         print(t+a);
         NLCR;
+        f̲o̲r̲ k := 1 s̲t̲e̲p̲ 1 u̲n̲t̲i̲l̲ 5 d̲o̲ b̲e̲g̲i̲n̲
             i̲f̲ k=1 t̲h̲e̲n̲ PRINTTEXT(`J ') e̲l̲s̲e̲
             i̲f̲ k=2 t̲h̲e̲n̲ PRINTTEXT(`S ') e̲l̲s̲e̲
             i̲f̲ k=3 t̲h̲e̲n̲ PRINTTEXT(`U ') e̲l̲s̲e̲
@@ -223,15 +224,15 @@ next:   i̲f̲ b ≠ x t̲h̲e̲n̲ b̲e̲g̲i̲n̲
         e̲n̲d̲
     e̲n̲d̲ TYP;
 
-    a = read;
+    a := read;
     f̲o̲r̲ k := 1 s̲t̲e̲p̲ 1 u̲n̲t̲i̲l̲ 15 d̲o̲ b̲e̲g̲i̲n̲
-        ya[k] = read;
-        za[k] = read
+        ya[k] := read;
+        za[k] := read
     e̲n̲d̲;
     f̲o̲r̲ k := 0 s̲t̲e̲p̲ 1 u̲n̲t̲i̲l̲ 5 d̲o̲
-        m[k] = read;
-    k2 = read;
-    e[1] = read;
+        m[k] := read;
+    k2 := read;
+    e[1] := read;
 
     f̲o̲r̲ k := 2 s̲t̲e̲p̲ 1 u̲n̲t̲i̲l̲ 60 d̲o̲
         e[k] := e[1];

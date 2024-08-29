@@ -55,6 +55,9 @@ private:
     // Non-local goto in progress.
     bool goto_flag{};
 
+    // True when stdin is connected to terminal.
+    static bool is_interactive;
+
 public:
     // Electrologica X1 processor.
     Processor cpu{ *this };
@@ -123,6 +126,9 @@ public:
     Word mem_fetch(unsigned addr);
     Word mem_load(unsigned addr);
     void mem_store(unsigned addr, Word val);
+
+    // Read number from stream.
+    static long double input_real(std::istream &stream);
 
     //
     // Trace methods.

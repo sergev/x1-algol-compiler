@@ -1007,7 +1007,10 @@ bool Processor::call_opc(unsigned opc)
         break;
         // TODO: case OPC_OBC6: // output buffer class 6
         // TODO: case OPC_FLOATER:
-        // TODO: case OPC_read:
+    case OPC_read:
+        // Read real number from stdin.
+        stack.push_ieee(Machine::input_real(std::cin));
+        break;
 
     case OPC_print: {
         // Print number(s).
