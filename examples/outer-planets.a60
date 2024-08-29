@@ -1,0 +1,262 @@
+b̲e̲g̲i̲n̲
+    c̲o̲m̲m̲e̲n̲t̲ JAZ164, R743, Outer Planets;
+    i̲n̲t̲e̲g̲e̲r̲ k, t;
+    r̲e̲a̲l̲ a, k2, x;
+    b̲o̲o̲l̲e̲a̲n̲ fi;
+    a̲r̲r̲a̲y̲ y, ya, z, za[1:15], m[0:5], e[1:60], d[1:33];
+
+    r̲e̲a̲l̲ p̲r̲o̲c̲e̲d̲u̲r̲e̲ SUM(i, a, b, x);
+        v̲a̲l̲u̲e̲ b;
+        i̲n̲t̲e̲g̲e̲r̲ i, a, b;
+        r̲e̲a̲l̲ x;
+    b̲e̲g̲i̲n̲
+        r̲e̲a̲l̲ s;
+        s := 0;
+        f̲o̲r̲ i := a s̲t̲e̲p̲ 1 u̲n̲t̲i̲l̲ b d̲o̲
+            s := s + x;
+        SUM := s
+    e̲n̲d̲ SUM;
+
+    r̲e̲a̲l̲ p̲r̲o̲c̲e̲d̲u̲r̲e̲ f(k); i̲n̲t̲e̲g̲e̲r̲ k; b̲e̲g̲i̲n̲
+        i̲n̲t̲e̲g̲e̲r̲ i, j, i3, j3;
+        r̲e̲a̲l̲ p;
+        o̲w̲n̲ r̲e̲a̲l̲ a̲r̲r̲a̲y̲ d[1:5, 1:5], r[1:5];
+
+        i̲f̲ k ≠ 1 t̲h̲e̲n̲ g̲o̲t̲o̲ A;
+        f̲o̲r̲ i := 1 s̲t̲e̲p̲ 1 u̲n̲t̲i̲l̲ 4 d̲o̲ b̲e̲g̲i̲n̲
+            i3 := 3*i;
+            f̲o̲r̲ j := i+1 s̲t̲e̲p̲ 1 u̲n̲t̲i̲l̲ 5 d̲o̲ b̲e̲g̲i̲n̲
+                j3 := 3*j;
+                p := (y[i3-2] - y[j3-2])↑2 + (y[i3-1] - y[j3-1])↑2 + (y[i3] - y[j3])↑2;
+                d[i, j] := d[j, i] := 1/p/sqrt(p)
+            e̲n̲d̲
+        e̲n̲d̲;
+        f̲o̲r̲ i := 1 s̲t̲e̲p̲ 1 u̲n̲t̲i̲l̲ 5 d̲o̲ b̲e̲g̲i̲n̲
+            i3 := 3*i;
+            d[i, i] := 0;
+            p := y[i3-2]↑2 + y[i3-1]↑2 + y[i3]↑2;
+            r[i] := 1/p/sqrt(p)
+        e̲n̲d̲;
+A:      i := (k - 1) ÷ 3 + 1;
+        f := k2 * (- m[0] * y[k] * r[i] +
+             SUM(j, 1, 5, m[j]*((y[3*(j-i)+k]-y[k])*d[i, j]-y[3*(j-i)+k]*r[j])))
+    e̲n̲d̲ f;
+
+    p̲r̲o̲c̲e̲d̲u̲r̲e̲ RK3n(x, a, b, y, ya, z, za, fxyj, j, e, d, fi, n);
+        v̲a̲l̲u̲e̲ b, fi, n;
+        i̲n̲t̲e̲g̲e̲r̲ j, n;
+        r̲e̲a̲l̲ x, a, b, fxyj;
+        b̲o̲o̲l̲e̲a̲n̲ fi;
+        a̲r̲r̲a̲y̲ y, ya, z, za, e, d;
+    b̲e̲g̲i̲n̲
+        i̲n̲t̲e̲g̲e̲r̲ jj;
+        r̲e̲a̲l̲ xl, h, hmin, int, hl, absh, fhm, discry, discrz, toly, tolz, mu, mu1, fhy, fhz;
+        b̲o̲o̲l̲e̲a̲n̲ last, first, reject;
+        a̲r̲r̲a̲y̲ yl, zl, k0, k1, k2, k3, k4, k5[1:n], ee[1:4*n];
+
+        i̲f̲ fi t̲h̲e̲n̲ b̲e̲g̲i̲n̲
+            d[3] := a;
+            f̲o̲r̲ jj := 1 s̲t̲e̲p̲ 1 u̲n̲t̲i̲l̲ n d̲o̲ b̲e̲g̲i̲n̲
+                d[jj+3] := ya[jj];
+                d[n+jj+3] := za[jj]
+            e̲n̲d̲
+        e̲n̲d̲;
+        d[1] := 0;
+        xl := d[3];
+        f̲o̲r̲ jj := 1 s̲t̲e̲p̲ 1 u̲n̲t̲i̲l̲ n d̲o̲ b̲e̲g̲i̲n̲
+            yl[jj] := d[jj+3];
+            zl[jj] := d[n+jj+3]
+        e̲n̲d̲;
+        i̲f̲ fi t̲h̲e̲n̲
+            d[2] := b - d[3];
+        absh := h := abs(d[2]);
+        i̲f̲ b - xl < 0 t̲h̲e̲n̲
+            h := - h;
+        int := abs(b - xl);
+        hmin := int * e[1] + e[2];
+        f̲o̲r̲ jj := 2 s̲t̲e̲p̲ 1 u̲n̲t̲i̲l̲ 2*n d̲o̲ b̲e̲g̲i̲n̲
+            hl := int * e[2*jj-1] + e[2*jj];
+            i̲f̲ hl < hmin t̲h̲e̲n̲
+                hmin := hl
+        e̲n̲d̲;
+        f̲o̲r̲ jj := 1 s̲t̲e̲p̲ 1 u̲n̲t̲i̲l̲ 4*n d̲o̲
+            ee[jj] := e[jj]/int;
+        first := reject := t̲r̲u̲e̲;
+        i̲f̲ fi t̲h̲e̲n̲ b̲e̲g̲i̲n̲
+            last := t̲r̲u̲e̲;
+            g̲o̲t̲o̲ step
+        e̲n̲d̲;
+test:   absh := abs(h);
+        i̲f̲ absh < hmin t̲h̲e̲n̲ b̲e̲g̲i̲n̲
+            h := i̲f̲ h > 0 t̲h̲e̲n̲ hmin e̲l̲s̲e̲ - hmin;
+            absh := hmin
+        e̲n̲d̲;
+        i̲f̲ h ≥ b - xl ≡ h ≥ 0 t̲h̲e̲n̲ b̲e̲g̲i̲n̲
+            d[2] := h;
+            last := t̲r̲u̲e̲;
+            h := b - xl;
+            absh := abs(h)
+        e̲n̲d̲ e̲l̲s̲e̲
+            last := f̲a̲l̲s̲e̲;
+step:   i̲f̲ reject t̲h̲e̲n̲ b̲e̲g̲i̲n̲
+            x := xl;
+            f̲o̲r̲ jj := 1 s̲t̲e̲p̲ 1 u̲n̲t̲i̲l̲ n d̲o̲
+                y[jj] := yl[jj];
+            f̲o̲r̲ j := 1 s̲t̲e̲p̲ 1 u̲n̲t̲i̲l̲ n d̲o̲
+                k0[j] := fxyj * h
+        e̲n̲d̲ e̲l̲s̲e̲ b̲e̲g̲i̲n̲
+            fhy := h/hl;
+            f̲o̲r̲ jj := 1 s̲t̲e̲p̲ 1 u̲n̲t̲i̲l̲ n d̲o̲
+                k0[jj] := k5[jj] * fhy
+        e̲n̲d̲;
+        x := xl + .27639 32022 50021 * h;
+        f̲o̲r̲ jj := 1 s̲t̲e̲p̲ 1 u̲n̲t̲i̲l̲ n d̲o̲
+            y[jj] := yl[jj] + (zl[jj] * .27639 32022 50021 +
+                     k0[jj] * .03819 66011 25011) * h;
+        f̲o̲r̲ j := 1 s̲t̲e̲p̲ 1 u̲n̲t̲i̲l̲ n d̲o̲
+            k1[j] := fxyj * h;
+        x := xl + .72360 67977 49979 * h;
+        f̲o̲r̲ jj := 1 s̲t̲e̲p̲ 1 u̲n̲t̲i̲l̲ n d̲o̲
+            y[jj] := yl[jj] + (zl[jj] * .72360 67977 49979 +
+                     k1[jj] * .26180 33988 74989) * h;
+        f̲o̲r̲ j := 1 s̲t̲e̲p̲ 1 u̲n̲t̲i̲l̲ n d̲o̲
+            k2[j] := fxyj * h;
+        x := xl + h * .5;
+        f̲o̲r̲ jj := 1 s̲t̲e̲p̲ 1 u̲n̲t̲i̲l̲ n d̲o̲
+            y[jj] := yl[jj] + (zl[jj] * .5 +
+                     k0[jj] * .04687 5 +
+                     k1[jj] * .07982 41558 39840 -
+                     k2[jj] * .00169 91558 39840) * h;
+        f̲o̲r̲ j := 1 s̲t̲e̲p̲ 1 u̲n̲t̲i̲l̲ n d̲o̲
+            k4[j] := fxyj * h;
+        x := i̲f̲ last t̲h̲e̲n̲ b e̲l̲s̲e̲ xl + h;
+        f̲o̲r̲ jj := 1 s̲t̲e̲p̲ 1 u̲n̲t̲i̲l̲ n d̲o̲
+            y[jj] := yl[jj] + (zl[jj] +
+                     k0[jj] * .30901 69943 74947 +
+                     k2[jj] * .19098 30056 25053) * h;
+        f̲o̲r̲ j := 1 s̲t̲e̲p̲ 1 u̲n̲t̲i̲l̲ n d̲o̲
+            k3[j] := fxyj * h;
+        f̲o̲r̲ jj := 1 s̲t̲e̲p̲ 1 u̲n̲t̲i̲l̲ n d̲o̲
+            y[jj] := yl[jj] + (zl[jj] +
+                     k0[jj] * .08333 33333 33333 +
+                     k1[jj] * .30150 28323 95825 +
+                     k2[jj] * .11516 38342 70842) * h;
+        f̲o̲r̲ j := 1 s̲t̲e̲p̲ 1 u̲n̲t̲i̲l̲ n d̲o̲
+            k5[j] := fxyj * h;
+        reject := f̲a̲l̲s̲e̲;
+        fhm := 0;
+        f̲o̲r̲ jj := 1 s̲t̲e̲p̲ 1 u̲n̲t̲i̲l̲ n d̲o̲ b̲e̲g̲i̲n̲
+            discry := abs((- k0[jj] * .5 + k1[jj] * 1.80901 69943 74947 +
+                          k2[jj] * .69098 30056 25053 - k4[jj] * 2) * h);
+            discrz := abs((k0[jj] - k3[jj]) * 2 - (k1[jj] + k2[jj]) * 10 +
+                          k4[jj] * 16 + k5[jj] * 4);
+            toly := absh * (abs(zl[jj]) * ee[2*jj-1] + ee[2*jj]);
+            tolz := abs(k0[jj]) * ee[2*(jj+n)-1] + absh * ee[2*(jj+n)];
+            reject := discry > toly ∨ discrz > tolz ∨ reject;
+            fhy := discry/toly;
+            fhz := discrz/tolz;
+            i̲f̲ fhz > fhy t̲h̲e̲n̲
+                fhy := fhz;
+            i̲f̲ fhy > fhm t̲h̲e̲n̲
+                fhm := fhy
+        e̲n̲d̲;
+        mu := 1/(1 + fhm) + .45;
+        i̲f̲ reject t̲h̲e̲n̲ b̲e̲g̲i̲n̲
+            i̲f̲ absh ≤ hmin t̲h̲e̲n̲ b̲e̲g̲i̲n̲
+                d[1] := d[1] + 1;
+                f̲o̲r̲ jj := 1 s̲t̲e̲p̲ 1 u̲n̲t̲i̲l̲ n d̲o̲ b̲e̲g̲i̲n̲
+                    y[jj] := yl[jj];
+                    z[jj] := zl[jj]
+                e̲n̲d̲;
+                first := t̲r̲u̲e̲;
+                g̲o̲t̲o̲ next
+            e̲n̲d̲;
+            h := mu * h;
+            g̲o̲t̲o̲ test
+        e̲n̲d̲ rej;
+        i̲f̲ first t̲h̲e̲n̲ b̲e̲g̲i̲n̲
+            first := f̲a̲l̲s̲e̲;
+            hl := h;
+            h := mu * h;
+            g̲o̲t̲o̲ acc
+        e̲n̲d̲;
+        fhy := mu * h/hl + mu - mu1;
+        hl := h;
+        h := fhy * h;
+acc:    mu1 := mu;
+        f̲o̲r̲ jj := 1 s̲t̲e̲p̲ 1 u̲n̲t̲i̲l̲ n d̲o̲
+            z[jj] := zl[jj] + (k0[jj] + k3[jj]) * .08333 33333 33333 +
+                     (k1[jj] + k2[jj]) * .41666 66666 66667;
+next:   i̲f̲ b ≠ x t̲h̲e̲n̲ b̲e̲g̲i̲n̲
+            xl := x;
+            f̲o̲r̲ jj := 1 s̲t̲e̲p̲ 1 u̲n̲t̲i̲l̲ n d̲o̲ b̲e̲g̲i̲n̲
+                yl[jj] := y[jj];
+                zl[jj] := z[jj]
+            e̲n̲d̲;
+            g̲o̲t̲o̲ test
+        e̲n̲d̲;
+        i̲f̲ ¬ last t̲h̲e̲n̲
+            d[2] := h;
+        d[3] := x;
+        f̲o̲r̲ jj := 1 s̲t̲e̲p̲ 1 u̲n̲t̲i̲l̲ n d̲o̲ b̲e̲g̲i̲n̲
+            d[jj+3] := y[jj];
+            d[n+jj+3] := z[jj]
+        e̲n̲d̲
+    e̲n̲d̲ RK3n;
+
+    p̲r̲o̲c̲e̲d̲u̲r̲e̲ TYP(x);
+        a̲r̲r̲a̲y̲ x;
+    b̲e̲g̲i̲n̲
+        i̲n̲t̲e̲g̲e̲r̲ k;
+        NLCR;
+        PRINTTEXT(`T = ');
+        print(t+a);
+        NLCR;
+            i̲f̲ k=1 t̲h̲e̲n̲ PRINTTEXT(`J ') e̲l̲s̲e̲
+            i̲f̲ k=2 t̲h̲e̲n̲ PRINTTEXT(`S ') e̲l̲s̲e̲
+            i̲f̲ k=3 t̲h̲e̲n̲ PRINTTEXT(`U ') e̲l̲s̲e̲
+            i̲f̲ k=4 t̲h̲e̲n̲ PRINTTEXT(`N ') e̲l̲s̲e̲
+                PRINTTEXT(`P ');
+            print(x[3*k-2]);
+            print(x[3*k-1]);
+            print(x[3*k]);
+        e̲n̲d̲
+    e̲n̲d̲ TYP;
+
+    a = read;
+    f̲o̲r̲ k := 1 s̲t̲e̲p̲ 1 u̲n̲t̲i̲l̲ 15 d̲o̲ b̲e̲g̲i̲n̲
+        ya[k] = read;
+        za[k] = read
+    e̲n̲d̲;
+    f̲o̲r̲ k := 0 s̲t̲e̲p̲ 1 u̲n̲t̲i̲l̲ 5 d̲o̲
+        m[k] = read;
+    k2 = read;
+    e[1] = read;
+
+    f̲o̲r̲ k := 2 s̲t̲e̲p̲ 1 u̲n̲t̲i̲l̲ 60 d̲o̲
+        e[k] := e[1];
+    PRINTTEXT(`JAZ164, R743, Outer Planets');
+    NLCR;
+    NLCR;
+    f̲o̲r̲ k := 1 s̲t̲e̲p̲ 1 u̲n̲t̲i̲l̲ 15 d̲o̲ b̲e̲g̲i̲n̲
+        print(ya[k]);
+        print(za[k]);
+    e̲n̲d̲;
+    NLCR;
+    f̲o̲r̲ k := 0 s̲t̲e̲p̲ 1 u̲n̲t̲i̲l̲ 5 d̲o̲ b̲e̲g̲i̲n̲
+        print(m[k]);
+    e̲n̲d̲;
+    NLCR;
+    print(k2);
+    NLCR;
+    PRINTTEXT(`eps = ');
+    print(e[1]);
+    t := 0;
+    TYP(ya);
+    fi := t̲r̲u̲e̲;
+    f̲o̲r̲ t := 500, 1000 d̲o̲ b̲e̲g̲i̲n̲
+        RK3n(x, 0, t, y, ya, z, za, f(k), k, e, d, fi, 15);
+        fi := f̲a̲l̲s̲e̲;
+        TYP(y)
+    e̲n̲d̲
+e̲n̲d̲
