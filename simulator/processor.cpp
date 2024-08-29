@@ -757,7 +757,8 @@ void Processor::update_display(unsigned level)
 
 void Processor::make_storage_function_frame(int elt_size)
 {
-    int ndim = core.S;
+    int nitems = core.S;
+    int ndim = (stack.count() - stack_base) / 2;
     std::vector<std::pair<int, int>> dims;
     for (int i = 0; i < ndim; ++i) {
         int right = stack.pop_integer();
@@ -780,7 +781,13 @@ void Processor::make_storage_function_frame(int elt_size)
     }
     stack.set_int_value(zero_base, integer_to_x1(offset));
     stack.push_int_value(integer_to_x1(-stride));
-    stack_base += ndim + 3;
+    // Replicate the storage function (nitems-1) times.
+    for (int i = 0; i < nitems - 1; ++i) {
+        for (int j = 0; j < ndim + 3; ++j) {
+            stack.push(stack.get(stack_base + j));
+        }
+    }
+    stack_base += nitems * (ndim + 3);
 }
 
 Word Processor::load_word(unsigned addr)
