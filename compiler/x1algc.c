@@ -92,7 +92,7 @@ int P_eof(FILE *f)
 #define tlib   800  /*0-25-00*/
 #define plie   6783 /*6-19-31*/
 #define bim    (mcpb+MCPLEN+2)  /*0-29-nn */
-#define nlscop 34
+#define nlscop 41
 #define nlsc0  48
 #define mlib   800   /*0-25-00*/
 #define klie   10165 /*9-29-21*/
@@ -1674,7 +1674,7 @@ Local Void production_of_object_program(int opht, struct LOC_main_scan *LINK)
         }
         if (operator_ > 127 && operator_ <= 141)
             fill_result_list(operator_ - 57, 0);
-        else if (operator_ > 141 && operator_ <= 151)
+        else if (operator_ > 141 && operator_ <= 152)
             fill_result_list(operator_ - 40, 0);
         else {
             stop(22, "Special function in object program");
@@ -3438,7 +3438,7 @@ void prefill_op_proc(const char * name, int o) {
     int n;
     if (76 <= o && o <= 84)
         n = 57;
-    else if (102 <= o && o <= 108)
+    else if (102 <= o && o <= 112)
         n = 40;
     else {
         printf("Bad OPC %d for op proc\n", o);
@@ -3692,6 +3692,9 @@ int main(int argc, char *argv[])
     prefill_op_proc("ln", 82);
     prefill_op_proc("exp", 83);
     prefill_op_proc("entier", 84);
+    prefill_op_proc("FLOT", 110);     // using OPC for FLOT, FIXT, ABSFIXT
+    prefill_op_proc("FIXT", 111);     // temporarily for convenience
+    prefill_op_proc("ABSFIXT", 112);
 
     if (prefill_cnt != nlscop) {
         printf("Internal error: nlscop = %d, should be %d\n", nlscop, prefill_cnt);
@@ -3702,9 +3705,9 @@ int main(int argc, char *argv[])
     prefill_lib_proc("PRINTTEXT", 1);
     prefill_lib_proc("EVEN", 2);
     // prefill_lib_proc("arctan", 3);     
-    prefill_lib_proc("FLOT", 5);
-    prefill_lib_proc("FIXT", 6);
-    prefill_lib_proc("ABSFIXT", 24);
+    // prefill_lib_proc("FLOT", 5);
+    // prefill_lib_proc("FIXT", 6);
+    // prefill_lib_proc("ABSFIXT", 24);
 
     if (prefill_cnt != nlsc0) {
         printf("Internal error: nlsc0 = %d, should be %d\n", nlsc0, prefill_cnt);
@@ -3771,7 +3774,7 @@ int main(int argc, char *argv[])
     opc_table[52] = 57;
     opc_table[53] = 59;
     opc_table[54] = 60;
-    for (ii = 55; ii <= 102; ii++)
+    for (ii = 55; ii <= 105; ii++)
         opc_table[ii] = ii + 7;
 
     ii = crfb*2;
@@ -3779,11 +3782,11 @@ int main(int argc, char *argv[])
     put_crf_entry(&ii, 30, 0, 7680); /* SUM */
     put_crf_entry(&ii, 20, 1, 7680); /* PRINTTEXT */
     put_crf_entry(&ii, 14, 2, 7680); /* EVEN */
-    put_crf_entry(&ii, 63, 3, 7680); /* arctan */
-    put_crf_entry(&ii, 15, 4, 3, 7680); /* MCP4 is needed by MCP3 */
-    put_crf_entry(&ii, 100, 5, 7680);   /* FLOT */
-    put_crf_entry(&ii, 134, 6, 24, 7680); /* MCP6 (FIXT) is needed by MCP24 */
-    put_crf_entry(&ii, 21, 24, 7680);     /* ABSFIXT */
+    // put_crf_entry(&ii, 63, 3, 7680); /* arctan - back to OPC*/
+    // put_crf_entry(&ii, 15, 4, 3, 7680); /* MCP4 is needed by MCP3 */
+    // put_crf_entry(&ii, 100, 5, 7680);   /* FLOT - now an OPC */
+    // put_crf_entry(&ii, 134, 6, 24, 7680); /* MCP6 (FIXT) is needed by MCP24 - now an OPC */
+    // put_crf_entry(&ii, 21, 24, 7680);     /* ABSFIXT - now an OPC */
     put_crf_entry(&ii, 7680);
     put_crf_entry(&ii, 7680);
 
