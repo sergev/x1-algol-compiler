@@ -2,8 +2,8 @@ b̲e̲g̲i̲n̲
     c̲o̲m̲m̲e̲n̲t̲ JAZ164, R743, Outer Planets;
     i̲n̲t̲e̲g̲e̲r̲ k, t;
     r̲e̲a̲l̲ a, k2, x;
-    b̲o̲o̲l̲e̲a̲n̲ fi;
-    a̲r̲r̲a̲y̲ y, ya, z, za[1:15], m[0:5], e[1:60], d[1:33];
+    B̲o̲o̲l̲e̲a̲n̲ fi;
+    a̲r̲r̲a̲y̲ y[1:15], ya[1:15], z[1:15], za[1:15], m[0:5], e[1:60], d[1:33];
 
     r̲e̲a̲l̲ p̲r̲o̲c̲e̲d̲u̲r̲e̲ SUM(i, a, b, x);
         v̲a̲l̲u̲e̲ b;
@@ -46,13 +46,13 @@ A:      i := (k - 1) ÷ 3 + 1;
         v̲a̲l̲u̲e̲ b, fi, n;
         i̲n̲t̲e̲g̲e̲r̲ j, n;
         r̲e̲a̲l̲ x, a, b, fxyj;
-        b̲o̲o̲l̲e̲a̲n̲ fi;
+        B̲o̲o̲l̲e̲a̲n̲ fi;
         a̲r̲r̲a̲y̲ y, ya, z, za, e, d;
     b̲e̲g̲i̲n̲
         i̲n̲t̲e̲g̲e̲r̲ jj;
         r̲e̲a̲l̲ xl, h, hmin, int, hl, absh, fhm, discry, discrz, toly, tolz, mu, mu1, fhy, fhz;
-        b̲o̲o̲l̲e̲a̲n̲ last, first, reject;
-        a̲r̲r̲a̲y̲ yl, zl, k0, k1, k2, k3, k4, k5[1:n], ee[1:4*n];
+        B̲o̲o̲l̲e̲a̲n̲ last, first, reject;
+        a̲r̲r̲a̲y̲ yl[1:n], zl[1:n], k0[1:n], k1[1:n], k2[1:n], k3[1:n], k4[1:n], k5[1:n], ee[1:4*n];
 
         i̲f̲ fi t̲h̲e̲n̲ b̲e̲g̲i̲n̲
             d[3] := a;
