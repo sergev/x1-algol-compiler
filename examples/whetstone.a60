@@ -62,13 +62,7 @@ LAB:
     i̲n̲t̲e̲g̲e̲r̲ N, J, K;
     r̲e̲a̲l̲ X1, X2, X3, X4;
     b̲e̲g̲i̲n̲
-        print(N);
-        print(J);
-        print(K);
-        print(X1);
-        print(X2);
-        print(X3);
-        print(X4);
+        print(N, J, K, X1, X2, X3, X4);
         NLCR
     e̲n̲d̲;
 
