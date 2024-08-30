@@ -88,8 +88,8 @@ replaced by spaces, except for the zero at the units position
 when m = 0 (i.e., when the fractional part is missing).
 
 The number to be printed is rounded exactly to the last decimal
-place to be printed. If after this its absolute value is >
-10^n, or if the relations n >= 0, m >= 0, n + m <= 21 are not
+place to be printed. If after this its absolute value is >= 10^n,
+or if the relations n >= 0, m >= 0, n + m <= 21 are not
 satisfied, the system replaces ABSFIXT (n,m,x) by FLOT (13,3,x).
 
 A call to ABSFIXT(n,m,x) essentially increases the position on

@@ -5,6 +5,7 @@
 #include <unistd.h>
 
 #include <algorithm>
+#include <cassert>
 #include <cctype>
 #include <cstdio>
 #include <cstdlib>
@@ -358,17 +359,62 @@ void Machine::print_string(std::ostream &out, unsigned addr)
 // the first digit or the decimal point, the sign of x (+ or -) is printed.
 //
 // The number to be printed is rounded exactly to the last decimal
-// place to be printed. If after this its absolute value is > 10^n,
+// place to be printed. If after this its absolute value is >= 10^n,
 // or if the relations n >= 0, m >= 0, n + m <= 21 are not
 // satisfied, the system replaces FIXT(n, m, x) by FLOT(13, 3, x).
 //
 // A call to FIXT(n, m, x) essentially increases the position on the
 // line by if m = 0 then n + 2 else n + m + 3.
 //
-void Machine::print_fixed_point(std::ostream &stream, int n, int m, long double x, bool need_sign)
+void Machine::print_fixed_point(std::ostream &out, int n, int m, long double x0, bool need_sign)
 {
-    //TODO
-    stream << "TODO";
+    long double x    = x0;
+    char sign_symbol = need_sign ? '+' : ' ';
+
+    // Make x positive.
+    if (std::signbit(x)) {
+        if (need_sign) {
+            sign_symbol = '-';
+        }
+        x = -x;
+    }
+
+    // Round.
+    x += 0.5 / powl(10.0, m);
+
+    // Scale to range [0, 1).
+    if (n > 0 && n <= 21) {
+        x /= powl(10.0, n);
+    }
+    if (n < 0 || m < 0 || n+m > 21 || n+m < 1 || x >= 1.0) {
+        // Cannot print as fixed point format.
+        print_floating_point(out, 13, 3, x0);
+        return;
+    }
+    out << sign_symbol;
+
+    // Print digit by digit.
+    bool suppress_zeroes = true;
+    for (int count = 0; count < n+m; count++) {
+        x *= 10.0;
+        int digit = x;
+        assert(digit >= 0 && digit <= 9);
+        x -= digit;
+
+        if (count + 1 == n) {
+            suppress_zeroes = false;
+        }
+        if (count == n && m > 0) {
+            out << '.';
+        }
+        if (digit == 0 && suppress_zeroes) {
+            out << ' ';
+        } else {
+            out << digit;
+            suppress_zeroes = false;
+        }
+    }
+    out << ' ';
 }
 
 //
@@ -390,8 +436,8 @@ void Machine::print_fixed_point(std::ostream &stream, int n, int m, long double 
 // <= n <= 13, 1 <= m <= 3 does not apply, FLOT(n, m, x) is
 // replaced by FLOT(13, 3, x).
 //
-void Machine::print_floating_point(std::ostream &stream, int n, int m, long double x)
+void Machine::print_floating_point(std::ostream &out, int n, int m, long double x)
 {
     //TODO
-    stream << "TODO";
+    out << "TODO";
 }
