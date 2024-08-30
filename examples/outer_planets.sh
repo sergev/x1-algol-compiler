@@ -4,8 +4,8 @@
 # "The Dijkstra–Zonneveld ALGOL 60 compiler for the Electrologica X1"
 # by Kruseman Aretz.
 #
-x1algc outer-planets.a60 ../library/sum.lib > outer-planets.x1
-x1sim outer-planets.x1 << END_OF_INPUT
+x1algc outer_planets.a60 ../library/sum.lib > outer_planets.x1
+x1sim outer_planets.x1 << END_OF_INPUT
 
 2430000.5
 
