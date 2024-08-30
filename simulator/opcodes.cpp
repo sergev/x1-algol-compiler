@@ -1002,7 +1002,27 @@ bool Processor::call_opc(unsigned opc)
         // End of the object program.
         return true;
 
-        // TODO: case OPC_TFP:  // take formal parameter
+    case OPC_TFP: {
+        // take formal parameter
+        auto block_level = get_block_level();
+        if (block_level == 0) {
+            // Allocate a block level.
+            auto prev_fp = stack.get(frame_ptr + Frame_Offset::FP).get_addr();
+            auto prev_bn = stack.get(prev_fp + Frame_Offset::BN).get_int();
+            block_level  = prev_bn + 1;
+            set_block_level(block_level);
+            update_display(block_level);
+        }
+        // Get argument.
+        push_formal_value(0240 + block_level);
+
+        // Remove dummy argument from stack.
+        auto result = stack.pop();
+        stack_base -= 2;
+        stack.erase(stack_base);
+        stack.push(result);
+        break;
+    }
 
     case OPC_TAS:
         // type Algol symbol

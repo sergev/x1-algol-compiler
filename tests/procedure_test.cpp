@@ -605,7 +605,7 @@ TEST_F(x1_machine, procedure_as_arg)
             p̲r̲o̲c̲e̲d̲u̲r̲e̲ pr(k); i̲n̲t̲e̲g̲e̲r̲ k;
                 print(k);
 
-            apply(pr, 123);  NLCR;
+            apply(pr, 123); NLCR;
         e̲n̲d̲
     )");
     const std::string expect = "123\n";
@@ -622,10 +622,41 @@ TEST_F(x1_machine, function_as_arg)
             i̲n̲t̲e̲g̲e̲r̲ p̲r̲o̲c̲e̲d̲u̲r̲e̲ incr(x); i̲n̲t̲e̲g̲e̲r̲ x;
                 incr := x + 1;
 
-            print(apply(incr, 123));  NLCR;
+            print(apply(incr, 123)); NLCR;
         e̲n̲d̲
     )");
     const std::string expect = "124\n";
+    EXPECT_EQ(output, expect);
+}
+
+TEST_F(x1_machine, DISABLED_elementary_function_as_arg)
+{
+    auto output = compile_and_run(R"(
+        b̲e̲g̲i̲n̲
+            p̲r̲o̲c̲e̲d̲u̲r̲e̲ apply(f, x); r̲e̲a̲l̲ p̲r̲o̲c̲e̲d̲u̲r̲e̲ f; r̲e̲a̲l̲ x;
+                print(f(x));
+
+            apply(abs, -123.456); NLCR;
+            apply(sign, -123.456); NLCR;
+            apply(sqrt, 2); NLCR;
+            apply(sin, 1.5); NLCR;
+            apply(cos, 1.5); NLCR;
+            apply(arctan, 2); NLCR;
+            apply(ln, 2); NLCR;
+            apply(exp, 6); NLCR;
+            apply(entier, -98.7777); NLCR;
+        e̲n̲d̲
+    )");
+    const std::string expect = R"(123.456
+-1
+1.414213562373
+0.9974949866037
+0.07073720166773
+1.107148717794
+0.6931471805601
+403.4287934927
+-99
+)";
     EXPECT_EQ(output, expect);
 }
 
