@@ -162,19 +162,16 @@ TEST_F(x1_machine, print_integers)
 {
     auto output = compile_and_run(R"(
         b̲e̲g̲i̲n̲
-            print(123);
-            print(-123, 67108863);
-            print;
-            print(-67108863, 0, -0);
+            print(123); NLCR;
+            print(-123, 67108863); NLCR;
+            NLCR;
+            print(-67108863, 0, -0); NLCR;
         e̲n̲d̲
     )");
     const std::string expect = R"(123
--123
-67108863
+-123 67108863
 
--67108863
-0
--0
+-67108863 0 -0
 )";
     EXPECT_EQ(output, expect);
 }
@@ -183,22 +180,18 @@ TEST_F(x1_machine, print_reals)
 {
     auto output = compile_and_run(R"(
         b̲e̲g̲i̲n̲
-            print(123.456);
-            print(-123.456, 1.615850303564⏨616);
-            print;
-            print(-1.615850303564⏨616, 0.0, -0.0);
-            print(1.547173023691⏨-617, -1.547173023691⏨-617);
+            print(123.456); NLCR;
+            print(-123.456, 1.615850303564⏨616); NLCR;
+            NLCR;
+            print(-1.615850303564⏨616, 0.0, -0.0); NLCR;
+            print(1.547173023691⏨-617, -1.547173023691⏨-617); NLCR;
         e̲n̲d̲
     )");
     const std::string expect = R"(123.456
--123.456
-1.615850303564e+616
+-123.456 1.615850303564e+616
 
--1.615850303564e+616
-0
--0
-1.547173023691e-617
--1.547173023691e-617
+-1.615850303564e+616 0 -0
+1.547173023691e-617 -1.547173023691e-617
 )";
     EXPECT_EQ(output, expect);
 }

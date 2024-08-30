@@ -527,3 +527,22 @@ void Machine::print_floating_point(std::ostream &out, int n, int m, long double 
     }
     out << ' ';
 }
+
+//
+// Print number in fixed-point or floating-point representation.
+//
+// If the absolute value of x is an integer less than
+// 1,099,511,627,776, x is printed according to FIXT(13, 0, x),
+// followed by 6 extra spaces. Otherwise, it is printed according
+// to FLOT(13, 3, x). In both cases, the position on the line is
+// increased by 21.
+//
+void Machine::print_int_or_real(std::ostream &out, long double x)
+{
+    if (x == floorl(x) && fabsl(x) < 1'099'511'627'776L) {
+        print_fixed_point(out, 13, 0, x, true);
+        out << "      ";
+    } else {
+        print_floating_point(out, 13, 3, x);
+    }
+}

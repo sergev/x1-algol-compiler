@@ -1017,23 +1017,32 @@ bool Processor::call_opc(unsigned opc)
 
     case OPC_print: {
         // Print number(s).
-        if (stack.count() == stack_base) {
-            // Emit empty line.
-            std::cout << '\n';
-        } else {
-            for (auto i = stack_base; i < stack.count(); i++) {
-                auto item = stack.get(i);
-                if (item.is_int_value()) {
-                    x1_print_integer(std::cout, item.get_int());
-                } else if (item.is_real_value()) {
-                    x1_print_real(std::cout, item.get_real());
-                } else {
-                    throw std::runtime_error("Cannot print address");
-                }
-                std::cout << '\n';
+#if 1
+        // Modern version: any number of arguments.
+        for (auto i = stack_base; i < stack.count(); i++) {
+            if (i > stack_base) {
+                // Put space between arguments.
+                std::cout << ' ';
             }
-            stack.erase(stack_base);
+            auto item = stack.get(i);
+            if (item.is_int_value()) {
+                x1_print_integer(std::cout, item.get_int());
+            } else if (item.is_real_value()) {
+                x1_print_real(std::cout, item.get_real());
+            } else {
+                throw std::runtime_error("Cannot print address");
+            }
         }
+        stack.erase(stack_base);
+#else
+        // Authentic version, as in X8 Algol.
+        if (stack.count() != stack_base + 1) {
+            throw std::runtime_error("Wrong argument for print()");
+        }
+        auto x = stack.pop_ieee();
+        Machine::print_int_or_real(std::cout, x);
+#endif
+        std::cout << std::flush;
         break;
     }
 
@@ -1064,6 +1073,7 @@ bool Processor::call_opc(unsigned opc)
         auto m = stack.pop_integer();
         auto n = stack.pop_integer();
         Machine::print_floating_point(std::cout, n, m, x);
+        std::cout << std::flush;
         break;
     }
     case OPC_FIXT: {
@@ -1072,6 +1082,7 @@ bool Processor::call_opc(unsigned opc)
         auto m = stack.pop_integer();
         auto n = stack.pop_integer();
         Machine::print_fixed_point(std::cout, n, m, x, true);
+        std::cout << std::flush;
         break;
     }
     case OPC_ABSFIXT: {
@@ -1080,6 +1091,7 @@ bool Processor::call_opc(unsigned opc)
         auto m = stack.pop_integer();
         auto n = stack.pop_integer();
         Machine::print_fixed_point(std::cout, n, m, x, false);
+        std::cout << std::flush;
         break;
     }
 

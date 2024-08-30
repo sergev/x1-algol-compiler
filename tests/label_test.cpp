@@ -9,10 +9,10 @@ TEST_F(x1_machine, label_arg)
             p̲r̲o̲c̲e̲d̲u̲r̲e̲ jump(x); l̲a̲b̲e̲l̲ x;
                 g̲o̲t̲o̲ x;
 
-            print(123);
+            print(123); NLCR;
             jump(L);
-            print(456);
-    L:      print(789);
+            print(456); NLCR;
+    L:      print(789); NLCR;
         e̲n̲d̲
     )");
     const std::string expect = R"(123
@@ -30,13 +30,13 @@ TEST_F(x1_machine, switch_one_two_three)
             i := 0;
     next:   i := i + 1;
             g̲o̲ t̲o̲ sw[i];
-    three:  print(33);
+    three:  print(33); NLCR;
             g̲o̲ t̲o̲ next;
-    two:    print(22);
+    two:    print(22); NLCR;
             g̲o̲ t̲o̲ next;
-    one:    print(11);
+    one:    print(11); NLCR;
             g̲o̲ t̲o̲ next;
-    done:   print(0);
+    done:   print(0); NLCR;
         e̲n̲d̲
     )");
     const std::string expect = R"(11
@@ -60,13 +60,13 @@ TEST_F(x1_machine, jump_one_two_three)
             i := 0;
     next:   i := i + 1;
             jump(sw, i);
-    three:  print(33);
+    three:  print(33); NLCR;
             g̲o̲ t̲o̲ next;
-    two:    print(22);
+    two:    print(22); NLCR;
             g̲o̲ t̲o̲ next;
-    one:    print(11);
+    one:    print(11); NLCR;
             g̲o̲ t̲o̲ next;
-    done:   print(0);
+    done:   print(0); NLCR;
         e̲n̲d̲
     )");
     const std::string expect = R"(11
@@ -128,13 +128,13 @@ TEST_F(x1_machine, switch_at_level1)
                 i := 0;
     next:       i := i + 1;
                 jump(sw, i);
-    three:      print(33);
+    three:      print(33); NLCR;
                 g̲o̲ t̲o̲ next;
-    two:        print(22);
+    two:        print(22); NLCR;
                 g̲o̲ t̲o̲ next;
-    one:        print(11);
+    one:        print(11); NLCR;
                 g̲o̲ t̲o̲ next;
-    done:       print(0);
+    done:       print(0); NLCR;
             e̲n̲d̲;
 
             level1;
@@ -160,8 +160,9 @@ TEST_F(x1_machine, goto_recursive)
                 i̲f̲ i < 20 t̲h̲e̲n̲ b̲e̲g̲i̲n̲
                     m(i+1, y, pr);
                     g̲o̲t̲o̲ x;
-                e̲n̲d̲ e̲l̲s̲e̲ i̲f̲ f̲a̲l̲s̲e̲ t̲h̲e̲n̲
-    pr:             print(i);
+                e̲n̲d̲ e̲l̲s̲e̲ i̲f̲ f̲a̲l̲s̲e̲ t̲h̲e̲n̲ b̲e̲g̲i̲n̲
+    pr:             print(i); NLCR
+                e̲n̲d̲
             e̲n̲d̲;
 
             m(0, done, done);

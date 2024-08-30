@@ -137,6 +137,9 @@ public:
     static void print_fixed_point(std::ostream &stream, int n, int m, long double x,
                                   bool need_sign);
 
+    // Print number in fixed-point or floating-point representation.
+    static void print_int_or_real(std::ostream &stream, long double x);
+
     //
     // Trace methods.
     //

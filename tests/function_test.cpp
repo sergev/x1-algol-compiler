@@ -6,16 +6,16 @@ TEST_F(x1_machine, function_abs)
 {
     auto output = compile_and_run(R"(
         b̲e̲g̲i̲n̲
-            print(abs(-123.456));
-            print(abs(123.456));
-            print(abs(-1.615850303564⏨616));
-            print(abs(1.615850303564⏨616));
-            print(abs(-0.0));
-            print(abs(0.0));
-            print(abs(-67108863));
-            print(abs(67108863));
-            print(abs(-0));
-            print(abs(0));
+            print(abs(-123.456)); NLCR;
+            print(abs(123.456)); NLCR;
+            print(abs(-1.615850303564⏨616)); NLCR;
+            print(abs(1.615850303564⏨616)); NLCR;
+            print(abs(-0.0)); NLCR;
+            print(abs(0.0)); NLCR;
+            print(abs(-67108863)); NLCR;
+            print(abs(67108863)); NLCR;
+            print(abs(-0)); NLCR;
+            print(abs(0)); NLCR;
         e̲n̲d̲
     )");
     const std::string expect = R"(123.456
@@ -36,18 +36,18 @@ TEST_F(x1_machine, function_sign)
 {
     auto output = compile_and_run(R"(
         b̲e̲g̲i̲n̲
-            print(sign(-123.456));
-            print(sign(123.456));
-            print(sign(-1.615850303564⏨616));
-            print(sign(1.615850303564⏨616));
-            print(sign(-0.0));
-            print(sign(0.0));
-            print(sign(-1));
-            print(sign(1));
-            print(sign(-67108863));
-            print(sign(67108863));
-            print(sign(-0));
-            print(sign(0));
+            print(sign(-123.456)); NLCR;
+            print(sign(123.456)); NLCR;
+            print(sign(-1.615850303564⏨616)); NLCR;
+            print(sign(1.615850303564⏨616)); NLCR;
+            print(sign(-0.0)); NLCR;
+            print(sign(0.0)); NLCR;
+            print(sign(-1)); NLCR;
+            print(sign(1)); NLCR;
+            print(sign(-67108863)); NLCR;
+            print(sign(67108863)); NLCR;
+            print(sign(-0)); NLCR;
+            print(sign(0)); NLCR;
         e̲n̲d̲
     )");
     const std::string expect = R"(-1
@@ -70,11 +70,11 @@ TEST_F(x1_machine, function_sqrt)
 {
     auto output = compile_and_run(R"(
         b̲e̲g̲i̲n̲
-            print(sqrt(2));
-            print(sqrt(99999));
-            print(sqrt(1.01));
-            print(sqrt(0.99));
-            print(sqrt(0.0003));
+            print(sqrt(2)); NLCR;
+            print(sqrt(99999)); NLCR;
+            print(sqrt(1.01)); NLCR;
+            print(sqrt(0.99)); NLCR;
+            print(sqrt(0.0003)); NLCR;
         e̲n̲d̲
     )");
     const std::string expect = R"(1.414213562373
@@ -90,14 +90,14 @@ TEST_F(x1_machine, function_sin)
 {
     auto output = compile_and_run(R"(
         b̲e̲g̲i̲n̲
-            print(sin(0.0001));
-            print(sin(-0.0001));
-            print(sin(0.7854));
-            print(sin(-0.7854));
-            print(sin(1.5));
-            print(sin(-1.6));
-            print(sin(3141.6));
-            print(sin(-3141.6));
+            print(sin(0.0001)); NLCR;
+            print(sin(-0.0001)); NLCR;
+            print(sin(0.7854)); NLCR;
+            print(sin(-0.7854)); NLCR;
+            print(sin(1.5)); NLCR;
+            print(sin(-1.6)); NLCR;
+            print(sin(3141.6)); NLCR;
+            print(sin(-3141.6)); NLCR;
         e̲n̲d̲
     )");
     const std::string expect = R"(9.999999983334e-05
@@ -116,14 +116,14 @@ TEST_F(x1_machine, function_cos)
 {
     auto output = compile_and_run(R"(
         b̲e̲g̲i̲n̲
-            print(cos(0.01));
-            print(cos(-0.01));
-            print(cos(0.7854));
-            print(cos(-0.7854));
-            print(cos(1.5));
-            print(cos(-1.6));
-            print(cos(3141.6));
-            print(cos(-3141.6));
+            print(cos(0.01)); NLCR;
+            print(cos(-0.01)); NLCR;
+            print(cos(0.7854)); NLCR;
+            print(cos(-0.7854)); NLCR;
+            print(cos(1.5)); NLCR;
+            print(cos(-1.6)); NLCR;
+            print(cos(3141.6)); NLCR;
+            print(cos(-3141.6)); NLCR;
         e̲n̲d̲
     )");
     const std::string expect = R"(0.9999500004169
@@ -147,14 +147,14 @@ TEST_F(x1_machine, function_arctan)
 {
     auto output = compile_and_run(R"(
         b̲e̲g̲i̲n̲
-            print(arctan(0.0001));
-            print(arctan(-0.0001));
-            print(arctan(0.5));
-            print(arctan(-0.5));
-            print(arctan(2));
-            print(arctan(-2));
-            print(arctan(999.9));
-            print(arctan(-999.9));
+            print(arctan(0.0001)); NLCR;
+            print(arctan(-0.0001)); NLCR;
+            print(arctan(0.5)); NLCR;
+            print(arctan(-0.5)); NLCR;
+            print(arctan(2)); NLCR;
+            print(arctan(-2)); NLCR;
+            print(arctan(999.9)); NLCR;
+            print(arctan(-999.9)); NLCR;
         e̲n̲d̲
     )");
     const std::string expect = R"(9.99999996667e-05
@@ -173,14 +173,14 @@ TEST_F(x1_machine, function_ln)
 {
     auto output = compile_and_run(R"(
         b̲e̲g̲i̲n̲
-            print(ln(0.0001));
-            print(ln(0.5));
-            print(ln(0.9999));
-            print(ln(1.0001));
-            print(ln(2));
-            print(ln(4));
-            print(ln(8));
-            print(ln(99999));
+            print(ln(0.0001)); NLCR;
+            print(ln(0.5)); NLCR;
+            print(ln(0.9999)); NLCR;
+            print(ln(1.0001)); NLCR;
+            print(ln(2)); NLCR;
+            print(ln(4)); NLCR;
+            print(ln(8)); NLCR;
+            print(ln(99999)); NLCR;
         e̲n̲d̲
     )");
     const std::string expect = R"(-9.210340371981
@@ -199,11 +199,11 @@ TEST_F(x1_machine, function_exp)
 {
     auto output = compile_and_run(R"(
         b̲e̲g̲i̲n̲
-            print(exp(-6));
-            print(exp(-1));
-            print(exp(0.0001));
-            print(exp(1));
-            print(exp(6));
+            print(exp(-6)); NLCR;
+            print(exp(-1)); NLCR;
+            print(exp(0.0001)); NLCR;
+            print(exp(1)); NLCR;
+            print(exp(6)); NLCR;
         e̲n̲d̲
     )");
     const std::string expect = R"(0.002478752176668
@@ -219,14 +219,14 @@ TEST_F(x1_machine, function_entier)
 {
     auto output = compile_and_run(R"(
         b̲e̲g̲i̲n̲
-            print(entier(-98.7777));
-            print(entier(98.7777));
-            print(entier(-5.4444));
-            print(entier(5.4444));
-            print(entier(-0.9999));
-            print(entier(0.9999));
-            print(entier(-0.1111));
-            print(entier(0.1111));
+            print(entier(-98.7777)); NLCR;
+            print(entier(98.7777)); NLCR;
+            print(entier(-5.4444)); NLCR;
+            print(entier(5.4444)); NLCR;
+            print(entier(-0.9999)); NLCR;
+            print(entier(0.9999)); NLCR;
+            print(entier(-0.1111)); NLCR;
+            print(entier(0.1111)); NLCR;
         e̲n̲d̲
     )");
     const std::string expect = R"(-99
@@ -245,13 +245,13 @@ TEST_F(x1_machine, function_EVEN)
 {
     auto output = compile_and_run(R"(
         b̲e̲g̲i̲n̲
-            print(EVEN(0));
-            print(EVEN(1));
-            print(EVEN(-1));
-            print(EVEN(2));
-            print(EVEN(-2));
-            print(EVEN(3));
-            print(EVEN(-3));
+            print(EVEN(0)); NLCR;
+            print(EVEN(1)); NLCR;
+            print(EVEN(-1)); NLCR;
+            print(EVEN(2)); NLCR;
+            print(EVEN(-2)); NLCR;
+            print(EVEN(3)); NLCR;
+            print(EVEN(-3)); NLCR;
         e̲n̲d̲
     )");
     const std::string expect = R"(1
