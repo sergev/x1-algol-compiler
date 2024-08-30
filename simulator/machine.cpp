@@ -453,7 +453,7 @@ void Machine::print_floating_point(std::ostream &out, int n, int m, long double 
         x           = -x;
     }
 
-    int exponent = (x == 0) ? 0 : 1 + std::floorl(log10l(x));
+    int exponent = (x == 0) ? 0 : 1 + floor(log10l(x));
     switch (m) {
     case 1:
         if (exponent > 9 || exponent < -9) {
