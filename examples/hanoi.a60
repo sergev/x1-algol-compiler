@@ -1,0 +1,39 @@
+b̲e̲g̲i̲n̲
+
+	c̲o̲m̲m̲e̲n̲t̲
+		The Towers Of Hanoi
+		Algol-60
+		Copyright (C) 1999 Amit Singh. All Rights Reserved.
+                http://hanoi.kernelthread.com
+	;
+
+	p̲r̲o̲c̲e̲d̲u̲r̲e̲ movedisk(n, f, t);
+	i̲n̲t̲e̲g̲e̲r̲ n;
+	i̲n̲t̲e̲g̲e̲r̲ f;
+	i̲n̲t̲e̲g̲e̲r̲ t;
+	b̲e̲g̲i̲n̲
+		outstring (1, "move ");
+		outinteger(1, f);
+		outstring (1, " --> ");
+		outinteger(1, t);
+		outstring (1, "\n");
+	e̲n̲d̲;
+
+	p̲r̲o̲c̲e̲d̲u̲r̲e̲ dohanoi(n, f, t, u);
+	i̲n̲t̲e̲g̲e̲r̲ n;
+	i̲n̲t̲e̲g̲e̲r̲ f;
+	i̲n̲t̲e̲g̲e̲r̲ t;
+	i̲n̲t̲e̲g̲e̲r̲ u;
+	b̲e̲g̲i̲n̲
+		i̲f̲ n < 2 t̲h̲e̲n̲
+			movedisk(1, f, t)
+		e̲l̲s̲e̲
+			b̲e̲g̲i̲n̲
+				dohanoi(n - 1, f, u, t);
+				movedisk(1, f, t);
+				dohanoi(n - 1, u, t, f);
+			e̲n̲d̲;
+	e̲n̲d̲;
+
+	dohanoi(3, 1, 3, 2);
+e̲n̲d̲

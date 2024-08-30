@@ -1,0 +1,113 @@
+b̲e̲g̲i̲n̲  c̲o̲m̲m̲e̲n̲t̲  L. Meertens, R 1082, LM 010964/9219.
+     QUINIO (GO-MOKU). Zie voor de spelregels aparte beschrijving.
+     Indien X1 moet beginnen, d25 = 0 maken, anders d25 = 1 maken.
+     Inbrengen van zet: x-coordinaat binair in d9 t/m d5, y-coordinaat in d4 t/m d0.
+     Bijv. 11-7 wordt in d9 t/m d0 (XEEN (1023) genoteerd als 01011 00111. 
+     Doorstarten met BVA. De zet wordt uitgetypt, en de machine stopt weer.
+     Indien nu blijkt dat men zich vergist heeft, dan kan men met negatief consolewoord doorstarten, 
+     waarna opnieuw gelegenheid geboden wordt een zet in te brengen. Wordt met positief consolewoord
+     doorgestart, dan wordt de zet uitgevoerd en bezint de X1 zich op zijn volgende zet. 
+     Is bijgeval helemaal geen zet uitgetypt, dan correspondeert de stand van de tien rechter-
+     schakelaars niet met een correcte zet. Men kan alsnog een betere zet inbrengen;
+
+   c̲o̲m̲m̲e̲n̲t̲ Transcribed to UTF-8 from https://github.com/cwi-software-archive/Algol60/tree/main/Quinio by gtoal@gtoal.com 20231004;
+
+   i̲n̲t̲e̲g̲e̲r̲ k, j, av, tn, nt, vnl, x, y, sw, wm, kleur, znr, km; b̲o̲o̲l̲e̲a̲n̲ klaar;
+   i̲n̲t̲e̲g̲e̲r̲ a̲r̲r̲a̲y̲ DP[-6 : +6, 0 : 2], Z[1 : 6];
+   b̲o̲o̲l̲e̲a̲n̲ p̲r̲o̲c̲e̲d̲u̲r̲e̲ minim (x, p); v̲a̲l̲u̲e̲ p; i̲n̲t̲e̲g̲e̲r̲ x, p; i̲f̲ p < x t̲h̲e̲n̲ b̲e̲g̲i̲n̲ x:= p; minim:= t̲r̲u̲e̲ e̲n̲d̲ e̲l̲s̲e̲ minim:= f̲a̲l̲s̲e̲;
+   b̲o̲o̲l̲e̲a̲n̲ p̲r̲o̲c̲e̲d̲u̲r̲e̲ maxim (x, p); v̲a̲l̲u̲e̲ p; i̲n̲t̲e̲g̲e̲r̲ x, p; i̲f̲ p > x t̲h̲e̲n̲ b̲e̲g̲i̲n̲ x:= p; maxim:= t̲r̲u̲e̲ e̲n̲d̲ e̲l̲s̲e̲ maxim:= f̲a̲l̲s̲e̲;
+   nt:= entier (sqrt ((available - 1000) ÷ 36) - 1) ÷ 2 × 2 + 1; minim (nt, 19); av:= nt × nt; tn:= 1 + nt ÷ 2; NLCR; print (nt);
+
+   b̲e̲g̲i̲n̲  i̲n̲t̲e̲g̲e̲r̲ a̲r̲r̲a̲y̲ RNUM, RLANG, RVRY[ 1 : av, 0 : 1, 1 : 4], RVAL[1 : av, 1 : 4], TEMPO, WT[1 : av, 0 : 1], X, Y[1 : av],
+        BORD, VNL[1 : nt, 1 : nt];
+      p̲r̲o̲c̲e̲d̲u̲r̲e̲ CORR (x0, y0); v̲a̲l̲u̲e̲ x0, y0; i̲n̲t̲e̲g̲e̲r̲ x0, y0;
+      b̲e̲g̲i̲n̲  i̲n̲t̲e̲g̲e̲r̲ x, y, dx, dy, min, max, q, k, j, b, t, d, w, xdx, ydy, zdz;
+         dx:= +1; dy:= -1; klaar:= f̲a̲l̲s̲e̲;
+         f̲o̲r̲ q:= 1, 2, 3, 4 d̲o̲
+            b̲e̲g̲i̲n̲  zdz:= xdx:= (x0 - tn) × dx; ydy:= (y0 - tn) × dy; minim (zdz, ydy);
+               min:= 3 - tn - zdz; max:= - min - xdx - ydy;
+               maxim (min, -6); minim (max, +6); i̲f̲ min > max t̲h̲e̲n̲ g̲o̲ t̲o̲ NOR;
+               f̲o̲r̲ k:= 0, 1, 2 d̲o̲ DP[min, k]:= 0;
+               f̲o̲r̲ k:= -2 s̲t̲e̲p̲ 1 u̲n̲t̲i̲l̲ +2 d̲o̲
+                  b̲e̲g̲i̲n̲ b:= BORD[ x0 + (min + k) × dx, y0 + (min + k) × dy]; DP[min, b]:= DP[min, b] + 1 e̲n̲d̲;
+               f̲o̲r̲ k:= min + 1 s̲t̲e̲p̲ 1 u̲n̲t̲i̲l̲ max d̲o̲
+                  b̲e̲g̲i̲n̲  i̲f̲ DP[k - 1, kleur] = 5 t̲h̲e̲n̲ g̲o̲ t̲o̲ WIN; f̲o̲r̲ b:= 0, 1, 2 d̲o̲ DP[k, b]:= DP[k - 1, b];
+                     f̲o̲r̲ j:= -3, +2 d̲o̲
+                        b̲e̲g̲i̲n̲ b:= BORD[x0 + (k + j) × dx, y0 + (k + j) × dy]; DP[k, b]:= DP[k, b] + sign (j) e̲n̲d̲
+                  e̲n̲d̲;
+               i̲f̲ DP[max, kleur] = 5 t̲h̲e̲n̲ WIN: b̲e̲g̲i̲n̲ klaar:= t̲r̲u̲e̲; g̲o̲ t̲o̲ UIT e̲n̲d̲;
+               f̲o̲r̲ k:= -6 s̲t̲e̲p̲ 1 u̲n̲t̲i̲l̲ min - 1, max + 1 s̲t̲e̲p̲ 1 u̲n̲t̲i̲l̲ 6 d̲o̲ DP[k, 0]:= DP[k, 1]:= 1;
+               min:= 1 - tn - zdz; max:= - min - xdx - ydy;
+               maxim (min, -4); minim (max, +4);
+               f̲o̲r̲ k:= min s̲t̲e̲p̲ 1 u̲n̲t̲i̲l̲ -1, +1 s̲t̲e̲p̲ 1 u̲n̲t̲i̲l̲ max d̲o̲
+                  b̲e̲g̲i̲n̲  x:= x0 + k × dx; y:= y0 + k × dy;
+                     i̲f̲ BORD[ x, y] = 2 t̲h̲e̲n̲
+                     b̲e̲g̲i̲n̲  vnl:= VNL[x, y]; i̲f̲ vnl > sw t̲h̲e̲n̲ b̲e̲g̲i̲n̲ VNL[x, y]:= 0; g̲o̲ t̲o̲ NXT e̲n̲d̲;
+                        i̲f̲ vnl ≠ 0 t̲h̲e̲n̲
+                        b̲e̲g̲i̲n̲ RVAL[ vnl, q]:= 0; f̲o̲r̲ b:= 0, 1 d̲o̲ RNUM [ vnl, b, q]:= RLANG [ vnl, b, q]:= RVRY[vnl, b, q]:= 0 e̲n̲d̲ e̲l̲s̲e̲
+                        b̲e̲g̲i̲n̲  vnl:= VNL[x, y]:= sw; X[sw]:= x; Y[sw]:= y; sw:= sw + 1;
+                           f̲o̲r̲ j:= 1, 2, 3, 4 d̲o̲
+                              b̲e̲g̲i̲n̲  RVAL[ vnl, j]:= 0; f̲o̲r̲ b:= 0, 1 d̲o̲
+                                      RNUM[ vnl, b, j]:= RLANG[vnl, b, j] := RVRY[vnl, b, j]:= 0
+                              e̲n̲d̲
+                        e̲n̲d̲;
+                        f̲o̲r̲ j:= -2 s̲t̲e̲p̲ 1 u̲n̲t̲i̲l̲ +2 d̲o̲ f̲o̲r̲ b:= 0, 1 d̲o̲
+                              b̲e̲g̲i̲n̲  i̲f̲ DP[k + j, 1 - b] = 0 t̲h̲e̲n̲
+                                 b̲e̲g̲i̲n̲  d:= DP[k + j, b]; RVAL[ vnl, q]:= RVAL[ vnl, q] + d;
+                                    i̲f̲ maxim (RLANG[ vnl, b, q], d) t̲h̲e̲n̲ RVRY[ vnl, b, q]:= 0 e̲l̲s̲e̲
+                                    i̲f̲ RLANG [ vnl, b, q] = d t̲h̲e̲n̲ RVRY[vnl, b, q]:= 1;
+                                    RNUM[vnl, b, q]:= RNUM[vnl, b, q] + 1
+                                 e̲n̲d̲
+                              e̲n̲d̲;
+                        TEMPO[vnl, 0]:= TEMPO[vnl, 1]:= WT[vnl, 0]:= WT[vnl, 1]:= 4;
+                        f̲o̲r̲ j:= 1, 2, 3, 4 d̲o̲ f̲o̲r̲ b:= 0, 1 d̲o̲
+                              b̲e̲g̲i̲n̲ t:=4 - RLANG[vnl, b, j]; w:= t - RVRY[vnl, b, j];
+                                 minim (TEMPO[vnl, b], t);
+                                 i̲f̲ i̲f̲ minim (WT[vnl, b], w) t̲h̲e̲n̲ f̲a̲l̲s̲e̲ e̲l̲s̲e̲ w = 1 ∧ WT[vnl, b] = 1 t̲h̲e̲n̲ WT[wnl, b]:= 0;
+                              e̲n̲d̲
+                     e̲n̲d̲;
+                     NXT:  e̲n̲d̲;
+               NOR:  i̲f̲ q = 3 t̲h̲e̲n̲ dx:= 0 e̲l̲s̲e̲ dy:= dy + 1;
+            e̲n̲d̲;
+         UIT:  e̲n̲d̲;
+
+      p̲r̲o̲c̲e̲d̲u̲r̲e̲ ZET (x, y); v̲a̲l̲u̲e̲ x, y; i̲n̲t̲e̲g̲e̲r̲ x, y;
+      b̲e̲g̲i̲n̲ BORD[ x, y]:= kleur; CORR (x, y); kleur:= 1 - kleur; znr:= znr + 1 e̲n̲d̲;
+
+      p̲r̲o̲c̲e̲d̲u̲r̲e̲ PRINTZET (x, y); v̲a̲l̲u̲e̲ x, y; i̲n̲t̲e̲g̲e̲r̲ x, y;
+      b̲e̲g̲i̲n̲  i̲f̲ EVEN (znr) < 0 ∨ XEEN (-1) < 0 t̲h̲e̲n̲ NLCR; ABSFIXT (5, 0, znr);
+         PRINTTEXT («.»); ABSFIXT (3, 0, x); FIXT (3, 0, -y)
+      e̲n̲d̲;
+
+      i̲n̲t̲e̲g̲e̲r̲ p̲r̲o̲c̲e̲d̲u̲r̲e̲ SEL;
+      b̲e̲g̲i̲n̲  i̲n̲t̲e̲g̲e̲r̲ v, k, j, wsl, w, m;
+         w:= 4; v:= m:= 0;
+         f̲o̲r̲ k:= sw - 1 s̲t̲e̲p̲ -1 u̲n̲t̲i̲l̲ 1 d̲o̲
+            b̲e̲g̲i̲n̲  i̲f̲ i̲f̲ BORD[X[k], Y[k]] = 2 t̲h̲e̲n̲ WT[k, 1 - kleur] = 0 e̲l̲s̲e̲ f̲a̲l̲s̲e̲ t̲h̲e̲n̲ minim (w, TEMPO[k, 1 - kleur]) e̲n̲d̲;
+         f̲o̲r̲ k:= sw - 1 s̲t̲e̲p̲ -1 u̲n̲t̲i̲l̲ 1 d̲o̲
+            b̲e̲g̲i̲n̲  i̲f̲ i̲f̲ BORD[X[k], Y[k]] = 2 t̲h̲e̲n̲
+                 (i̲f̲ TEMPO[k, kleur] ≤ w t̲h̲e̲n̲ t̲r̲u̲e̲ e̲l̲s̲e̲ i̲f̲ WT[k, 1 - kleur] = 0 t̲h̲e̲n̲ w = TEMPO[k, 1 - kleur] e̲l̲s̲e̲ f̲a̲l̲s̲e̲) e̲l̲s̲e̲ f̲a̲l̲s̲e̲ t̲h̲e̲n̲
+               b̲e̲g̲i̲n̲
+                  i̲f̲ maxim (v, SUM (j, 1, 4, 2 × RVAL[k, j] + RNUM[k, kleur, j]) +
+                         SUM (j, 0, 1, 2 ⭡ (7 - WT[k, j] - abs (j - kleur) / 2))) t̲h̲e̲n̲ m:= k
+               e̲n̲d̲                       ^ underlined a̲n̲d̲ symbol in original is exponentiation ;
+            e̲n̲d̲;
+         SEL:= m
+      e̲n̲d̲;
+
+      NLCR; f̲o̲r̲ x:= 1 s̲t̲e̲p̲ 1 u̲n̲t̲i̲l̲ nt d̲o̲ f̲o̲r̲ y:= 1 s̲t̲e̲p̲ 1 u̲n̲t̲i̲l̲ nt d̲o̲ b̲e̲g̲i̲n̲ BORD[ x, y]:= 2; VNL[x, y]:= 0 e̲n̲d̲;
+      kleur:= sign (XEEN (33554432)); NLCR; sw:= znr:= 1; 
+        i̲f̲ kleur = 0 t̲h̲e̲n̲ b̲e̲g̲i̲n̲ PRINTTEXT («                   X1                             N.N.»); PRINTZET (tn, tn); ZET (tn, tn) e̲n̲d̲
+      e̲l̲s̲e̲ PRINTTEXT («                   N.N.                     X1»);
+      MENS: stop; x:= XEEN (992) ÷ 32; y:= XEEN (31);
+      i̲f̲ x = 0 ∨ x > nt ∨ y = 0 ∨ y > nt t̲h̲e̲n̲ g̲o̲ t̲o̲ MENS;
+      i̲f̲ BORD[x, y] ≠ 2 t̲h̲e̲n̲ g̲o̲ t̲o̲ MENS;
+      PRINTZET (x, y); stop; i̲f̲ XEEN (-1) < 0 t̲h̲e̲n̲ g̲o̲ t̲o̲ MENS; ZET (x, y);
+      i̲f̲ klaar t̲h̲e̲n̲ g̲o̲ t̲o̲ KLAAR;
+
+      MACH: km:= SEL;
+      i̲f̲ km = 0 t̲h̲e̲n̲ b̲e̲g̲i̲n̲ NLCR; PRINTTEXT («      Ik geef op»); g̲o̲ t̲o̲ KLAAR e̲n̲d̲;
+      x:= X[km]; y:= Y[km]; PRINTZET (x, y); ZET (x, y); i̲f̲ ¬ klaar t̲h̲e̲n̲ g̲o̲ t̲o̲ MENS;
+      KLAAR: NLCR; i̲f̲ kleur = 0 t̲h̲e̲n̲ PRINTTEXT («       U hebt gewonnen») e̲l̲s̲e̲ PRINTTEXT («      Ik heb gewonnen»)
+   e̲n̲d̲
+e̲n̲d̲

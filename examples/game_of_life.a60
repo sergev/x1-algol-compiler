@@ -1,0 +1,109 @@
+b̲e̲g̲i̲n̲ 
+  c̲o̲m̲m̲e̲n̲t̲ Game of Life;
+
+i̲n̲t̲e̲g̲e̲r̲ a̲r̲r̲a̲y̲ table[0:2,0:2];
+
+p̲r̲o̲c̲e̲d̲u̲r̲e̲ initialisetable (table, M,N);
+i̲n̲t̲e̲g̲e̲r̲ a̲r̲r̲a̲y̲ table;
+i̲n̲t̲e̲g̲e̲r̲ M,N;
+b̲e̲g̲i̲n̲
+   i̲n̲t̲e̲g̲e̲r̲ i,j;
+   f̲o̲r̲ i:=0 s̲t̲e̲p̲ 1 u̲n̲t̲i̲l̲ (M-1) d̲o̲
+      f̲o̲r̲ j:=0 s̲t̲e̲p̲ 1 u̲n̲t̲i̲l̲ (N-1) d̲o̲
+         b̲e̲g̲i̲n̲
+            i̲f̲ (i != j) t̲h̲e̲n̲
+                table[i,j]:= 0
+            e̲l̲s̲e̲
+                table[i,j]:=1;
+            
+         e̲n̲d̲
+
+e̲n̲d̲;
+
+p̲r̲o̲c̲e̲d̲u̲r̲e̲ printtable (table,M,N);
+i̲n̲t̲e̲g̲e̲r̲ a̲r̲r̲a̲y̲ table;
+i̲n̲t̲e̲g̲e̲r̲ M,N;
+b̲e̲g̲i̲n̲
+   i̲n̲t̲e̲g̲e̲r̲ i,j;
+   f̲o̲r̲ i:=0 s̲t̲e̲p̲ 1 u̲n̲t̲i̲l̲ M-1 d̲o̲
+   b̲e̲g̲i̲n̲
+      f̲o̲r̲ j:=0 s̲t̲e̲p̲ 1 u̲n̲t̲i̲l̲ N-1 d̲o̲
+      b̲e̲g̲i̲n̲
+         outinteger(1, table[i,j]);
+      e̲n̲d̲;
+      outstring(1, "\n")
+   e̲n̲d̲
+e̲n̲d̲;      
+
+
+p̲r̲o̲c̲e̲d̲u̲r̲e̲ applyRules (table, M,N);
+i̲n̲t̲e̲g̲e̲r̲ a̲r̲r̲a̲y̲ table;
+i̲n̲t̲e̲g̲e̲r̲ M,N;
+b̲e̲g̲i̲n̲
+   i̲n̲t̲e̲g̲e̲r̲ Neighbours,actual,i,j;
+   i̲n̲t̲e̲g̲e̲r̲ a̲r̲r̲a̲y̲ prevGen[0:2,0:2];
+   copytable(prevGen,table,M,N);
+   
+   f̲o̲r̲ i:=0 s̲t̲e̲p̲ 1 u̲n̲t̲i̲l̲ M-1 d̲o̲
+   b̲e̲g̲i̲n̲
+      f̲o̲r̲ j:=0 s̲t̲e̲p̲ 1 u̲n̲t̲i̲l̲ N-1 d̲o̲
+      b̲e̲g̲i̲n̲
+         actual := prevGen[i,j];
+         countNeighboursAlive (prevGen,M,N,i,j,Neighbours);
+         i̲f̲ (actual = 1) t̲h̲e̲n̲
+         b̲e̲g̲i̲n̲
+            i̲f̲ (Neighbours < 2) t̲h̲e̲n̲
+                table[i,j]:=0 
+            e̲l̲s̲e̲
+               i̲f̲ (Neighbours <= 3) t̲h̲e̲n̲
+                  table[i,j]:=1
+               e̲l̲s̲e̲ 
+                  table[i,j]:=0;            
+         e̲n̲d̲
+         e̲l̲s̲e̲
+            i̲f̲ (Neighbours = 3) t̲h̲e̲n̲ table[i,j]:=1;
+            
+      e̲n̲d̲;
+   e̲n̲d̲
+
+e̲n̲d̲;
+
+p̲r̲o̲c̲e̲d̲u̲r̲e̲ countNeighboursAlive (table, M,N, x,y, Neighbours);
+v̲a̲l̲u̲e̲ M,N,x,y;
+i̲n̲t̲e̲g̲e̲r̲ a̲r̲r̲a̲y̲ table;
+i̲n̲t̲e̲g̲e̲r̲ M,N,x,y,Neighbours;
+b̲e̲g̲i̲n̲
+   b̲o̲o̲l̲e̲a̲n̲ isNeighbour;
+   i̲n̲t̲e̲g̲e̲r̲ i,j;
+   Neighbours := 0;
+   f̲o̲r̲ i:=(x-1) s̲t̲e̲p̲ 1 u̲n̲t̲i̲l̲ (x+1) d̲o̲
+   b̲e̲g̲i̲n̲
+      f̲o̲r̲ j:=(y-1) s̲t̲e̲p̲ 1 u̲n̲t̲i̲l̲ (y+1) d̲o̲
+      b̲e̲g̲i̲n̲
+         isNeighbour := (   (i>=0) a̲n̲d̲ (j>=0) a̲n̲d̲ (i<M) a̲n̲d̲ (j<N) a̲n̲d̲ ( (x != i) o̲r̲ (y != j) )   );
+         i̲f̲  isNeighbour t̲h̲e̲n̲
+            b̲e̲g̲i̲n̲
+               i̲f̲ (table[i,j] = 1) t̲h̲e̲n̲ Neighbours := Neighbours +1
+            e̲n̲d̲
+      
+      e̲n̲d̲;
+   e̲n̲d̲
+   
+
+e̲n̲d̲;
+
+p̲r̲o̲c̲e̲d̲u̲r̲e̲ copytable (prevGen,table,M,N);
+b̲e̲g̲i̲n̲
+   i̲n̲t̲e̲g̲e̲r̲ i,j;
+   f̲o̲r̲ i:=0 s̲t̲e̲p̲ 1 u̲n̲t̲i̲l̲ (M-1) d̲o̲
+      f̲o̲r̲ j:=0 s̲t̲e̲p̲ 1 u̲n̲t̲i̲l̲ (N-1) d̲o̲
+         prevGen[i,j]:= table[i,j];
+
+e̲n̲d̲;
+
+initialisetable(table,3,3);
+printtable(table,3,3);
+applyRules(table,3,3);
+printtable(table,3,3);
+
+e̲n̲d̲
