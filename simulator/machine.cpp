@@ -391,10 +391,10 @@ void Machine::print_fixed_point(std::ostream &out, int n, int m, long double x0,
         print_floating_point(out, 13, 3, x0);
         return;
     }
-    out << sign_symbol;
 
     // Print digit by digit.
     bool suppress_zeroes = true;
+    out << sign_symbol;
     for (int count = 0; count < n+m; count++) {
         x *= 10.0;
         int digit = x;
@@ -422,7 +422,7 @@ void Machine::print_fixed_point(std::ostream &out, int n, int m, long double x0,
 //
 // The FLOT procedure prints the value of x in floating-point
 // representation. The sign of x and the decimal point are
-// followed by an n-digit mantissa, the symbol "10", the sign of
+// followed by an n-digit mantissa, the symbol "⏨", the sign of
 // the decimal exponent, the absolute value of that exponent in m
 // digits (with insignificant zeros, except in the ones position,
 // replaced by spaces), and finally a space.
@@ -436,8 +436,85 @@ void Machine::print_fixed_point(std::ostream &out, int n, int m, long double x0,
 // <= n <= 13, 1 <= m <= 3 does not apply, FLOT(n, m, x) is
 // replaced by FLOT(13, 3, x).
 //
-void Machine::print_floating_point(std::ostream &out, int n, int m, long double x)
+void Machine::print_floating_point(std::ostream &out, int n, int m, long double x0)
 {
-    //TODO
-    out << "TODO";
+    if (n < 1 || n > 13 || m < 1 || m > 3) {
+again:  n = 13;
+        m = 3;
+    }
+    long double x    = x0;
+    char sign_symbol = '+';
+
+    // Make x positive.
+    if (std::signbit(x)) {
+        sign_symbol = '-';
+        x = -x;
+    }
+
+    int exponent = (x == 0) ? 0 : log10l(x) + 1;
+    switch (m) {
+    case 1:
+        if (exponent > 9 || exponent < -9) {
+            goto again;
+        }
+        break;
+    case 2:
+        if (exponent > 9 || exponent < -99) {
+            goto again;
+        }
+        break;
+    case 3:
+        assert(exponent >= -999 && exponent <= 999);
+        break;
+    }
+
+    // Scale to range [0, 1).
+    if (exponent != 0) {
+        x /= powl(10.0, exponent);
+    }
+
+    // Print mantissa.
+    out << sign_symbol << '.';
+    for (int count = 0; count < n; count++) {
+        x *= 10.0;
+        int digit = x;
+        assert(digit >= 0 && digit <= 9);
+        x -= digit;
+
+        out << digit;
+    }
+
+    // Print exponent.
+    out << "⏨";
+    if (exponent < 0) {
+        out << '-';
+        exponent = -exponent;
+    } else {
+        out << '+';
+    }
+    bool suppress_zeroes = true;
+    int digit;
+    switch (m) {
+    case 3:
+        digit = exponent / 100 % 10;
+        if (digit == 0 && suppress_zeroes) {
+            out << ' ';
+        } else {
+            out << digit;
+            suppress_zeroes = false;
+        }
+        [[fallthrough]];
+    case 2:
+        digit = exponent / 10 % 10;
+        if (digit == 0 && suppress_zeroes) {
+            out << ' ';
+        } else {
+            out << digit;
+        }
+        [[fallthrough]];
+    case 1:
+        digit = exponent % 10;
+        out << digit;
+    }
+    out << ' ';
 }

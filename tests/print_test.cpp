@@ -99,3 +99,41 @@ TEST_F(x1_machine, procedure_ABSFIXT)
 )";
     EXPECT_EQ(output, expect);
 }
+
+TEST_F(x1_machine, procedure_FLOT)
+{
+    auto output = compile_and_run(R"(
+        b̲e̲g̲i̲n̲
+            p̲r̲o̲c̲e̲d̲u̲r̲e̲ pr(n, m, x); v̲a̲l̲u̲e̲ n, m, x; i̲n̲t̲e̲g̲e̲r̲ n, m; r̲e̲a̲l̲ x; b̲e̲g̲i̲n̲
+                PRINTTEXT(`/');
+                FLOT(n, m, x);
+                PRINTTEXT(`/');
+                NLCR;
+            e̲n̲d̲;
+            pr(1, 1, 1.234);
+            pr(4, 1, -56.789);
+            pr(13, 1, 123.456);
+            pr(4, 2, -1.234);
+            pr(5, 2, 56.789);
+            pr(13, 2, -123.456);
+            pr(4, 3, 8⏨555 / 7);
+            pr(5, 3, 9999⏨444 / 7);
+            pr(13, 3, -1⏨-111 / 7);
+            pr(1, 1, 0.0);
+            pr(3, 1, -0.0);
+        e̲n̲d̲
+    )");
+    const std::string expect = R"(/+.1⏨+1 /
+/-.5678⏨+2 /
+/+.1234560000000⏨+3 /
+/-.1234⏨+ 1 /
+/+.56788⏨+ 2 /
+/-.1234560000000⏨+ 3 /
+/+.1142⏨+556 /
+/+.14284⏨+448 /
+/-.0142857142857⏨-110 /
+/+.0⏨+0 /
+/-.000⏨+0 /
+)";
+    EXPECT_EQ(output, expect);
+}

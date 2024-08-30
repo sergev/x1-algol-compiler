@@ -107,7 +107,7 @@ or the decimal point, the sign of x (+ or -) is printed.
 
 The FLOT procedure prints the value of x in floating-point
 representation. The sign of x and the decimal point are
-followed by an n-digit mantissa, the symbol "10", the sign of
+followed by an n-digit mantissa, the symbol "⏨", the sign of
 the decimal exponent, the absolute value of that exponent in m
 digits (with insignificant zeros, except in the ones position,
 replaced by spaces), and finally a space.
