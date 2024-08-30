@@ -482,6 +482,9 @@ void Machine::print_floating_point(std::ostream &out, int n, int m, long double 
         if (count + 1 == n) {
             // Round last digit.
             x += 0.5;
+            if (x >= 10) {
+                x = 9;
+            }
         }
         int digit = x;
         assert(digit >= 0 && digit <= 9);
