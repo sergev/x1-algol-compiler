@@ -1,2 +1,5 @@
-c̲o̲m̲m̲e̲n̲t̲ To test loading of library tapes ;
-b̲e̲g̲i̲n̲ SUM  e̲n̲d̲
+b̲e̲g̲i̲n̲ i̲n̲t̲e̲g̲e̲r̲ i, j;
+c̲o̲m̲m̲e̲n̲t̲ Prints 55*20 = 1100 ;
+print(SUM(i, 1, 10, SUM(j, 1, 10, i + j))); NLCR
+e̲n̲d̲
+

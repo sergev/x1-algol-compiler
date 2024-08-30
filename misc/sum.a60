@@ -1,0 +1,14 @@
+b̲e̲g̲i̲n̲
+r̲e̲a̲l̲ p̲r̲o̲c̲e̲d̲u̲r̲e̲ SUM(a, b, c, d);
+        v̲a̲l̲u̲e̲ b, c;
+        i̲n̲t̲e̲g̲e̲r̲ a, b, c;
+        r̲e̲a̲l̲ d;
+    b̲e̲g̲i̲n̲
+        r̲e̲a̲l̲ t;
+        t := 0;
+        a := b; m: i̲f̲ a ≤ c t̲h̲e̲n̲ b̲e̲g̲i̲n̲
+            t := t + d; a := a + 1; g̲o̲t̲o̲ m e̲n̲d̲;
+        SUM := t
+    e̲n̲d̲
+e̲n̲d̲
+

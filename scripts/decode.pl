@@ -2,7 +2,7 @@
 
 use strict;
 
-my @letters = qw(A S X D B T Y Z);
+my @letters = qw(A A S S X LA D LS B B T T Y Y Z Z);
 
 my @mods = (' ', 'A', 'B', 'C');
 my @conds = (' ', 'P', 'Z', 'E');
@@ -111,22 +111,62 @@ $opc[107] ='SPACE';
 $opc[108] ='stop';
 $opc[109] ='P21';
 
+# Opcode proper, if it does not follow conventional naming.
+my @ocp = ();
+$ocp[16] = 'MULAS';
+$ocp[17] = 'MULAS-';
+$ocp[18] = 'MULS';
+$ocp[19] = 'MULS-';
+$ocp[24] = 'DIVAS';
+$ocp[25] = 'DIVAS-';
+$ocp[26] = 'DIVA';
+$ocp[27] = 'DIVA-';
+
+$ocp[40] = 'JUMP';
+$ocp[41] = 'JUMP-';
+$ocp[42] = 'GOTO';      # also GOTOR
+$ocp[46] = 'SUB0';      # also SUB1-SUB15
+$ocp[066] = 'MOVR';
+$ocp[067] = 'NEGR';
+
+my $decr = $ARGV[0] if $#ARGV >= 0;
+@ARGV = ();
+my $op;
+
 while (my $line = <>) {
     # print $line;    
-    if ($line =~ /^\s*([0-9]+)\s+([0-9]+)$/) {
+    if ($line =~ /^\s*([0-9]+)\s+([0-9]+)\s*(.*)$/) {
+        next if $1 < $decr;
 	my $code = $2;
-	printf "%#8o: %#10o  ", $1, $code;
+        my $tail = $3;
+        $op = 0;
+        if ($code % 32768 >= $decr) {
+                $code -= $decr;
+                $op = 1;
+        } elsif ($code > 7 && $code < 110) {
+                $op = $code;
+        }
+        if ($op >= 8) {
+                printf "%#6o %3d               ", $1-$decr, $op;
+        } else {
+                printf "%#6o %3d %#010o  ", $1-$decr, $op, $code;
+        }
 	if ($code < 110) {
 	    printf "%s", $opc[$code]
 	} else {
 	    my $addr = $code & 0o77777;
-	    my $letter = $letters[($code >> 24) & 7];
-	    my $func = ($code >> 21) & 7;
+	    my $letter = $letters[($code >> 23) & 15];
+	    my $func = ($code >> 21) & (substr($letter, 0, 1) eq 'L' ? 3 : 7);
 	    my $mod = $mods[($code >> 19) & 3];
 	    my $cond = $conds[($code >> 17) & 3];
 	    my $react = $reacts[($code >> 15) & 3];
-	    printf "%s %d%s %#06o %s %s", $react, $func, $letter, $addr, $mod, $cond
+	    if (defined($ocp[$code >> 21])) {
+		printf "%s %s %#06o %s %s", $react, $ocp[$code >> 21], $addr, $mod, $cond;
+	    } else {
+		printf "%s %d%s %#06o %s %s", $react, $func, $letter, $addr, $mod, $cond;
+	    }
 	}
+	printf " ($tail)" if $tail;
 	printf "\n";
     }
 }

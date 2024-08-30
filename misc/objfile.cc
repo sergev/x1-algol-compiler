@@ -441,7 +441,7 @@ int main(int argc, char*argv[]) {
     while (0 < getline(&line, &lsize, src)) {
         ++lnum;
         char * end1;
-        int offset = (int)strtol(line, &end1, 10);
+        int offset = (int)strtol(line, &end1, 0);
         if (end1 == line) {
             // No number was read; treat as a comment line
             continue;

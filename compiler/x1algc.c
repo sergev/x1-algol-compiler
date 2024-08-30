@@ -3316,7 +3316,7 @@ Static Void program_loader()
     }
     /*load MCP's from tape:*/
     while (mcp_count != 0) {
-        printf("\nload (next) library tape into the tape reader\n");
+        fprintf(stderr, "\nload (next) library tape into the tape reader\n");
         if (P_argc > optind) {
             lib_tape = fopen(P_argv[optind++], "r");
             if (!lib_tape) {
@@ -3778,8 +3778,8 @@ int main(int argc, char *argv[])
         opc_table[ii] = ii + 7;
 
     ii = crfb*2;
-    /* Length of MCP0 is 30, not needed by any other MCP, etc. */
-    put_crf_entry(&ii, 30, 0, 7680); /* SUM */
+    /* Length of MCP0 is 54, not needed by any other MCP, etc. */
+    put_crf_entry(&ii, 54, 0, 7680); /* SUM */
     put_crf_entry(&ii, 20, 1, 7680); /* PRINTTEXT */
     put_crf_entry(&ii, 14, 2, 7680); /* EVEN */
     // put_crf_entry(&ii, 63, 3, 7680); /* arctan - back to OPC*/
