@@ -92,8 +92,8 @@ int P_eof(FILE *f)
 #define tlib   800  /*0-25-00*/
 #define plie   6783 /*6-19-31*/
 #define bim    (mcpb+MCPLEN+2)  /*0-29-nn */
-#define nlscop 41
-#define nlsc0  48
+#define nlscop 43
+#define nlsc0  50
 #define mlib   800   /*0-25-00*/
 #define klie   10165 /*9-29-21*/
 #define crfb   623   /*0-19-15*/
@@ -3680,7 +3680,7 @@ int main(int argc, char *argv[])
     prefill_op_proc("print", 103);
     prefill_op_proc("TAB", 104);
     prefill_op_proc("NLCR", 105);
-    // XEEN 106 is missing
+    prefill_op_proc("XEEN", 106);
     prefill_op_proc("SPACE", 107);
     prefill_op_proc("stop", 108);
     prefill_op_proc("abs", 76);
