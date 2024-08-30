@@ -245,22 +245,14 @@ TEST_F(x1_machine, function_EVEN)
 {
     auto output = compile_and_run(R"(
         b̲e̲g̲i̲n̲
-            print(EVEN(0)); NLCR;
-            print(EVEN(1)); NLCR;
-            print(EVEN(-1)); NLCR;
-            print(EVEN(2)); NLCR;
-            print(EVEN(-2)); NLCR;
-            print(EVEN(3)); NLCR;
-            print(EVEN(-3)); NLCR;
+            print(EVEN(0), EVEN(1), EVEN(-0), EVEN(-1)); NLCR;
+            print(EVEN(2), EVEN(3), EVEN(22), EVEN(33)); NLCR;
+            print(EVEN(-2), EVEN(-3), EVEN(-22), EVEN(-33)); NLCR;
         e̲n̲d̲
     )");
-    const std::string expect = R"(1
--1
--1
-1
-1
--1
--1
+    const std::string expect = R"(1 -1 1 -1
+1 -1 1 -1
+1 -1 1 -1
 )";
     EXPECT_EQ(output, expect);
 }
