@@ -1070,7 +1070,16 @@ bool Processor::call_opc(unsigned opc)
     case OPC_FLOT: {
         // Print number in floating-point representation.
         auto x = stack.pop_ieee();
-        auto m = stack.pop_integer();
+        int m;
+        if (stack.count() == stack_base + 1) {
+            // Invoked with two arguments: FLOT(n, x);
+            m = 2;
+        } else if (stack.count() == stack_base + 2) {
+            // Invoked with three arguments: FLOT(n, m, x);
+            m = stack.pop_integer();
+        } else {
+            throw std::runtime_error("Wrong arguments for FLOT()");
+        }
         auto n = stack.pop_integer();
         Machine::print_floating_point(std::cout, n, m, x);
         std::cout << std::flush;

@@ -210,7 +210,8 @@ next:   i̲f̲ b ≠ x t̲h̲e̲n̲ b̲e̲g̲i̲n̲
         i̲n̲t̲e̲g̲e̲r̲ k;
         NLCR;
         PRINTTEXT(`T = ');
-        print(t+a); NLCR;
+        ABSFIXT(7, 1, t+a);
+        NLCR;
         NLCR;
         f̲o̲r̲ k := 1 s̲t̲e̲p̲ 1 u̲n̲t̲i̲l̲ 5 d̲o̲ b̲e̲g̲i̲n̲
             i̲f̲ k=1 t̲h̲e̲n̲ PRINTTEXT(`J ') e̲l̲s̲e̲
@@ -218,7 +219,10 @@ next:   i̲f̲ b ≠ x t̲h̲e̲n̲ b̲e̲g̲i̲n̲
             i̲f̲ k=3 t̲h̲e̲n̲ PRINTTEXT(`U ') e̲l̲s̲e̲
             i̲f̲ k=4 t̲h̲e̲n̲ PRINTTEXT(`N ') e̲l̲s̲e̲
                 PRINTTEXT(`P ');
-            print(x[3*k-2], x[3*k-1], x[3*k]); NLCR;
+            FIXT(2, 9, x[3*k-2]);
+            FIXT(2, 9, x[3*k-1]);
+            FIXT(2, 9, x[3*k]);
+            NLCR
         e̲n̲d̲
     e̲n̲d̲ TYP;
 
@@ -238,16 +242,22 @@ next:   i̲f̲ b ≠ x t̲h̲e̲n̲ b̲e̲g̲i̲n̲
     NLCR;
     NLCR;
     f̲o̲r̲ k := 1 s̲t̲e̲p̲ 1 u̲n̲t̲i̲l̲ 15 d̲o̲ b̲e̲g̲i̲n̲
-        print(ya[k], za[k]); NLCR;
+        FLOT(12, ya[k]);
+        FLOT(12, za[k]);
+        NLCR
+    e̲n̲d̲;
+    f̲o̲r̲ k := 0 s̲t̲e̲p̲ 1 u̲n̲t̲i̲l̲ 5 d̲o̲ b̲e̲g̲i̲n̲
+        NLCR;
+        FLOT(12, m[k])
     e̲n̲d̲;
     NLCR;
-    f̲o̲r̲ k := 0 s̲t̲e̲p̲ 1 u̲n̲t̲i̲l̲ 5 d̲o̲ b̲e̲g̲i̲n̲
-        print(m[k]); NLCR;
-    e̲n̲d̲;
-    print(k2); NLCR;
-     NLCR;
+    NLCR;
+    FLOT(12, k2);
+    NLCR;
+    NLCR;
     PRINTTEXT(`eps = ');
-    print(e[1]); NLCR;
+    FLOT(2, e[1]);
+    NLCR;
     t := 0;
     TYP(ya);
     fi := t̲r̲u̲e̲;
