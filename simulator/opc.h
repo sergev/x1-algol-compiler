@@ -124,7 +124,7 @@ enum {
     OPC_stop    = 108,
     OPC_P21     = 109,
 
-    OPC_FLOT    = 110,  // using OPC for FLOT, FIXT, ABSFIXT
-    OPC_FIXT    = 111,  // temporarily for convenience
+    OPC_FLOT    = 110, // using OPC for FLOT, FIXT, ABSFIXT
+    OPC_FIXT    = 111, // temporarily for convenience
     OPC_ABSFIXT = 112,
 };

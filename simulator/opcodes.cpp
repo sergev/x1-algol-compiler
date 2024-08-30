@@ -220,7 +220,7 @@ bool Processor::call_opc(unsigned opc)
     case OPC_GTA:
         // goto adjustment
         // Exit to block level given in register B.
-        frame_ptr = stack_base + Frame_Offset::FP - Frame_Offset::ARG;
+        frame_ptr  = stack_base + Frame_Offset::FP - Frame_Offset::ARG;
         goto_frame = display[core.B];
         machine.set_goto_flag();
         return true;
@@ -929,20 +929,22 @@ bool Processor::call_opc(unsigned opc)
     case OPC_VAP: {
         // value array positioning
         unsigned storage_fn = address_in_stack(core.S);
-        unsigned actual = stack.get(storage_fn).get_addr();
-        unsigned zero_base = stack.get(storage_fn + 1).get_addr() & 0xFFFF; // remove stray high bits
+        unsigned actual     = stack.get(storage_fn).get_addr();
+        unsigned zero_base =
+            stack.get(storage_fn + 1).get_addr() & 0xFFFF; // remove stray high bits
         unsigned elt_size = stack.get(storage_fn + 2).get_int();
         Cell_Type ct = elt_size % 2 == 1 ? Cell_Type::INTEGER_ADDRESS : Cell_Type::REAL_ADDRESS;
         // Element size correctors for type conversion.
         int mul = 1, div = 1;
         switch (elt_size) {
-        case 21:                 // real to integer
+        case 21: // real to integer
             div = 2;
             break;
-        case 12:                 // integer to real
+        case 12: // integer to real
             mul = 2;
             break;
-        case 1: case 2:
+        case 1:
+        case 2:
             break;
         default:
             throw std::runtime_error("Impossible type conversion in VAP");
@@ -965,8 +967,8 @@ bool Processor::call_opc(unsigned opc)
         }
         unsigned words = -x1_to_integer(stack.get(storage_fn + pos).get_int());
         stack.set(storage_fn, Stack_Cell{ ct, stack_base + STACK_BASE });
-        int offset =  actual - zero_base;
-        offset = offset*mul/div;
+        int offset = actual - zero_base;
+        offset     = offset * mul / div;
         stack.set(storage_fn + 1, Stack_Cell{ ct, stack_base - offset + STACK_BASE });
         for (unsigned i = 0; i < words; ++i) {
             switch (elt_size) {
@@ -976,11 +978,12 @@ bool Processor::call_opc(unsigned opc)
             case 2:
                 stack.push_real_value(load_real(actual + i));
                 break;
-            case 21:             // real to integer
-                stack.push_int_value(integer_to_x1(roundl(x1_to_ieee(load_real(actual + 2*i)))));
+            case 21: // real to integer
+                stack.push_int_value(integer_to_x1(roundl(x1_to_ieee(load_real(actual + 2 * i)))));
                 break;
-            case 12:             // integer to real
-                stack.push_real_value(ieee_to_x1((long double)x1_to_integer(load_word(actual + i/2))));
+            case 12: // integer to real
+                stack.push_real_value(
+                    ieee_to_x1((long double)x1_to_integer(load_word(actual + i / 2))));
                 break;
             }
         }

@@ -758,7 +758,7 @@ void Processor::update_display(unsigned level)
 void Processor::make_storage_function_frame(int elt_size)
 {
     int nitems = core.S;
-    int ndim = (stack.count() - stack_base) / 2;
+    int ndim   = (stack.count() - stack_base) / 2;
     std::vector<std::pair<int, int>> dims;
     for (int i = 0; i < ndim; ++i) {
         int right = stack.pop_integer();
@@ -804,7 +804,7 @@ void Processor::make_value_array_function_frame(int elt_size)
     push_formal_value(core.S);
     need_formal_address = false;
     unsigned storage_fn = stack.pop_addr();
-    unsigned addr = load_word(storage_fn);
+    unsigned addr       = load_word(storage_fn);
     if (elt_size == 2) {
         stack.push_real_addr(addr);
         stack.push_real_addr(load_word(storage_fn + 1));
@@ -814,7 +814,7 @@ void Processor::make_value_array_function_frame(int elt_size)
     }
     bool seen_limit = false;
     for (int i = 2; i < 8; ++i) {
-        auto w = load_word(storage_fn + i);
+        auto w  = load_word(storage_fn + i);
         int val = x1_to_integer(w);
         if (i == 2 && val != elt_size) {
             // There are two possibilities for val and elt-size: (1, 2) and (2, 1),

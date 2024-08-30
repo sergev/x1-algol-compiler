@@ -7,6 +7,7 @@
 #include <algorithm>
 #include <cassert>
 #include <cctype>
+#include <cmath>
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
@@ -111,7 +112,7 @@ void Machine::run(unsigned start_addr, unsigned finish_addr, unsigned finish_fra
         try {
             done = cpu.step();
 
-        } catch (const Non_Local_Goto&) {
+        } catch (const Non_Local_Goto &) {
             // Non-local GOTO: roll stack back.
             if (!cpu.roll_back(frame_base)) {
                 // Jump to previous level.
@@ -386,7 +387,7 @@ void Machine::print_fixed_point(std::ostream &out, int n, int m, long double x0,
     if (n > 0 && n <= 21) {
         x /= powl(10.0, n);
     }
-    if (n < 0 || m < 0 || n+m > 21 || n+m < 1 || x >= 1.0) {
+    if (n < 0 || m < 0 || n + m > 21 || n + m < 1 || x >= 1.0) {
         // Cannot print as fixed point format.
         print_floating_point(out, 13, 3, x0);
         return;
@@ -395,7 +396,7 @@ void Machine::print_fixed_point(std::ostream &out, int n, int m, long double x0,
     // Print digit by digit.
     bool suppress_zeroes = true;
     out << sign_symbol;
-    for (int count = 0; count < n+m; count++) {
+    for (int count = 0; count < n + m; count++) {
         x *= 10.0;
         int digit = x;
         assert(digit >= 0 && digit <= 9);
@@ -439,7 +440,8 @@ void Machine::print_fixed_point(std::ostream &out, int n, int m, long double x0,
 void Machine::print_floating_point(std::ostream &out, int n, int m, long double x0)
 {
     if (n < 1 || n > 13 || m < 1 || m > 3) {
-again:  n = 13;
+    again:
+        n = 13;
         m = 3;
     }
     long double x    = x0;
@@ -448,7 +450,7 @@ again:  n = 13;
     // Make x positive.
     if (std::signbit(x)) {
         sign_symbol = '-';
-        x = -x;
+        x           = -x;
     }
 
     int exponent = (x == 0) ? 0 : log10l(x) + 1;
