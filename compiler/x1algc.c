@@ -145,7 +145,7 @@ Static char *input_line;
 size_t input_line_len;
 Static int input_pos;
 Static boolean input_eof_seen;
-Static boolean binary_lib_tape, verbose_tape;
+Static boolean binary_lib_tape, verbose_tape, pass_formals;
 
 Static Void stop(int n, const char * txt)
 {
@@ -2129,7 +2129,8 @@ _L8702:
     /*actual parameter separator:*/
     if ((store[tlsc - 1] & (d8 - 1)) == 87) { /*,*/
         if (aflag == 0) {
-            if (store[tlsc - 2] == rlsc && fflag == 0 && jflag == 0 && nflag == 1) {
+            if (store[tlsc - 2] == rlsc && (fflag == 0 || pass_formals) &&
+                jflag == 0 && nflag == 1) {
                 if (nid > nlscop) {
                     if (pflag == 1 && fflag == 0) /*non-formal procedure:*/
                         test_first_occurrence();
@@ -3471,7 +3472,7 @@ int main(int argc, char *argv[])
         prog_name++;
     }
     for (;;) {
-        switch (getopt(argc, argv, "hbv")) {
+        switch (getopt(argc, argv, "hbvf")) {
         case EOF:
             break;
         case 'h':
@@ -3485,11 +3486,15 @@ int main(int argc, char *argv[])
             printf("Options:\n"
                    "    -h                      Display available options\n"
                    "    -v                      Verbose library tape actions\n"
+                   "    -f                      Use 'passing of formals'\n"
                    "    -b                      The library tape is raw binary (default: text decimal)\n");
             exit(EXIT_SUCCESS);
         case 'b':
             binary_lib_tape = true;
             continue;
+        case 'f':
+            pass_formals = true;
+            break;
         case 'v':
             verbose_tape = true;
             continue;
