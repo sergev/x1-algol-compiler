@@ -1,225 +1,222 @@
 b̲e̲g̲i̲n̲
-	c̲o̲m̲m̲e̲n̲t̲
-		The Whetstone Benchmark.
+    c̲o̲m̲m̲e̲n̲t̲
+        The Whetstone Benchmark.
 
-		See:
-		A Synthetic Benchmark, 
-		H.J. Curnow and B.A. Whichmann, 
-		The Computing Journal, Volume 19  Number 1
-					Feb 1976, P. 43-49
+        See:
+        A Synthetic Benchmark,
+        H.J. Curnow and B.A. Whichmann,
+        The Computing Journal, Volume 19  Number 1
+                                Feb 1976, P. 43-49
 
-		Some results
-		(in thousands of Whetstone Instructions per second):
+        Some results
+        (in thousands of Whetstone Instructions per second):
 
-		IBM 3090:  	(Delft ?) Algol Compiler	5000
-		Sun 3/60: 	Nase Algol Interpreter		10
-				Nase Algol2C			400
-		Sparc 2: 	Nase Algol Interpreter		63
-				Nase Algol2C			4200
-		Pyramid ??: 	Nase Algol Interpreter		20
+        IBM 3090:       (Delft ?) Algol Compiler    5000
+        Sun 3/60:       Nase Algol Interpreter        10
+                        Nase Algol2C                 400
+        Sparc 2:        Nase Algol Interpreter        63
+                        Nase Algol2C                4200
+        Pyramid ??:     Nase Algol Interpreter        20
 
-		``Nase'' indicates NASE A60.
-	;
+        ``Nase'' indicates NASE A60.
+    ;
 
-	r̲e̲a̲l̲ X1, X2, X3, X4, X, Y, Z, T, T1, T2;
-	a̲r̲r̲a̲y̲ E1[1:4];
-	i̲n̲t̲e̲g̲e̲r̲ I, J, K, L, N1, N2, N3, N4, N5, N6, N7, N8, N9, N10,N11;
+    r̲e̲a̲l̲ X1, X2, X3, X4, X, Y, Z, T, T1, T2;
+    a̲r̲r̲a̲y̲ E1[1:4];
+    i̲n̲t̲e̲g̲e̲r̲ I, J, K, L, N1, N2, N3, N4, N5, N6, N7, N8, N9, N10,N11;
 
-	p̲r̲o̲c̲e̲d̲u̲r̲e̲ PA(E);
-	a̲r̲r̲a̲y̲ E;
-	b̲e̲g̲i̲n̲
-		i̲n̲t̲e̲g̲e̲r̲ J;
-		
-		J := 0;
-	LAB:
-		E[1] := (E[1] + E[2] + E[3] - E[4]) * T;
-		E[2] := (E[1] + E[2] - E[3] + E[4]) * T;
-		E[3] := (E[1] - E[2] + E[3] + E[4]) * T;
-		E[4] := (- E[1] + E[2] + E[3] + E[4]) / T2;
-		J := J + 1;
-		i̲f̲ J < 6 t̲h̲e̲n̲
-			g̲o̲t̲o̲ LAB;
-	e̲n̲d̲;
+    p̲r̲o̲c̲e̲d̲u̲r̲e̲ PA(E);
+    a̲r̲r̲a̲y̲ E;
+    b̲e̲g̲i̲n̲
+        i̲n̲t̲e̲g̲e̲r̲ J;
 
-	p̲r̲o̲c̲e̲d̲u̲r̲e̲ P0;
-	b̲e̲g̲i̲n̲
-		E1[J] := E1[K];
-		E1[K] := E1[L];
-		E1[L] := E1[J];
-	e̲n̲d̲;
+        J := 0;
+LAB:
+        E[1] := (E[1] + E[2] + E[3] - E[4]) * T;
+        E[2] := (E[1] + E[2] - E[3] + E[4]) * T;
+        E[3] := (E[1] - E[2] + E[3] + E[4]) * T;
+        E[4] := (- E[1] + E[2] + E[3] + E[4]) / T2;
+        J := J + 1;
+        i̲f̲ J < 6 t̲h̲e̲n̲
+            g̲o̲t̲o̲ LAB;
+    e̲n̲d̲;
 
-	p̲r̲o̲c̲e̲d̲u̲r̲e̲ P3(X, Y, Z);
-	v̲a̲l̲u̲e̲ X, Y;
-	r̲e̲a̲l̲ X, Y, Z;
-	b̲e̲g̲i̲n̲
-		X := T * (X + Y);
-		Y := T * (X + Y);
-		Z := (X + Y) / T2;
-	e̲n̲d̲;
+    p̲r̲o̲c̲e̲d̲u̲r̲e̲ P0;
+    b̲e̲g̲i̲n̲
+        E1[J] := E1[K];
+        E1[K] := E1[L];
+        E1[L] := E1[J];
+    e̲n̲d̲;
 
-	p̲r̲o̲c̲e̲d̲u̲r̲e̲ POUT (N, J, K, X1, X2, X3, X4);
-	v̲a̲l̲u̲e̲ N, J, K, X1, X2, X3, X4;
-	i̲n̲t̲e̲g̲e̲r̲ N, J, K;
-	r̲e̲a̲l̲ X1, X2, X3, X4;
-	b̲e̲g̲i̲n̲
-		OUTREAL (1, N);
-		OUTREAL (1, J);
-		OUTREAL (1, K);
-		OUTREAL (1, X1);
-		OUTREAL (1, X2);
-		OUTREAL (1, X3);
-		OUTREAL (1, X4);
-		OUTSTRING (1, "\N");
-	e̲n̲d̲;
+    p̲r̲o̲c̲e̲d̲u̲r̲e̲ P3(X, Y, Z);
+    v̲a̲l̲u̲e̲ X, Y;
+    r̲e̲a̲l̲ X, Y, Z;
+    b̲e̲g̲i̲n̲
+        X := T * (X + Y);
+        Y := T * (X + Y);
+        Z := (X + Y) / T2;
+    e̲n̲d̲;
 
-	c̲o̲m̲m̲e̲n̲t̲ initialize constants ;
+    p̲r̲o̲c̲e̲d̲u̲r̲e̲ POUT (N, J, K, X1, X2, X3, X4);
+    v̲a̲l̲u̲e̲ N, J, K, X1, X2, X3, X4;
+    i̲n̲t̲e̲g̲e̲r̲ N, J, K;
+    r̲e̲a̲l̲ X1, X2, X3, X4;
+    b̲e̲g̲i̲n̲
+        print(N);
+        print(J);
+        print(K);
+        print(X1);
+        print(X2);
+        print(X3);
+        print(X4);
+        NLCR
+    e̲n̲d̲;
 
-	T := 0.499975;
-	T1 := 0.50025;
-	T2 := 2.0;
+    c̲o̲m̲m̲e̲n̲t̲ initialize constants ;
 
-	c̲o̲m̲m̲e̲n̲t̲ read the value of i, controlling total wight: if i = 10 the
-		total weight is one million Whetstone instructions ;
+    T := 0.499975;
+    T1 := 0.50025;
+    T2 := 2.0;
 
-	c̲o̲m̲m̲e̲n̲t̲ inreal (2, i) ;
+    c̲o̲m̲m̲e̲n̲t̲ read the value of i, controlling total wight: if i = 10 the
+            total weight is one million Whetstone instructions ;
 
-	I := 10;
+    I := 10;
 
-	N1 := 0;		N2 := 12 * I;		N3 := 14 * I;
-	N4 := 345 * I;		N5 := 0;		N6 := 210 * I;
-	N7 := 32 * I;		N8 := 899 * I;		N9 := 616 * I;
-	N10 := 0;		N11 := 93 * I;
+    N1 := 0;        N2 := 12 * I;   N3 := 14 * I;
+    N4 := 345 * I;  N5 := 0;        N6 := 210 * I;
+    N7 := 32 * I;   N8 := 899 * I;  N9 := 616 * I;
+    N10 := 0;       N11 := 93 * I;
 
-	c̲o̲m̲m̲e̲n̲t̲ module 1: simple identifiers ;
+    c̲o̲m̲m̲e̲n̲t̲ module 1: simple identifiers ;
 
-	X1 := 1.0;
-	X2 := X3 := X4 := - 1.0;
+    X1 := 1.0;
+    X2 := X3 := X4 := - 1.0;
 
-	f̲o̲r̲ I := 1 s̲t̲e̲p̲ 1 u̲n̲t̲i̲l̲ N1 d̲o̲
-	b̲e̲g̲i̲n̲
-		X1 := (X1 + X2 + X3 - X4) * T;
-		X2 := (X1 + X2 - X3 + X4) * T;
-		X3 := (X1 - X2 + X3 + X4) * T;
-		X4 := (- X1 + X2 + X3 + X4) * T;
-	e̲n̲d̲;
+    f̲o̲r̲ I := 1 s̲t̲e̲p̲ 1 u̲n̲t̲i̲l̲ N1 d̲o̲
+    b̲e̲g̲i̲n̲
+        X1 := (X1 + X2 + X3 - X4) * T;
+        X2 := (X1 + X2 - X3 + X4) * T;
+        X3 := (X1 - X2 + X3 + X4) * T;
+        X4 := (- X1 + X2 + X3 + X4) * T;
+    e̲n̲d̲;
 
-	POUT (N1, N1, N1, X1, X2, X3, X4);
+    POUT (N1, N1, N1, X1, X2, X3, X4);
 
-	c̲o̲m̲m̲e̲n̲t̲ module 2: array elements ;
+    c̲o̲m̲m̲e̲n̲t̲ module 2: array elements ;
 
-	E1[1] := 1.0;
-	E1[2] := E1[3] := E1[4] := -1.0;
+    E1[1] := 1.0;
+    E1[2] := E1[3] := E1[4] := -1.0;
 
-	f̲o̲r̲ I := 1 s̲t̲e̲p̲ 1 u̲n̲t̲i̲l̲ N2 d̲o̲
-	b̲e̲g̲i̲n̲
-		E1[1] := (E1[1] + E1[2] + E1[3] - E1[4]) * T;
-		E1[2] := (E1[1] + E1[2] - E1[3] + E1[4]) * T;
-		E1[3] := (E1[1] - E1[2] + E1[3] + E1[4]) * T;
-		E1[4] := (- E1[1] + E1[2] + E1[3] + E1[4]) * T;
-	e̲n̲d̲;
+    f̲o̲r̲ I := 1 s̲t̲e̲p̲ 1 u̲n̲t̲i̲l̲ N2 d̲o̲
+    b̲e̲g̲i̲n̲
+        E1[1] := (E1[1] + E1[2] + E1[3] - E1[4]) * T;
+        E1[2] := (E1[1] + E1[2] - E1[3] + E1[4]) * T;
+        E1[3] := (E1[1] - E1[2] + E1[3] + E1[4]) * T;
+        E1[4] := (- E1[1] + E1[2] + E1[3] + E1[4]) * T;
+    e̲n̲d̲;
 
-	 POUT (N2, N3, N2, E1[1], E1[2], E1[3], E1[4]);
-	
-	c̲o̲m̲m̲e̲n̲t̲ module 3: as array parameter ;
+    POUT (N2, N3, N2, E1[1], E1[2], E1[3], E1[4]);
 
-	f̲o̲r̲ I:= 1 s̲t̲e̲p̲ 1 u̲n̲t̲i̲l̲ N3 d̲o̲
-		PA(E1);
+    c̲o̲m̲m̲e̲n̲t̲ module 3: as array parameter ;
 
-	POUT (N3, N2, N2, E1[1], E1[2], E1[3], E1[4]);
+    f̲o̲r̲ I:= 1 s̲t̲e̲p̲ 1 u̲n̲t̲i̲l̲ N3 d̲o̲
+        PA(E1);
 
-	c̲o̲m̲m̲e̲n̲t̲ module 4: conditional jumps ;
+    POUT (N3, N2, N2, E1[1], E1[2], E1[3], E1[4]);
 
-	J := 1;
-	f̲o̲r̲ I := 1 s̲t̲e̲p̲ 1 u̲n̲t̲i̲l̲ N4 d̲o̲
-	b̲e̲g̲i̲n̲
-		i̲f̲ J = 1 t̲h̲e̲n̲
-			J := 2
-		e̲l̲s̲e̲
-			J := 3;
+    c̲o̲m̲m̲e̲n̲t̲ module 4: conditional jumps ;
 
-		i̲f̲ J > 2 t̲h̲e̲n̲
-			J := 0
-		e̲l̲s̲e̲
-			J := 1;
+    J := 1;
+    f̲o̲r̲ I := 1 s̲t̲e̲p̲ 1 u̲n̲t̲i̲l̲ N4 d̲o̲
+    b̲e̲g̲i̲n̲
+        i̲f̲ J = 1 t̲h̲e̲n̲
+            J := 2
+        e̲l̲s̲e̲
+            J := 3;
 
-		i̲f̲ J < 1 t̲h̲e̲n̲
-			J := 1
-		e̲l̲s̲e̲
-			J := 0;
-	e̲n̲d̲;
+        i̲f̲ J > 2 t̲h̲e̲n̲
+            J := 0
+        e̲l̲s̲e̲
+            J := 1;
 
-	POUT (N4, J, J, X1, X2, X3, X4);
+        i̲f̲ J < 1 t̲h̲e̲n̲
+            J := 1
+        e̲l̲s̲e̲
+            J := 0;
+    e̲n̲d̲;
 
-	c̲o̲m̲m̲e̲n̲t̲ module 5: omitted ;
+    POUT (N4, J, J, X1, X2, X3, X4);
 
-	c̲o̲m̲m̲e̲n̲t̲ module 6: integer arithmetik ;
+    c̲o̲m̲m̲e̲n̲t̲ module 5: omitted ;
 
-	J := 1;	K := 2;	L := 3;
+    c̲o̲m̲m̲e̲n̲t̲ module 6: integer arithmetik ;
 
-	f̲o̲r̲ I := 1 s̲t̲e̲p̲ 1 u̲n̲t̲i̲l̲ N6 d̲o̲
-	b̲e̲g̲i̲n̲
-		J := J * (K - J) * (L - K);
-		K := L * K - (L - J) * K;
-		L := (L - K) * (K + J) ;	 c̲o̲m̲m̲e̲n̲t̲ typo in TCJ ;
-		E1[L-1] := J + K + L;
-		E1[K-1] := J * K * L;
-	e̲n̲d̲;
+    J := 1;    K := 2;    L := 3;
 
-	POUT (N6, J, K, E1[1], E1[2], E1[3], E1[4]);
+    f̲o̲r̲ I := 1 s̲t̲e̲p̲ 1 u̲n̲t̲i̲l̲ N6 d̲o̲
+    b̲e̲g̲i̲n̲
+        J := J * (K - J) * (L - K);
+        K := L * K - (L - J) * K;
+        L := (L - K) * (K + J) ;     c̲o̲m̲m̲e̲n̲t̲ typo in TCJ ;
+        E1[L-1] := J + K + L;
+        E1[K-1] := J * K * L;
+    e̲n̲d̲;
 
-	c̲o̲m̲m̲e̲n̲t̲ module 7: trig functions ;
+    POUT (N6, J, K, E1[1], E1[2], E1[3], E1[4]);
 
-	X := Y := 0.5;
+    c̲o̲m̲m̲e̲n̲t̲ module 7: trig functions ;
 
-	f̲o̲r̲ I := 1 s̲t̲e̲p̲ 1 u̲n̲t̲i̲l̲ N7 d̲o̲
-	b̲e̲g̲i̲n̲
-		X := T * ARCTAN (T2 * SIN (X) * COS (X) /
-			(COS (X + Y) + COS (X - Y) - 1.0));
-		Y := T * ARCTAN (T2 * SIN (Y) * COS (Y) /
-			(COS (X + Y) + COS (X - Y) - 1.0));
-	e̲n̲d̲;
+    X := Y := 0.5;
 
-	POUT (N7, J, K, X, X, Y, Y);
+    f̲o̲r̲ I := 1 s̲t̲e̲p̲ 1 u̲n̲t̲i̲l̲ N7 d̲o̲
+    b̲e̲g̲i̲n̲
+        X := T * arctan (T2 * sin (X) * cos (X) /
+                (cos (X + Y) + cos (X - Y) - 1.0));
+        Y := T * arctan (T2 * sin (Y) * cos (Y) /
+                (cos (X + Y) + cos (X - Y) - 1.0));
+    e̲n̲d̲;
 
-	c̲o̲m̲m̲e̲n̲t̲ module 8: procedure calls ;
+    POUT (N7, J, K, X, X, Y, Y);
 
-	X := Y := Z := 1.0;
+    c̲o̲m̲m̲e̲n̲t̲ module 8: procedure calls ;
 
-	f̲o̲r̲ I := 1 s̲t̲e̲p̲ 1 u̲n̲t̲i̲l̲ N8 d̲o̲
-		P3 (X, Y, Z);
+    X := Y := Z := 1.0;
 
-	POUT (N8, J, K, X, Y, Z, Z);
+    f̲o̲r̲ I := 1 s̲t̲e̲p̲ 1 u̲n̲t̲i̲l̲ N8 d̲o̲
+        P3 (X, Y, Z);
 
-	c̲o̲m̲m̲e̲n̲t̲ module 9: array references ;
+    POUT (N8, J, K, X, Y, Z, Z);
 
-	J := 1;  K := 2;  L := 3;
-	E1[1] := 1.0;  E1[2] := 2.0;  E1[3] := 3.0;
+    c̲o̲m̲m̲e̲n̲t̲ module 9: array references ;
 
-	f̲o̲r̲ I := 1 s̲t̲e̲p̲ 1 u̲n̲t̲i̲l̲ N9 d̲o̲
-		P0;
+    J := 1;  K := 2;  L := 3;
+    E1[1] := 1.0;  E1[2] := 2.0;  E1[3] := 3.0;
 
-	POUT (N9, J, K, E1[1], E1[2], E1[3], E1[4]);
+    f̲o̲r̲ I := 1 s̲t̲e̲p̲ 1 u̲n̲t̲i̲l̲ N9 d̲o̲
+        P0;
 
-	c̲o̲m̲m̲e̲n̲t̲ module 10: integer arithmetik ;
+    POUT (N9, J, K, E1[1], E1[2], E1[3], E1[4]);
 
-	J := 2;  K := 3;
+    c̲o̲m̲m̲e̲n̲t̲ module 10: integer arithmetik ;
 
-	f̲o̲r̲ I := 1 s̲t̲e̲p̲ 1 u̲n̲t̲i̲l̲ N10 d̲o̲
-	b̲e̲g̲i̲n̲
-		J := J + K;
-		K := J + K;
-		J := K - J;
-		K := K -J -J;
-	e̲n̲d̲;
+    J := 2;  K := 3;
 
-	POUT (N10, J, K, X1, X2, X3, X4);
+    f̲o̲r̲ I := 1 s̲t̲e̲p̲ 1 u̲n̲t̲i̲l̲ N10 d̲o̲
+    b̲e̲g̲i̲n̲
+        J := J + K;
+        K := J + K;
+        J := K - J;
+        K := K -J -J;
+    e̲n̲d̲;
 
-	c̲o̲m̲m̲e̲n̲t̲ module 11: standard functions ;
+    POUT (N10, J, K, X1, X2, X3, X4);
 
-	X := 0.75;
-	f̲o̲r̲ I := 1 s̲t̲e̲p̲ 1 u̲n̲t̲i̲l̲ N11 d̲o̲
-		X := SQRT (EXP (LN (X) / T1));
-	
-	POUT (N11, J, K, X, X, X, X);
+    c̲o̲m̲m̲e̲n̲t̲ module 11: standard functions ;
+
+    X := 0.75;
+    f̲o̲r̲ I := 1 s̲t̲e̲p̲ 1 u̲n̲t̲i̲l̲ N11 d̲o̲
+        X := sqrt (exp (ln (X) / T1));
+
+    POUT (N11, J, K, X, X, X, X);
 e̲n̲d̲
-

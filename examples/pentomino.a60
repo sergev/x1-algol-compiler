@@ -1,99 +1,121 @@
-b̲e̲g̲i̲n̲ c̲o̲m̲m̲e̲n̲t̲ pentomino, 130968;
-i̲n̲t̲e̲g̲e̲r̲ score, nummer, lengte, breedte, aantal stenen, aantal standen,
-i, j, k, teller, lb;
-lengte:= read; breedte:= read; aantal stenen:= read; aantal standen:= read;
-lb:= lengte * (breedte - 1);
-b̲e̲g̲i̲n̲ i̲n̲t̲e̲g̲e̲r̲ a̲r̲r̲a̲y̲ bord [-39 : 100],
-standen, wijzer [1 : aantal stenen],
-informatie [1 : 8 * aantal standen];
-b̲o̲o̲l̲e̲a̲n̲ a̲r̲r̲a̲y̲ ongebruikt [1 : aantal stenen];
-p̲r̲o̲c̲e̲d̲u̲r̲e̲ output;
-b̲e̲g̲i̲n̲ i̲n̲t̲e̲g̲e̲r̲ i, j;
-score:= score + 1;
-SPACE (1);
-f̲o̲r̲ j:= 1 s̲t̲e̲p̲ 1 u̲n̲t̲i̲l̲ 2 * lengte d̲o̲
-b̲e̲g̲i̲n̲ PRINTTEXT (|<-|>); SPACE (1) e̲n̲d̲ ;
-c̲o̲m̲m̲e̲n̲t̲ ABSFIXT (6, 2, time); NLCR;
-f̲o̲r̲ i:= 0 s̲t̲e̲p̲ lengte u̲n̲t̲i̲l̲ lb d̲o̲
-b̲e̲g̲i̲n̲ PRINTTEXT(|<I|>);
-f̲o̲r̲ j:= 1 s̲t̲e̲p̲ 1 u̲n̲t̲i̲l̲ lengte - 1 d̲o̲
-b̲e̲g̲i̲n̲ SPACE (3);
-i̲f̲ bord [i + j] |= bord [i + j + 1]
-t̲h̲e̲n̲ PRINTTEXT(|<I|>) e̲l̲s̲e̲ SPACE (1)
-e̲n̲d̲ ;
-SPACE (3); PRINTTEXT(|<I|>); NLCR; SPACE (1);
-i̲f̲ i < lb
-t̲h̲e̲n̲ b̲e̲g̲i̲n̲ f̲o̲r̲ j:= 1 s̲t̲e̲p̲ 1 u̲n̲t̲i̲l̲ lengte d̲o̲
-b̲e̲g̲i̲n̲ i̲f̲ bord [i + j] |= bord [i + j + lengte]
-t̲h̲e̲n̲ b̲e̲g̲i̲n̲ PRINTTEXT (|<-|>); SPACE (1);
-PRINTTEXT (|<-|>); SPACE (1)
-e̲n̲d̲
-e̲l̲s̲e̲ SPACE (4)
-e̲n̲d̲
-e̲n̲d̲
-e̲l̲s̲e̲ f̲o̲r̲ j:= 1 s̲t̲e̲p̲ 1 u̲n̲t̲i̲l̲ 2 * lengte d̲o̲
-b̲e̲g̲i̲n̲ PRINTTEXT (|<-|>); SPACE (1) e̲n̲d̲ ;
-NLCR
-e̲n̲d̲ ;
-NLCR; NLCR;
-i̲f̲ score = 7 t̲h̲e̲n̲ g̲o̲t̲o̲ ex
-e̲n̲d̲ output;
-p̲r̲o̲c̲e̲d̲u̲r̲e̲ up (veld, kolom); v̲a̲l̲u̲e̲ veld, kolom;
-i̲n̲t̲e̲g̲e̲r̲ veld, kolom;
-b̲e̲g̲i̲n̲ i̲n̲t̲e̲g̲e̲r̲ i, j, k, r, w, steen, aantal;
-nummer:= nummer + 1;
-f̲o̲r̲ steen:= 1 s̲t̲e̲p̲ 1 u̲n̲t̲i̲l̲ aantal stenen d̲o̲
-i̲f̲ ongebruikt [steen] t̲h̲e̲n̲
-b̲e̲g̲i̲n̲ ongebruikt [steen]:= f̲a̲l̲s̲e̲ ;
-bord [veld]:= steen;
-aantal:= standen [steen] - 1;
-f̲o̲r̲ i:= 0 s̲t̲e̲p̲ 1 u̲n̲t̲i̲l̲ aantal d̲o̲
-b̲e̲g̲i̲n̲ w:= wijzer [steen] + 4 * i;
-i̲f̲ bord [informatie [w] + veld] = 0 t̲h̲e̲n̲
-b̲e̲g̲i̲n̲ i̲f̲ bord [informatie [w + 1] + veld] = 0 t̲h̲e̲n̲
-b̲e̲g̲i̲n̲ i̲f̲ bord [informatie [w + 2] + veld] = 0 t̲h̲e̲n̲
-b̲e̲g̲i̲n̲ i̲f̲ bord [informatie [w + 3] + veld] = 0 t̲h̲e̲n̲
-b̲e̲g̲i̲n̲ f̲o̲r̲ j:= 0, 1, 2, 3 d̲o̲
-bord [informatie [w + j] + veld]:= steen;
-i̲f̲ nummer = aantal stenen
-t̲h̲e̲n̲ output
-e̲l̲s̲e̲
 b̲e̲g̲i̲n̲
-f̲o̲r̲ k:= kolom s̲t̲e̲p̲ 1 u̲n̲t̲i̲l̲ lengte d̲o̲
-f̲o̲r̲ r:= 0 s̲t̲e̲p̲ lengte u̲n̲t̲i̲l̲ lb d̲o̲
-i̲f̲ bord [r + k] = 0 t̲h̲e̲n̲ g̲o̲t̲o̲ beet;
-beet: up (r + k, k)
-e̲n̲d̲ ;
-f̲o̲r̲ j:= 0, 1, 2, 3 d̲o̲
-bord [informatie [w + j] + veld]:= 0
-e̲n̲d̲
-e̲n̲d̲
-e̲n̲d̲
-e̲n̲d̲
-e̲n̲d̲ ;
-ongebruikt [steen]:= t̲r̲u̲e̲
-e̲n̲d̲ ;
-bord [veld]:= 0;
-down: nummer:= nummer - 1
-e̲n̲d̲ up;
-teller:= 1;
-f̲o̲r̲ i:= 1 s̲t̲e̲p̲ 1 u̲n̲t̲i̲l̲ aantal stenen d̲o̲
-b̲e̲g̲i̲n̲ j:= read; c̲o̲m̲m̲e̲n̲t̲ steennummer, wordt niet gebruikt;
-wijzer [i]:= teller; standen [i]:= read;
-f̲o̲r̲ j:= 1 s̲t̲e̲p̲ 1 u̲n̲t̲i̲l̲ standen [i] d̲o̲
-b̲e̲g̲i̲n̲ f̲o̲r̲ k:= 0 s̲t̲e̲p̲ 1 u̲n̲t̲i̲l̲ 3 d̲o̲
-informatie [teller + k]:= read;
-teller:= teller + 4
-e̲n̲d̲
-e̲n̲d̲ ;
-f̲o̲r̲ i:= - 39 s̲t̲e̲p̲ 1 u̲n̲t̲i̲l̲ 0,
-61 s̲t̲e̲p̲ 1 u̲n̲t̲i̲l̲ 100 d̲o̲ bord [i]:= - 1;
-f̲o̲r̲ i:= 1 s̲t̲e̲p̲ 1 u̲n̲t̲i̲l̲ 60 d̲o̲ bord [i]:= 0;
-f̲o̲r̲ i:= 1 s̲t̲e̲p̲ 1 u̲n̲t̲i̲l̲ aantal stenen d̲o̲
-ongebruikt [i]:= t̲r̲u̲e̲ ;
-score:= nummer:= 0;
-NLCR; PRINTTEXT (|<The first 7 solutions:|>); NLCR; NLCR; NLCR;
-up (1, 1);
+    c̲o̲m̲m̲e̲n̲t̲ pentomino, 130968;
+
+    i̲n̲t̲e̲g̲e̲r̲ score, nummer, lengte, breedte, aantal stenen, aantal standen,
+            i, j, k, teller, lb;
+    lengte := read;
+    breedte := read;
+    aantal stenen := read;
+    aantal standen := read;
+    lb := lengte * (breedte - 1);
+
+    b̲e̲g̲i̲n̲
+        i̲n̲t̲e̲g̲e̲r̲ a̲r̲r̲a̲y̲ bord [-39 : 100],
+                      standen, wijzer [1 : aantal stenen],
+                      informatie [1 : 8 * aantal standen];
+        B̲o̲o̲l̲e̲a̲n̲ a̲r̲r̲a̲y̲ ongebruikt [1 : aantal stenen];
+
+        p̲r̲o̲c̲e̲d̲u̲r̲e̲ output; b̲e̲g̲i̲n̲
+            i̲n̲t̲e̲g̲e̲r̲ i, j;
+            score := score + 1;
+            SPACE (1);
+            f̲o̲r̲ j := 1 s̲t̲e̲p̲ 1 u̲n̲t̲i̲l̲ 2 * lengte d̲o̲ b̲e̲g̲i̲n̲
+                PRINTTEXT (`-');
+                SPACE (1)
+            e̲n̲d̲;
+            c̲o̲m̲m̲e̲n̲t̲ ABSFIXT (6, 2, time);
+            c̲o̲m̲m̲e̲n̲t̲ NLCR;
+            f̲o̲r̲ i := 0 s̲t̲e̲p̲ lengte u̲n̲t̲i̲l̲ lb d̲o̲ b̲e̲g̲i̲n̲
+                PRINTTEXT(`I');
+                f̲o̲r̲ j := 1 s̲t̲e̲p̲ 1 u̲n̲t̲i̲l̲ lengte - 1 d̲o̲ b̲e̲g̲i̲n̲
+                    SPACE (3);
+                    i̲f̲ bord [i + j] |= bord [i + j + 1] t̲h̲e̲n̲
+                        PRINTTEXT(`I')
+                    e̲l̲s̲e̲
+                        SPACE (1)
+                e̲n̲d̲;
+                SPACE (3); PRINTTEXT(`I'); NLCR; SPACE (1);
+                i̲f̲ i < lb t̲h̲e̲n̲ b̲e̲g̲i̲n̲
+                    f̲o̲r̲ j := 1 s̲t̲e̲p̲ 1 u̲n̲t̲i̲l̲ lengte d̲o̲ b̲e̲g̲i̲n̲
+                        i̲f̲ bord [i + j] |= bord [i + j + lengte] t̲h̲e̲n̲ b̲e̲g̲i̲n̲
+                            PRINTTEXT (`-'); SPACE (1);
+                            PRINTTEXT (`-'); SPACE (1)
+                        e̲n̲d̲ e̲l̲s̲e̲
+                            SPACE (4)
+                    e̲n̲d̲
+                e̲n̲d̲ e̲l̲s̲e̲
+                    f̲o̲r̲ j := 1 s̲t̲e̲p̲ 1 u̲n̲t̲i̲l̲ 2 * lengte d̲o̲ b̲e̲g̲i̲n̲
+                        PRINTTEXT (`-'); SPACE (1)
+                    e̲n̲d̲;
+                NLCR
+            e̲n̲d̲;
+            NLCR; NLCR;
+            i̲f̲ score = 7 t̲h̲e̲n̲
+                g̲o̲t̲o̲ ex
+        e̲n̲d̲ output;
+
+        p̲r̲o̲c̲e̲d̲u̲r̲e̲ up (veld, kolom);
+            v̲a̲l̲u̲e̲ veld, kolom;
+            i̲n̲t̲e̲g̲e̲r̲ veld, kolom;
+        b̲e̲g̲i̲n̲
+            i̲n̲t̲e̲g̲e̲r̲ i, j, k, r, w, steen, aantal;
+            nummer := nummer + 1;
+            f̲o̲r̲ steen := 1 s̲t̲e̲p̲ 1 u̲n̲t̲i̲l̲ aantal stenen d̲o̲
+            i̲f̲ ongebruikt [steen] t̲h̲e̲n̲ b̲e̲g̲i̲n̲
+                ongebruikt [steen] := f̲a̲l̲s̲e̲;
+                bord [veld] := steen;
+                aantal := standen [steen] - 1;
+                f̲o̲r̲ i := 0 s̲t̲e̲p̲ 1 u̲n̲t̲i̲l̲ aantal d̲o̲ b̲e̲g̲i̲n̲
+                    w := wijzer [steen] + 4 * i;
+                    i̲f̲ bord [informatie [w] + veld] = 0 t̲h̲e̲n̲ b̲e̲g̲i̲n̲
+                        i̲f̲ bord [informatie [w + 1] + veld] = 0 t̲h̲e̲n̲ b̲e̲g̲i̲n̲
+                            i̲f̲ bord [informatie [w + 2] + veld] = 0 t̲h̲e̲n̲ b̲e̲g̲i̲n̲
+                                i̲f̲ bord [informatie [w + 3] + veld] = 0 t̲h̲e̲n̲ b̲e̲g̲i̲n̲
+                                    f̲o̲r̲ j := 0, 1, 2, 3 d̲o̲
+                                        bord [informatie [w + j] + veld] := steen;
+                                    i̲f̲ nummer = aantal stenen t̲h̲e̲n̲
+                                        output
+                                    e̲l̲s̲e̲ b̲e̲g̲i̲n̲
+                                        f̲o̲r̲ k := kolom s̲t̲e̲p̲ 1 u̲n̲t̲i̲l̲ lengte d̲o̲
+                                            f̲o̲r̲ r := 0 s̲t̲e̲p̲ lengte u̲n̲t̲i̲l̲ lb d̲o̲
+                                                i̲f̲ bord [r + k] = 0 t̲h̲e̲n̲
+                                                    g̲o̲t̲o̲ beet;
+beet:                                   up (r + k, k)
+                                    e̲n̲d̲;
+                                    f̲o̲r̲ j := 0, 1, 2, 3 d̲o̲
+                                        bord [informatie [w + j] + veld] := 0
+                                e̲n̲d̲
+                            e̲n̲d̲
+                        e̲n̲d̲
+                    e̲n̲d̲
+                e̲n̲d̲;
+                ongebruikt [steen] := t̲r̲u̲e̲
+            e̲n̲d̲;
+            bord [veld] := 0;
+down:       nummer := nummer - 1
+        e̲n̲d̲ up;
+
+        teller := 1;
+        f̲o̲r̲ i := 1 s̲t̲e̲p̲ 1 u̲n̲t̲i̲l̲ aantal stenen d̲o̲ b̲e̲g̲i̲n̲
+            j := read;
+            c̲o̲m̲m̲e̲n̲t̲ steennummer, wordt niet gebruikt;
+            wijzer [i] := teller;
+            standen [i] := read;
+            f̲o̲r̲ j := 1 s̲t̲e̲p̲ 1 u̲n̲t̲i̲l̲ standen [i] d̲o̲ b̲e̲g̲i̲n̲
+                f̲o̲r̲ k := 0 s̲t̲e̲p̲ 1 u̲n̲t̲i̲l̲ 3 d̲o̲
+                    informatie [teller + k] := read;
+                teller := teller + 4
+            e̲n̲d̲
+        e̲n̲d̲;
+        f̲o̲r̲ i := - 39 s̲t̲e̲p̲ 1 u̲n̲t̲i̲l̲ 0, 61 s̲t̲e̲p̲ 1 u̲n̲t̲i̲l̲ 100 d̲o̲
+            bord [i] := - 1;
+        f̲o̲r̲ i := 1 s̲t̲e̲p̲ 1 u̲n̲t̲i̲l̲ 60 d̲o̲
+            bord [i] := 0;
+        f̲o̲r̲ i := 1 s̲t̲e̲p̲ 1 u̲n̲t̲i̲l̲ aantal stenen d̲o̲
+            ongebruikt [i] := t̲r̲u̲e̲;
+        score := nummer := 0;
+        NLCR; PRINTTEXT (`The first 7 solutions:'); NLCR; NLCR; NLCR;
+        up (1, 1);
 ex:
-e̲n̲d̲
+    e̲n̲d̲
 e̲n̲d̲
