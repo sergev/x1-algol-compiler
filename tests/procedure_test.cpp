@@ -633,18 +633,20 @@ TEST_F(x1_machine, elementary_function_as_arg)
 {
     auto output = compile_and_run(R"(
         b̲e̲g̲i̲n̲
-            p̲r̲o̲c̲e̲d̲u̲r̲e̲ apply(f, x); r̲e̲a̲l̲ p̲r̲o̲c̲e̲d̲u̲r̲e̲ f; r̲e̲a̲l̲ x;
+            p̲r̲o̲c̲e̲d̲u̲r̲e̲ apply(f, x); r̲e̲a̲l̲ p̲r̲o̲c̲e̲d̲u̲r̲e̲ f; r̲e̲a̲l̲ x; b̲e̲g̲i̲n̲
                 print(f(x));
+                NLCR
+            e̲n̲d̲;
 
-            apply(abs, -123.456); NLCR;
-            apply(sign, -123.456); NLCR;
-            apply(sqrt, 2); NLCR;
-            apply(sin, 1.5); NLCR;
-            apply(cos, 1.5); NLCR;
-            apply(arctan, 2); NLCR;
-            apply(ln, 2); NLCR;
-            apply(exp, 6); NLCR;
-            apply(entier, -98.7777); NLCR;
+            apply(abs, -123.456);
+            apply(sign, -123.456);
+            apply(sqrt, 2);
+            apply(sin, 1.5);
+            apply(cos, 1.5);
+            apply(arctan, 2);
+            apply(ln, 2);
+            apply(exp, 6);
+            apply(entier, -98.7777);
         e̲n̲d̲
     )");
     const std::string expect = R"(123.456
