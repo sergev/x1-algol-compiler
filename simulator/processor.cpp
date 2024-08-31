@@ -420,6 +420,8 @@ void Processor::allocate_stack(unsigned nwords)
 //
 bool Processor::roll_back(unsigned frame_base)
 {
+std::cerr << "--- roll_back: goto_frame = " << goto_frame
+          << ", frame_base = " << frame_base << '\n';
     if (goto_frame < frame_base) {
         return false;
     }

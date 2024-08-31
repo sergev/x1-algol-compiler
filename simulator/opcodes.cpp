@@ -220,10 +220,15 @@ bool Processor::call_opc(unsigned opc)
     case OPC_GTA:
         // goto adjustment
         // Exit to block level given in register B.
-        frame_ptr  = stack_base + Frame_Offset::FP - Frame_Offset::ARG;
+//        frame_ptr  = stack_base + Frame_Offset::FP - Frame_Offset::ARG;
         goto_frame = display[core.B];
-        machine.set_goto_flag();
-        return true;
+std::cerr << "--- GTA: goto_frame = " << goto_frame
+          << ", frame_ptr = " << frame_ptr << '\n';
+        if (goto_frame != frame_ptr) {
+            machine.set_goto_flag();
+            return true;
+        }
+        break;
 
     case OPC_SSI: {
         // store switch index

@@ -113,6 +113,7 @@ void Machine::run(unsigned start_addr, unsigned finish_addr, unsigned finish_fra
             done = cpu.step();
 
         } catch (const Non_Local_Goto &) {
+std::cerr << "--- goto exception\n";
             // Non-local GOTO: roll stack back.
             if (!cpu.roll_back(frame_base)) {
                 // Jump to previous level.

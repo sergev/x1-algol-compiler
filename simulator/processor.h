@@ -62,7 +62,6 @@ private:
 
     // Target of a non-local goto.
     unsigned goto_frame{};
-    bool goto_flag{};
 
     // Frame pointers for each block level.
     unsigned display[32]{};

@@ -59,6 +59,7 @@ b̲e̲g̲i̲n̲
             i̲n̲t̲e̲g̲e̲r̲ veld, kolom;
         b̲e̲g̲i̲n̲
             i̲n̲t̲e̲g̲e̲r̲ i, j, k, r, w, steen, aantal;
+            PRINTTEXT(`--- up'); NLCR;
             nummer := nummer + 1;
             f̲o̲r̲ steen := 1 s̲t̲e̲p̲ 1 u̲n̲t̲i̲l̲ aantal stenen d̲o̲
             i̲f̲ ongebruikt [steen] t̲h̲e̲n̲ b̲e̲g̲i̲n̲
@@ -78,8 +79,10 @@ b̲e̲g̲i̲n̲
                                     e̲l̲s̲e̲ b̲e̲g̲i̲n̲
                                         f̲o̲r̲ k := kolom s̲t̲e̲p̲ 1 u̲n̲t̲i̲l̲ lengte d̲o̲
                                             f̲o̲r̲ r := 0 s̲t̲e̲p̲ lengte u̲n̲t̲i̲l̲ lb d̲o̲
-                                                i̲f̲ bord [r + k] = 0 t̲h̲e̲n̲
+                                                i̲f̲ bord [r + k] = 0 t̲h̲e̲n̲ b̲e̲g̲i̲n̲
+                                                    PRINTTEXT(`--- goto'); NLCR;
                                                     g̲o̲t̲o̲ beet;
+                                                e̲n̲d̲;
 beet:                                   up (r + k, k)
                                     e̲n̲d̲;
                                     f̲o̲r̲ j := 0, 1, 2, 3 d̲o̲
