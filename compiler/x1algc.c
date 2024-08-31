@@ -104,6 +104,9 @@ Static int tlsc, plib, flib, klib, nlib, rht, vht, qc, scan, rnsa, rnsb, rnsc, r
     fflag, bn, vlam, pnlv, gvc, lvc, oh, id, nid, ibd, inba, fora, forc, psta, pstb, spe, arra,
     arrb, arrc, arrd, ic, aic, rlaa, rlab, qa, qb, rlsc, flsc, klsc, nlsc, bitcount, bitstock;
 
+/* Added to fix a bug in passing standard functions as parameters  */
+Static int tfpflag;
+
 Static int store[12288];
 static inline int _Rstore(int idx, int line, const char * expr) {
     if (0 <= idx && idx < 12288)
@@ -1681,6 +1684,10 @@ Local Void production_of_object_program(int opht, struct LOC_main_scan *LINK)
             /*special function*/
         }
     }
+    if (tfpflag) {
+        nid = 99999;
+        tfpflag = 0;
+    }
 } /*production_of_object_program*/
 
 Local boolean thenelse()
@@ -2155,6 +2162,7 @@ _L8702:
                         store[tlsc - 2] = pstb;
                     goto _L8704;
                 } else {
+                    tfpflag = 1;
                     fill_result_list(98, 0);
                     goto _L8703;
                 }

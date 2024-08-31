@@ -629,7 +629,7 @@ TEST_F(x1_machine, function_as_arg)
     EXPECT_EQ(output, expect);
 }
 
-TEST_F(x1_machine, DISABLED_elementary_function_as_arg)
+TEST_F(x1_machine, elementary_function_as_arg)
 {
     auto output = compile_and_run(R"(
         b̲e̲g̲i̲n̲
