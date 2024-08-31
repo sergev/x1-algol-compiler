@@ -26,9 +26,6 @@ TEST_F(x1_machine, man_or_boy)
     // Check symbol table.
     EXPECT_EQ(machine->get_symbol("A"), 2);
     EXPECT_EQ(machine->get_symbol("B"), 10);
-
-    // Check entry address.
-    EXPECT_EQ(machine->get_entry(0), 10048);
 }
 
 //

@@ -671,6 +671,23 @@ void Processor::push_formal_value(unsigned dynamic_addr)
         }
         break;
     }
+    case 006: {
+        // Indirection: argument point to another argument in parent's frame.
+        unsigned this_frame = frame_ptr;
+        unsigned arg_level, arg_frame;
+        get_arg_display(dynamic_addr, arg_level, arg_frame);
+        machine.trace_level(arg_level, arg_frame);
+
+        frame_ptr = arg_frame;
+        update_display(arg_level);
+        frame_ptr = this_frame;
+
+        push_formal_value((arg_descr >> 22) | (arg_addr << 5));
+
+        update_display(get_block_level());
+        machine.trace_level();
+        break;
+    }
     default:
         throw std::runtime_error("Unknown descriptor of formal argument: " + to_octal(arg_descr));
     }

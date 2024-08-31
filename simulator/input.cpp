@@ -41,6 +41,7 @@ long double Machine::input_real(std::istream &input_stream)
         if (!is_interactive) {
             throw std::runtime_error("Bad input");
         }
+        std::cout << "Bad input, try again.\n";
         input_stream.clear();
 
         // Remove bad input and try again.

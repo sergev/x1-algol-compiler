@@ -241,7 +241,7 @@ void Machine::run_program(const std::string &prog_path, const std::string &input
         close(out_fd);
 
         // Start compiler.
-        execlp(prog_path.c_str(), prog_path.c_str(), nullptr);
+        execlp(prog_path.c_str(), prog_path.c_str(), "-f", nullptr);
         exit(STATUS_CANNOT_RUN_PROGRAM);
     }
 
