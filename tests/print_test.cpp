@@ -6,12 +6,16 @@ TEST_F(x1_machine, procedure_PRINTTEXT)
 {
     auto output = compile_and_run(R"(
         b̲e̲g̲i̲n̲
-            PRINTTEXT(`Hello `Algol''); NLCR;
-            PRINTTEXT(``0123456789''); NLCR;
-            PRINTTEXT(``abcdefghijklmnopqrstuvwxyz''); NLCR;
-            PRINTTEXT(``ABCDEFGHIJKLMNOPQRSTUVWXYZ''); NLCR;
-            PRINTTEXT(``+-×/÷↑>≥=≤<≠¬∧∨⊃≡,.⏨:;:= ''); NLCR;
-            PRINTTEXT(``()[]`'''); NLCR;
+            p̲r̲o̲c̲e̲d̲u̲r̲e̲ prline(s); s̲t̲r̲i̲n̲g̲ s;
+            b̲e̲g̲i̲n̲
+                PRINTTEXT(s); NLCR
+            e̲n̲d̲;
+            prline(`Hello `Algol'');
+            prline(``0123456789'');
+            prline(``abcdefghijklmnopqrstuvwxyz'');
+            prline(``ABCDEFGHIJKLMNOPQRSTUVWXYZ'');
+            prline(``+-×/÷↑>≥=≤<≠¬∧∨⊃≡,.⏨:;:= '');
+            prline(``()[]`''');
         e̲n̲d̲
     )");
     const std::string expect = R"(Hello `Algol'

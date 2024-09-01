@@ -220,7 +220,15 @@ bool Processor::step()
         break;
 
     case 042'40:
-        core.B = machine.mem_load((addr + core.B) & BITS(15));
+        if (addr == 5) {
+            // This instruction is used by PRINTTEXT to find out
+            // the value of its formal parameter.
+            formal_mode = formalString;
+            push_formal_value(0241);
+            formal_mode = formalValue;
+            core.B = stack.pop_addr();
+        } else
+            core.B = machine.mem_load((addr + core.B) & BITS(15));
         break;
 
     case 046'00:
@@ -580,7 +588,7 @@ void Processor::store_value(const Stack_Cell &dest, const Stack_Cell &src)
 // of actual argument. It can hold either address of value, or address
 // of implicit subroutine. Call it to obtain actual argument value.
 //
-// When flag need_formal_address is set - instead of value, return it's address.
+// Depending on formal_mode, instead of value, return its address.
 //
 unsigned Processor::get_formal_proc(unsigned dynamic_addr)
 {
@@ -599,7 +607,7 @@ unsigned Processor::get_formal_proc(unsigned dynamic_addr)
 // of actual argument. It can hold either address of value, or address
 // of implicit subroutine. Call it to obtain actual argument value.
 //
-// When flag need_formal_address is set - instead of value, return it's address.
+// When formal_mode == formalAddress, instead of value, return its address.
 //
 void Processor::push_formal_value(unsigned dynamic_addr)
 {
@@ -607,7 +615,7 @@ void Processor::push_formal_value(unsigned dynamic_addr)
     unsigned const arg_addr  = arg_descr & BITS(15);
     switch (arg_descr >> 15 & 077) {
     case 000: {
-        if (need_formal_address) {
+        if (formal_mode != formalValue) {
             // Get real address.
             stack.push_real_addr(arg_addr);
         } else {
@@ -617,7 +625,7 @@ void Processor::push_formal_value(unsigned dynamic_addr)
         break;
     }
     case 020: {
-        if (need_formal_address) {
+        if (formal_mode != formalValue) {
             // Get integer address.
             stack.push_int_addr(arg_addr);
         } else {
@@ -628,6 +636,10 @@ void Processor::push_formal_value(unsigned dynamic_addr)
         break;
     }
     case 040: {
+        if (formal_mode == formalString) {
+            stack.push_int_addr(arg_addr);
+            break;
+        }
         // Call implicit subroutine.
         // Need to restore previous display[] first.
         unsigned this_frame = frame_ptr;
@@ -649,7 +661,7 @@ void Processor::push_formal_value(unsigned dynamic_addr)
     }
     case 002: {
         auto const addr = arg_address(dynamic_addr, arg_descr);
-        if (need_formal_address) {
+        if (formal_mode != formalValue) {
             // Get real address on stack.
             stack.push_real_addr(addr + STACK_BASE);
         } else {
@@ -661,7 +673,7 @@ void Processor::push_formal_value(unsigned dynamic_addr)
     }
     case 022: {
         auto const addr = arg_address(dynamic_addr, arg_descr);
-        if (need_formal_address) {
+        if (formal_mode != formalValue) {
             // Get integer address on stack.
             stack.push_int_addr(addr + STACK_BASE);
         } else {
@@ -817,9 +829,9 @@ Word Processor::load_word(unsigned addr)
 
 void Processor::make_value_array_function_frame(int elt_size)
 {
-    need_formal_address = true;
+    formal_mode = formalAddress;
     push_formal_value(core.S);
-    need_formal_address = false;
+    formal_mode = formalValue;
     unsigned storage_fn = stack.pop_addr();
     unsigned addr       = load_word(storage_fn);
     if (elt_size == 2) {

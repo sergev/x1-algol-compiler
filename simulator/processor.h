@@ -70,8 +70,9 @@ private:
     // Stack contents is mapped to this virtual address.
     static unsigned const STACK_BASE = 0100000;
 
-    // Get formal address (TFA) or value (TFR).
-    bool need_formal_address{};
+    // Get formal address (TFA) or value (TFR), or address of the
+    // string parameter.
+    enum { formalValue, formalAddress, formalString } formal_mode{};
 
 public:
     // Stack of arguments for OPC.

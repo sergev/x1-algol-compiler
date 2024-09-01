@@ -120,12 +120,12 @@ bool Processor::call_opc(unsigned opc)
     case OPC_TFA: {
         // take formal address
         // Dynamic address is present in register S.
-        if (need_formal_address) {
+        if (formal_mode != formalValue) {
             throw std::runtime_error("Illegal argument expression");
         }
-        need_formal_address = true;
+        formal_mode = formalAddress;
         push_formal_value(core.S);
-        need_formal_address = false;
+        formal_mode = formalValue;
         break;
     }
 
