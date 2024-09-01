@@ -14,15 +14,13 @@ b̲e̲g̲i̲n̲
         v̲a̲l̲u̲e̲ num;
         i̲n̲t̲e̲g̲e̲r̲ num;
     b̲e̲g̲i̲n̲
-        malformed := f̲a̲l̲s̲e̲;
-        i̲f̲ num > 9876 ∨ num < 0 t̲h̲e̲n̲ b̲e̲g̲i̲n̲
-            malformed := t̲r̲u̲e̲
-        e̲n̲d̲ e̲l̲s̲e̲
-            f̲o̲r̲ i := 0 s̲t̲e̲p̲ 1 u̲n̲t̲i̲l̲ 2 d̲o̲
-                f̲o̲r̲ j := i+1 s̲t̲e̲p̲ 1 u̲n̲t̲i̲l̲ 3 d̲o̲
-                    i̲f̲ digit(num, j) = digit(num, i) t̲h̲e̲n̲ b̲e̲g̲i̲n̲
-                        malformed := t̲r̲u̲e̲;
-                    e̲n̲d̲;
+        malformed := num > 9876 ∨ num < 0123 ∨
+                     digit(num, 0) = digit(num, 1) ∨
+                     digit(num, 0) = digit(num, 2) ∨
+                     digit(num, 0) = digit(num, 3) ∨
+                     digit(num, 1) = digit(num, 2) ∨
+                     digit(num, 1) = digit(num, 3) ∨
+                     digit(num, 2) = digit(num, 3);
     e̲n̲d̲;
 
     c̲o̲m̲m̲e̲n̲t̲ Ad hoc pseudo random generator;
