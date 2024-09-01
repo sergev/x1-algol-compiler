@@ -73,7 +73,7 @@ int P_eof(FILE *f)
 // not the final procedure length in  memory.
 #define MCP_PRINTTEXT_LEN 22
 #define MCP_EVEN_LEN 14
-#define MCP_TIMEOFDAY_LEN 5
+#define MCP_TIMEOFDAY_LEN 6
 
 #define MCP_EVEN_BASE MCP_PRINTTEXT_LEN
 #define MCP_TIMEOFDAY_BASE (MCP_EVEN_BASE+MCP_EVEN_LEN)
@@ -3816,10 +3816,11 @@ int main(int argc, char *argv[])
 
     /* output of objfile -w 77 library/timeofday.src */
     store[mcpb + MCP_TIMEOFDAY_BASE + 1] = 0770000000;
-    store[mcpb + MCP_TIMEOFDAY_BASE + 2] = 0774700640;
-    store[mcpb + MCP_TIMEOFDAY_BASE + 3] = 0040073777;
-    store[mcpb + MCP_TIMEOFDAY_BASE + 4] = 0530155755;
-    store[mcpb + MCP_TIMEOFDAY_BASE + 5] = 0040016011;
+    store[mcpb + MCP_TIMEOFDAY_BASE + 2] = 0772700640;
+    store[mcpb + MCP_TIMEOFDAY_BASE + 3] = 0030733777;
+    store[mcpb + MCP_TIMEOFDAY_BASE + 4] = 0015575504;
+    store[mcpb + MCP_TIMEOFDAY_BASE + 5] = 0001601153;
+    store[mcpb + MCP_TIMEOFDAY_BASE + 6] = 0000000004;
 
     /* output of objfile -w 1 library/printtext.src */
     store[mcpb + 1] = 0770000000;
