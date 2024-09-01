@@ -1,12 +1,12 @@
 b̲e̲g̲i̲n̲
     c̲o̲m̲m̲e̲n̲t̲ Print time of day as HH : MM : SS.mmm;
-    r̲e̲a̲l̲ t, hour, min, sec;
+    r̲e̲a̲l̲ hour, min, sec;
 
-    t := TIMEOFDAY;
-    hour := entier(t / 3600);
-    t := t - hour * 3600;
-    min := entier(t / 60);
-    sec := t - min * 60;
+    sec := TIMEOFDAY;
+    hour := entier(sec / 3600);
+    sec := sec - hour * 3600;
+    min := entier(sec / 60);
+    sec := sec - min * 60;
 
     ABSFIXT(2, 0, hour);
     PRINTTEXT(`:');
