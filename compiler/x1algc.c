@@ -68,32 +68,24 @@ int P_eof(FILE *f)
 #define mz  134217727
 
 // For convenience, both PRINTTEXT and EVEN are in store by default.
-#define MCP_PRINTTEXT
-#define MCP_EVEN
 
 // MCP_xxx_LEN is the object bitstream length,
 // not the final procedure length in  memory.
 #define MCP_PRINTTEXT_LEN 22
 #define MCP_EVEN_LEN 14
+#define MCP_TIMEOFDAY_LEN 5
 
-#ifdef MCP_PRINTTEXT
 #define MCP_EVEN_BASE MCP_PRINTTEXT_LEN
-#else
-#define MCP_EVEN_BASE 0
-#endif
+#define MCP_TIMEOFDAY_BASE (MCP_EVEN_BASE+MCP_EVEN_LEN)
 
-#ifdef MCP_EVEN
-#define MCPLEN (MCP_EVEN_LEN+MCP_EVEN_BASE)
-#else
-#define MCP_LEN MP_EVEN_BASE
-#endif
+#define MCPLEN (MCP_PRINTTEXT_LEN+MCP_EVEN_LEN+MCP_TIMEOFDAY_LEN)
 
 #define gvc0   138  /*0-04-10*/
 #define tlib   800  /*0-25-00*/
 #define plie   6783 /*6-19-31*/
 #define bim    (mcpb+MCPLEN+2)  /*0-29-nn */
 #define nlscop 43
-#define nlsc0  50
+#define nlsc0  53
 #define mlib   800   /*0-25-00*/
 #define klie   10165 /*9-29-21*/
 #define crfb   623   /*0-19-15*/
@@ -3717,6 +3709,7 @@ int main(int argc, char *argv[])
     prefill_lib_proc("SUM", 0);
     prefill_lib_proc("PRINTTEXT", 1);
     prefill_lib_proc("EVEN", 2);
+    prefill_lib_proc("TIMEOFDAY", 77);
     // prefill_lib_proc("arctan", 3);     
     // prefill_lib_proc("FLOT", 5);
     // prefill_lib_proc("FIXT", 6);
@@ -3795,6 +3788,7 @@ int main(int argc, char *argv[])
     put_crf_entry(&ii, 54, 0, 7680); /* SUM */
     put_crf_entry(&ii, 20, 1, 7680); /* PRINTTEXT */
     put_crf_entry(&ii, 14, 2, 7680); /* EVEN */
+    put_crf_entry(&ii, 7, 77, 7680); /* TIMEOFDAY */
     // put_crf_entry(&ii, 63, 3, 7680); /* arctan - back to OPC*/
     // put_crf_entry(&ii, 15, 4, 3, 7680); /* MCP4 is needed by MCP3 */
     // put_crf_entry(&ii, 100, 5, 7680);   /* FLOT - now an OPC */
@@ -3805,8 +3799,7 @@ int main(int argc, char *argv[])
 
     store[mcpb]     = d21 * 63; /* MCP list terminator */
 
-#ifdef MCP_EVEN
-    /* output of objfile -w 2 misc/even.src */
+    /* output of objfile -w 2 library/even.src */
     store[mcpb + MCP_EVEN_BASE + 1] = 0770000000;
     store[mcpb + MCP_EVEN_BASE + 2] = 0070700640;
     store[mcpb + MCP_EVEN_BASE + 3] = 0777777266;
@@ -3820,9 +3813,15 @@ int main(int argc, char *argv[])
     store[mcpb + MCP_EVEN_BASE + 11] = 0766420376;
     store[mcpb + MCP_EVEN_BASE + 12] = 0000114066;
     store[mcpb + MCP_EVEN_BASE + 13] = 0000020016;
-#endif
-#ifdef MCP_PRINTTEXT
-    /* output of objfile -w 1 misc/printtext.src */
+
+    /* output of objfile -w 77 library/timeofday.src */
+    store[mcpb + MCP_TIMEOFDAY_BASE + 1] = 0770000000;
+    store[mcpb + MCP_TIMEOFDAY_BASE + 2] = 0774700640;
+    store[mcpb + MCP_TIMEOFDAY_BASE + 3] = 0040073777;
+    store[mcpb + MCP_TIMEOFDAY_BASE + 4] = 0530155755;
+    store[mcpb + MCP_TIMEOFDAY_BASE + 5] = 0040016011;
+
+    /* output of objfile -w 1 library/printtext.src */
     store[mcpb + 1] = 0770000000;
     store[mcpb + 2] = 0146700640;
     store[mcpb + 3] = 0777046401;
@@ -3845,7 +3844,6 @@ int main(int argc, char *argv[])
     store[mcpb + 20] = 0620447761;
     store[mcpb + 21] = 0400005407;
     store[mcpb + 22] = 0000002002;
-#endif
 
     store[bim - 1] = d21 * 63;  /* Program code terminator */
 
