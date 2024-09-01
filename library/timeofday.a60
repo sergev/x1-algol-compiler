@@ -1,0 +1,8 @@
+b̲e̲g̲i̲n̲
+i̲n̲t̲e̲g̲e̲r̲ p̲r̲o̲c̲e̲d̲u̲r̲e̲ TIMEOFDAY;
+    b̲e̲g̲i̲n̲
+        o̲w̲n̲ i̲n̲t̲e̲g̲e̲r̲ t;
+        TIMEOFDAY := t
+    e̲n̲d̲
+e̲n̲d̲
+
