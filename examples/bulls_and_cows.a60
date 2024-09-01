@@ -40,6 +40,14 @@ b̲e̲g̲i̲n̲
     f̲o̲r̲ i := 0 w̲h̲i̲l̲e̲ malformed(secret) d̲o̲
         secret := entier(RANDOM * 9877);
 
+    PRINTTEXT(`Welcome to bulls and cows!'); NLCR;
+    NLCR;
+    PRINTTEXT(`I choose a number made of 4 digits (from 0 to 9) without repetitions.'); NLCR;
+    PRINTTEXT(`You enter a number of 4 digits, and I say you how many of them'); NLCR;
+    PRINTTEXT(`are in my secret number but in wrong position (cows),'); NLCR;
+    PRINTTEXT(`and how many are in the right position (bulls).'); NLCR;
+    NLCR;
+
     count := 0;
     guess := 0;
     f̲o̲r̲ i := 0 w̲h̲i̲l̲e̲ guess ≠ secret d̲o̲ b̲e̲g̲i̲n̲
