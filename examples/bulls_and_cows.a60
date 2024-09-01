@@ -35,7 +35,7 @@ b̲e̲g̲i̲n̲
         seed := x
     e̲n̲d̲;
 
-    SETRANDOM(123);
+    SETRANDOM(TIMEOFDAY);
     secret := 0;
     f̲o̲r̲ i := 0 w̲h̲i̲l̲e̲ malformed(secret) d̲o̲
         secret := entier(RANDOM * 9877);

@@ -1,6 +1,7 @@
 #include "machine.h"
 
 #include <fcntl.h>
+#include <sys/time.h>
 #include <sys/wait.h>
 #include <unistd.h>
 
@@ -172,7 +173,32 @@ Word Machine::mem_load(unsigned addr)
 {
     addr &= BITS(15);
 
-    Word val = memory[addr];
+    Word val;
+    static Real time_of_day{};
+    switch (addr) {
+    case 077775: {
+        // TIMEOFDAY: get the time of day in seconds as a real value,
+        // with an accuracy of about 0.002 seconds.
+        struct timeval tv;
+        gettimeofday(&tv, 0);
+        time_t clock = tv.tv_sec;
+        auto const *info = localtime(&clock);
+        long double now = ((info->tm_hour * 60.0L + info->tm_min) * 60.0) +
+                          info->tm_sec + (tv.tv_usec * 0.000'001L);
+        time_of_day = ieee_to_x1(now);
+
+        // First word.
+        val = time_of_day >> 27;
+        break;
+    }
+    case 077776:
+        // TIMEOFDAY, second word.
+        val = time_of_day;
+        break;
+    default:
+        val = memory[addr];
+        break;
+    }
     trace_memory_read(addr, val);
 
     return val & BITS(27);
