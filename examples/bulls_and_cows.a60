@@ -1,5 +1,6 @@
 b̲e̲g̲i̲n̲
-    i̲n̲t̲e̲g̲e̲r̲ secret, count, guess, cows, bulls, i, j, seed;
+    i̲n̲t̲e̲g̲e̲r̲ secret, count, guess, cows, bulls, i, j;
+    r̲e̲a̲l̲ seed;
 
     i̲n̲t̲e̲g̲e̲r̲ p̲r̲o̲c̲e̲d̲u̲r̲e̲ digit(num, ps);
         v̲a̲l̲u̲e̲ num;
@@ -21,15 +22,13 @@ b̲e̲g̲i̲n̲
                 f̲o̲r̲ j := i+1 s̲t̲e̲p̲ 1 u̲n̲t̲i̲l̲ 3 d̲o̲
                     i̲f̲ digit(num, j) = digit(num, i) t̲h̲e̲n̲ b̲e̲g̲i̲n̲
                         malformed := t̲r̲u̲e̲;
-                        g̲o̲t̲o̲ done
                     e̲n̲d̲;
-done:
     e̲n̲d̲;
 
     c̲o̲m̲m̲e̲n̲t̲ Ad hoc pseudo random generator;
     r̲e̲a̲l̲ p̲r̲o̲c̲e̲d̲u̲r̲e̲ RANDOM; b̲e̲g̲i̲n̲
         seed := seed * 16598013 + 12820163;
-        seed := seed - seed ÷ 16777216 * 16777216;
+        seed := seed - entier(seed / 16777216) * 16777216.0;
         i̲f̲ seed < 0 t̲h̲e̲n̲
             seed := -seed;
         RANDOM := seed / 16777216.0
@@ -45,7 +44,7 @@ done:
 
     count := 0;
     guess := 0;
-    f̲o̲r̲ i := 0 w̲h̲i̲l̲e̲ guess != secret d̲o̲ b̲e̲g̲i̲n̲
+    f̲o̲r̲ i := 0 w̲h̲i̲l̲e̲ guess ≠ secret d̲o̲ b̲e̲g̲i̲n̲
         count := count + 1;
 again:
         PRINTTEXT(`Guess a number.');
@@ -65,15 +64,15 @@ again:
                     e̲l̲s̲e̲
                         cows := cows + 1;
 
-        PRINTTEXT(`You sco̲r̲ed ');
+        PRINTTEXT(`You scored ');
         print(bulls);
-        PRINTTEXT(`bulls a̲n̲d̲ ');
+        PRINTTEXT(` bulls and ');
         print(cows);
-        PRINTTEXT(`cows.');
+        PRINTTEXT(` cows.');
         NLCR
     e̲n̲d̲;
-    PRINTTEXT(`Co̲r̲rect. That took you ');
+    PRINTTEXT(`Correct. That took you ');
     print(count);
-    PRINTTEXT(`guesses.')
+    PRINTTEXT(` guesses.')
     NLCR
 e̲n̲d̲
