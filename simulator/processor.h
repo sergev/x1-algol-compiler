@@ -72,7 +72,8 @@ private:
 
     // Get formal address (TFA) or value (TFR), or address of the
     // string parameter.
-    enum class Formal_Op { Value, Address, String } formal_mode{};
+    enum class Formal_Op { Value, Address, String };
+    Formal_Op formal_mode{};
 
 public:
     // Stack of arguments for OPC.
