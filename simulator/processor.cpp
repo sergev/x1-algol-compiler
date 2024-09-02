@@ -607,6 +607,7 @@ unsigned Processor::get_formal_proc(unsigned dynamic_addr)
 //
 void Processor::take_formal(unsigned dynamic_addr, Formal_Op post_op)
 {
+again:
     unsigned const arg_descr = arg_descriptor(dynamic_addr);
     unsigned const arg_addr  = arg_descr & BITS(15);
     switch (arg_descr >> 15 & 077) {
@@ -632,6 +633,14 @@ void Processor::take_formal(unsigned dynamic_addr, Formal_Op post_op)
         apply_operation(post_op, addr + STACK_BASE, Cell_Type::INTEGER_ADDRESS);
         break;
     }
+    case 006: {
+        // Indirection: argument point to another argument in parent's frame.
+        unsigned arg_level, arg_frame;
+        get_arg_display(dynamic_addr, arg_level, arg_frame);
+        update_display(arg_level, arg_frame);
+        dynamic_addr = (arg_descr >> 22) | (arg_addr << 5);
+        goto again;
+    }
     case 040: {
         if (post_op == Formal_Op::PUSH_STRING) {
             apply_operation(post_op, arg_addr, Cell_Type::INTEGER_ADDRESS);
@@ -653,19 +662,6 @@ void Processor::take_formal(unsigned dynamic_addr, Formal_Op post_op)
             update_display(arg_level, arg_frame);
         }
         machine.run(arg_addr, OT, this_frame);
-        machine.trace_level();
-        break;
-    }
-    case 006: {
-        // Indirection: argument point to another argument in parent's frame.
-        unsigned arg_level, arg_frame;
-        get_arg_display(dynamic_addr, arg_level, arg_frame);
-        machine.trace_level(arg_level, arg_frame);
-
-        update_display(arg_level, arg_frame);
-        take_formal((arg_descr >> 22) | (arg_addr << 5), post_op);
-
-        update_display(get_block_level(), frame_ptr);
         machine.trace_level();
         break;
     }
@@ -702,6 +698,8 @@ void Processor::apply_operation(Formal_Op post_op, unsigned addr, Cell_Type type
     default:
         throw std::runtime_error("Unsupported operation in apply_operation()");
     }
+
+    update_display(get_block_level(), frame_ptr);
 }
 
 //
