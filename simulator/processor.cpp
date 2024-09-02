@@ -643,12 +643,12 @@ again:
     }
     case 040: {
         if (post_op == Formal_Op::PUSH_STRING) {
+            // String passed as parameter.
             apply_operation(post_op, arg_addr, Cell_Type::INTEGER_ADDRESS);
             break;
         }
         // Call implicit subroutine.
         // Need to restore previous display[] first.
-        unsigned this_frame = frame_ptr;
         unsigned arg_level, arg_frame;
         get_arg_display(dynamic_addr, arg_level, arg_frame);
         machine.trace_level(arg_level, arg_frame);
@@ -661,8 +661,7 @@ again:
             frame_ptr = arg_frame;
             update_display(arg_level, arg_frame);
         }
-        machine.run(arg_addr, OT, this_frame);
-        machine.trace_level();
+        OT = arg_addr;
         break;
     }
     default:
