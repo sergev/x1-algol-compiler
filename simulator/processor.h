@@ -36,6 +36,15 @@ enum {
 };
 
 //
+// When retrieving a formal parameter, apply the following operation.
+//
+enum class Formal_Op {
+    PUSH_VALUE,     // Push value on stack
+    PUSH_ADDRESS,   // Push address on stack
+    PUSH_STRING,    // Push string on stack
+};
+
+//
 // Electrologica X1 processor.
 //
 class Processor {
@@ -72,7 +81,6 @@ private:
 
     // Get formal address (TFA) or value (TFR), or address of the
     // string parameter.
-    enum class Formal_Op { Value, Address, String };
     Formal_Op formal_mode{};
 
 public:
