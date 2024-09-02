@@ -3,6 +3,7 @@
 
 #include <cstdint>
 #include <string>
+#include <unordered_map>
 
 #include "virtual_stack.h"
 #include "x1_arch.h"
@@ -79,9 +80,9 @@ private:
     // Stack contents is mapped to this virtual address.
     static unsigned const STACK_BASE = 0100000;
 
-    // Get formal address (TFA) or value (TFR), or address of the
-    // string parameter.
-    Formal_Op formal_mode{};
+    // Apply this operation when returning from implicit subroutine (on EIS).
+    // Indexed by frame pointer.
+    //TODO: std::unordered_map<unsigned, Formal_Op> eis_operation;
 
 public:
     // Stack of arguments for OPC.
@@ -171,8 +172,10 @@ private:
     // The common part of all OPCs dealing with dynamic reals.
     Stack_Cell get_dynamic_real(unsigned dynamic_addr);
 
-    // Get value at dynamic address and push it on stack.
-    void push_formal_value(unsigned dynamic_addr);
+    // Retrieve value of formal parameter.
+    void take_formal(unsigned dynamic_addr, Formal_Op op);
+
+    // Get address of procedure parameter at dynamic address.
     unsigned get_formal_proc(unsigned dynamic_addr);
 
     // Set lexical scope level, or block number (BN).

@@ -223,9 +223,7 @@ bool Processor::step()
         if (addr == 5) {
             // This instruction is used by PRINTTEXT to find out
             // the value of its formal parameter.
-            formal_mode = Formal_Op::PUSH_STRING;
-            push_formal_value(0241);
-            formal_mode = Formal_Op::PUSH_VALUE;
+            take_formal(0241, Formal_Op::PUSH_STRING);
             core.B = stack.pop_addr();
         } else
             core.B = machine.mem_load((addr + core.B) & BITS(15));
@@ -584,11 +582,7 @@ void Processor::store_value(const Stack_Cell &dest, const Stack_Cell &src)
 }
 
 //
-// Read word from memory at dynamic address - it contains descriptor
-// of actual argument. It can hold either address of value, or address
-// of implicit subroutine. Call it to obtain actual argument value.
-//
-// Depending on formal_mode, instead of value, return its address.
+// Get address of procedure parameter at dynamic address.
 //
 unsigned Processor::get_formal_proc(unsigned dynamic_addr)
 {
@@ -603,19 +597,21 @@ unsigned Processor::get_formal_proc(unsigned dynamic_addr)
 }
 
 //
+// Retrieve value of formal parameter.
+// Apply the given operation to it: either push value on stack,
+// or push address, or whatever.
+//
 // Read word from memory at dynamic address - it contains descriptor
 // of actual argument. It can hold either address of value, or address
 // of implicit subroutine. Call it to obtain actual argument value.
 //
-// When formal_mode == Formal_Op::PUSH_ADDRESS, instead of value, return its address.
-//
-void Processor::push_formal_value(unsigned dynamic_addr)
+void Processor::take_formal(unsigned dynamic_addr, Formal_Op post_op)
 {
     unsigned const arg_descr = arg_descriptor(dynamic_addr);
     unsigned const arg_addr  = arg_descr & BITS(15);
     switch (arg_descr >> 15 & 077) {
     case 000: {
-        if (formal_mode != Formal_Op::PUSH_VALUE) {
+        if (post_op != Formal_Op::PUSH_VALUE) {
             // Get real address.
             stack.push_real_addr(arg_addr);
         } else {
@@ -625,7 +621,7 @@ void Processor::push_formal_value(unsigned dynamic_addr)
         break;
     }
     case 020: {
-        if (formal_mode != Formal_Op::PUSH_VALUE) {
+        if (post_op != Formal_Op::PUSH_VALUE) {
             // Get integer address.
             stack.push_int_addr(arg_addr);
         } else {
@@ -636,7 +632,7 @@ void Processor::push_formal_value(unsigned dynamic_addr)
         break;
     }
     case 040: {
-        if (formal_mode == Formal_Op::PUSH_STRING) {
+        if (post_op == Formal_Op::PUSH_STRING) {
             stack.push_int_addr(arg_addr);
             break;
         }
@@ -661,7 +657,7 @@ void Processor::push_formal_value(unsigned dynamic_addr)
     }
     case 002: {
         auto const addr = arg_address(dynamic_addr, arg_descr);
-        if (formal_mode != Formal_Op::PUSH_VALUE) {
+        if (post_op != Formal_Op::PUSH_VALUE) {
             // Get real address on stack.
             stack.push_real_addr(addr + STACK_BASE);
         } else {
@@ -673,7 +669,7 @@ void Processor::push_formal_value(unsigned dynamic_addr)
     }
     case 022: {
         auto const addr = arg_address(dynamic_addr, arg_descr);
-        if (formal_mode != Formal_Op::PUSH_VALUE) {
+        if (post_op != Formal_Op::PUSH_VALUE) {
             // Get integer address on stack.
             stack.push_int_addr(addr + STACK_BASE);
         } else {
@@ -694,7 +690,7 @@ void Processor::push_formal_value(unsigned dynamic_addr)
         update_display(arg_level);
         frame_ptr = this_frame;
 
-        push_formal_value((arg_descr >> 22) | (arg_addr << 5));
+        take_formal((arg_descr >> 22) | (arg_addr << 5), post_op);
 
         update_display(get_block_level());
         machine.trace_level();
@@ -829,9 +825,8 @@ Word Processor::load_word(unsigned addr)
 
 void Processor::make_value_array_function_frame(int elt_size)
 {
-    formal_mode = Formal_Op::PUSH_ADDRESS;
-    push_formal_value(core.S);
-    formal_mode = Formal_Op::PUSH_VALUE;
+    take_formal(core.S, Formal_Op::PUSH_ADDRESS);
+
     unsigned storage_fn = stack.pop_addr();
     unsigned addr       = load_word(storage_fn);
     if (elt_size == 2) {

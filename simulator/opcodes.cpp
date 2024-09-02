@@ -120,12 +120,7 @@ bool Processor::call_opc(unsigned opc)
     case OPC_TFA: {
         // take formal address
         // Dynamic address is present in register S.
-        if (formal_mode != Formal_Op::PUSH_VALUE) {
-            throw std::runtime_error("Illegal argument expression");
-        }
-        formal_mode = Formal_Op::PUSH_ADDRESS;
-        push_formal_value(core.S);
-        formal_mode = Formal_Op::PUSH_VALUE;
+        take_formal(core.S, Formal_Op::PUSH_ADDRESS);
         break;
     }
 
@@ -278,7 +273,7 @@ bool Processor::call_opc(unsigned opc)
     case OPC_TFR:
         // take formal result
         // Dynamic address is present in register S.
-        push_formal_value(core.S);
+        take_formal(core.S, Formal_Op::PUSH_VALUE);
         break;
     case OPC_ADRD: {
         // add real dynamic
@@ -326,7 +321,7 @@ bool Processor::call_opc(unsigned opc)
         // add formal
         // Left argument is on stack.
         // Register S has dynamic address of right argument.
-        push_formal_value(core.S);
+        take_formal(core.S, Formal_Op::PUSH_VALUE);
         auto b = stack.pop();
         auto a = stack.pop();
         a.add(b);
@@ -379,7 +374,7 @@ bool Processor::call_opc(unsigned opc)
         // subtract formal
         // Left argument is on stack.
         // Register S has dynamic address of right argument.
-        push_formal_value(core.S);
+        take_formal(core.S, Formal_Op::PUSH_VALUE);
         auto b = stack.pop();
         stack.top().subtract(b);
         break;
@@ -438,7 +433,7 @@ bool Processor::call_opc(unsigned opc)
         // multiply formal
         // Left argument is on stack.
         // Register S has dynamic address of right argument.
-        push_formal_value(core.S);
+        take_formal(core.S, Formal_Op::PUSH_VALUE);
         auto b = stack.pop();
         stack.top().multiply(b);
         break;
@@ -496,7 +491,7 @@ bool Processor::call_opc(unsigned opc)
         // divide formal
         // Left argument is on stack.
         // Register S has dynamic address of right argument.
-        push_formal_value(core.S);
+        take_formal(core.S, Formal_Op::PUSH_VALUE);
         auto b = stack.pop();
         stack.top().divide(b);
         break;
@@ -1014,7 +1009,7 @@ bool Processor::call_opc(unsigned opc)
             update_display(block_level);
         }
         // Get argument.
-        push_formal_value(0240 + block_level);
+        take_formal(0240 + block_level, Formal_Op::PUSH_VALUE);
 
         // Remove dummy argument from stack.
         auto result = stack.pop();
