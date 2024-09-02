@@ -25,10 +25,12 @@ static void print_usage(std::ostream &out, const char *prog_name)
 {
     out << "X1 Algol Simulator, Version " << VERSION_STRING << "\n";
     out << "Usage:\n";
-    out << "    " << prog_name << " [options...] file.a60\n";
+    out << "    " << prog_name << " [options...] file.[a60|x1] [library ...]\n";
     out << "Input files:\n";
     out << "    file.a60                Algol-60 program source\n";
     out << "    file.x1                 Binary program for Electrologica X1\n";
+    out << "    library                 If a source file is given, the library file(s)\n";
+    out << "                            are passed to the compiler\n";
     out << "Options:\n";
     out << "    -h, --help              Display available options\n";
     out << "    -V, --version           Print the version number and exit\n";
@@ -67,7 +69,7 @@ int main(int argc, char *argv[])
 
         case 1:
             // Regular argument.
-            machine.set_input_file(optarg);
+            machine.add_input_file(optarg);
             continue;
 
         case 'h':
@@ -98,7 +100,7 @@ int main(int argc, char *argv[])
         break;
     }
 
-    // Must specify an Algol file.
+    // Must specify an Algol file or an object file.
     if (machine.get_input_file().empty()) {
         print_usage(std::cerr, prog_name);
         exit(EXIT_FAILURE);

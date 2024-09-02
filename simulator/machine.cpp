@@ -34,13 +34,18 @@ Machine::~Machine()
 //
 // Set name of input file.
 //
-void Machine::set_input_file(const char *filename)
+void Machine::add_input_file(const std::string& filename)
 {
-    if (!input_file.empty()) {
-        std::cerr << "Too many input files: " << filename << std::endl;
-        ::exit(EXIT_FAILURE);
-    }
-    input_file = filename;
+    input_files.push_back(filename);
+}
+
+//
+// Get name of the first input file (must be Algol source or X1 object file).
+//
+const std::string& Machine::get_input_file() const
+{
+    static const std::string empty;
+    return input_files.empty() ? empty : input_files[0];
 }
 
 //
@@ -74,7 +79,7 @@ void Machine::show_progress()
 //
 void Machine::compile_and_run()
 {
-    const auto input_path = std::filesystem::path(input_file);
+    const auto input_path = std::filesystem::path(get_input_file());
     const auto extension  = input_path.extension().string();
 
     if (extension == ".a60") {
@@ -82,14 +87,18 @@ void Machine::compile_and_run()
         // Compile file.a60 to file.x1, then load.
         //
         const auto obj_filename = input_path.stem().string() + ".x1";
-        compile(input_file, obj_filename);
+        compile(input_files, obj_filename);
         load_object_program(obj_filename);
-
     } else if (extension == ".x1") {
+        // There must be no extra files in the command line if an object file is given.
+        if (input_files.size() > 1) {
+            std::cerr << "Too many input files: " << input_files[1] << std::endl;
+            ::exit(EXIT_FAILURE);
+        }
         //
         // Load binary file.x1.
         //
-        load_object_program(input_file);
+        load_object_program(input_files[0]);
     } else {
         throw std::runtime_error("Unknown file extension: " + extension);
     }
@@ -216,19 +225,19 @@ void Machine::set_compiler(const std::string &filename)
 //
 // Compile Algol file to object format.
 //
-void Machine::compile(const std::string &algol_filename, const std::string &obj_filename)
+void Machine::compile(const std::vector<std::string> &filenames, const std::string &obj_filename)
 {
     if (compiler_path.empty()) {
         throw std::runtime_error("Compiler is not selected");
     }
-    run_program(compiler_path, algol_filename, obj_filename);
+    run_program(compiler_path, filenames, obj_filename);
 }
 
 //
 // Run external program with given input and output files.
 // Throw exception in case of error.
 //
-void Machine::run_program(const std::string &prog_path, const std::string &input_filename,
+void Machine::run_program(const std::string &prog_path, const std::vector<std::string> &input_filenames,
                           const std::string &output_filename)
 {
     // A child process passes this status code to the parent.
@@ -250,12 +259,11 @@ void Machine::run_program(const std::string &prog_path, const std::string &input
         // Child process.
         //
 
-        // Open input file.
-        int in_fd = open(input_filename.c_str(), O_RDONLY);
+        // Open input file for verification.
+        int in_fd = open(input_filenames[0].c_str(), O_RDONLY);
         if (in_fd < 0) {
             exit(STATUS_CANNOT_READ_INPUT);
         }
-        dup2(in_fd, STDIN_FILENO);
         close(in_fd);
 
         // Create output file.
@@ -266,9 +274,22 @@ void Machine::run_program(const std::string &prog_path, const std::string &input
         dup2(out_fd, STDOUT_FILENO);
         close(out_fd);
 
-        // Start compiler.
-        execlp(prog_path.c_str(), prog_path.c_str(), "-f", nullptr);
-        exit(STATUS_CANNOT_RUN_PROGRAM);
+        // Start the compiler.
+        {
+            std::vector<const char*> argv;
+            argv.push_back(prog_path.c_str());
+            argv.push_back("-f"); // Enable passing of formals.
+            for (const auto& arg : input_filenames) {
+                // cppcheck-suppress useStlAlgorithm
+                argv.push_back(arg.c_str());
+            }
+
+            // execvp expects the last element to be a null pointer
+            argv.push_back(nullptr);
+
+            execvp(argv[0], const_cast<char* const*>(argv.data()));
+            exit(STATUS_CANNOT_RUN_PROGRAM);
+        }
     }
 
     //
@@ -284,7 +305,7 @@ void Machine::run_program(const std::string &prog_path, const std::string &input
     case STATUS_OK:
         return;
     case STATUS_CANNOT_READ_INPUT:
-        throw std::runtime_error("Cannot read " + input_filename);
+        throw std::runtime_error("Cannot read " + input_filenames[0]);
     case STATUS_CANNOT_WRITE_OUTPUT:
         throw std::runtime_error("Cannot write " + output_filename);
     case STATUS_CANNOT_RUN_PROGRAM:

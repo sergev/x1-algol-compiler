@@ -34,8 +34,8 @@ private:
     // Count of instructions.
     static uint64_t simulated_instructions;
 
-    // Name of Algol file to run.
-    std::string input_file;
+    // Provided input files (Algol source, X1 object file, libraries)
+    std::vector<std::string> input_files;
 
     // Compiler of choice.
     std::string compiler_path;
@@ -65,22 +65,23 @@ public:
     // Destructor.
     ~Machine();
 
-    // Set name of input file.
-    void set_input_file(const char *filename);
-    void set_input_file(const std::string &filename) { set_input_file(filename.c_str()); }
-    const std::string &get_input_file() const { return input_file; }
+    // Add a file to the list of input files.
+    void add_input_file(const std::string &filename);
+
+    // Return the first input file (Algol source or X1 object file).
+    const std::string &get_input_file() const;
 
     // Set name of compiler.
     void set_compiler(const std::string &filename);
 
     // Compile Algol file to object format.
-    void compile(const std::string &algol_filename, const std::string &obj_filename);
+    void compile(const std::vector<std::string> &filenames, const std::string &obj_filename);
 
     // Load object file into memory.
     void load_object_program(const std::string &obj_filename);
 
     // Run external program with given input and output files.
-    void run_program(const std::string &prog_path, const std::string &input_filename,
+    void run_program(const std::string &prog_path, const std::vector<std::string> &input_filenames,
                      const std::string &output_filename);
 
     // Compile the input Algol file and simulate it.
