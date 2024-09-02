@@ -188,6 +188,9 @@ private:
     void make_storage_function_frame(int elt_size);
     void make_value_array_function_frame(int elt_size);
     Word load_word(unsigned addr);
+
+    // Apply given operation to the retrieved address of formal parameter.
+    void apply_operation(Formal_Op post_op, unsigned addr, Cell_Type type);
 };
 
 //

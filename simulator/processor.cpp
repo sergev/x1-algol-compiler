@@ -611,29 +611,30 @@ void Processor::take_formal(unsigned dynamic_addr, Formal_Op post_op)
     unsigned const arg_addr  = arg_descr & BITS(15);
     switch (arg_descr >> 15 & 077) {
     case 000: {
-        if (post_op != Formal_Op::PUSH_VALUE) {
-            // Get real address.
-            stack.push_real_addr(arg_addr);
-        } else {
-            // Get real value from memory.
-            stack.push_real_value(load_real(arg_addr));
-        }
+        // Get real argument from memory.
+        apply_operation(post_op, arg_addr, Cell_Type::REAL_ADDRESS);
         break;
     }
     case 020: {
-        if (post_op != Formal_Op::PUSH_VALUE) {
-            // Get integer address.
-            stack.push_int_addr(arg_addr);
-        } else {
-            // Get integer value from memory.
-            Word value = machine.mem_load(arg_addr);
-            stack.push_int_value(value);
-        }
+        // Get integer argument from memory.
+        apply_operation(post_op, arg_addr, Cell_Type::INTEGER_ADDRESS);
+        break;
+    }
+    case 002: {
+        // Get real argument from stack.
+        auto const addr = arg_address(dynamic_addr, arg_descr);
+        apply_operation(post_op, addr + STACK_BASE, Cell_Type::REAL_ADDRESS);
+        break;
+    }
+    case 022: {
+        // Get integer argument from stack.
+        auto const addr = arg_address(dynamic_addr, arg_descr);
+        apply_operation(post_op, addr + STACK_BASE, Cell_Type::INTEGER_ADDRESS);
         break;
     }
     case 040: {
         if (post_op == Formal_Op::PUSH_STRING) {
-            stack.push_int_addr(arg_addr);
+            apply_operation(post_op, arg_addr, Cell_Type::INTEGER_ADDRESS);
             break;
         }
         // Call implicit subroutine.
@@ -655,30 +656,6 @@ void Processor::take_formal(unsigned dynamic_addr, Formal_Op post_op)
         machine.trace_level();
         break;
     }
-    case 002: {
-        auto const addr = arg_address(dynamic_addr, arg_descr);
-        if (post_op != Formal_Op::PUSH_VALUE) {
-            // Get real address on stack.
-            stack.push_real_addr(addr + STACK_BASE);
-        } else {
-            // Get real value from stack.
-            auto const value = stack.get(addr).get_real();
-            stack.push_real_value(value);
-        }
-        break;
-    }
-    case 022: {
-        auto const addr = arg_address(dynamic_addr, arg_descr);
-        if (post_op != Formal_Op::PUSH_VALUE) {
-            // Get integer address on stack.
-            stack.push_int_addr(addr + STACK_BASE);
-        } else {
-            // Get integer value from stack.
-            auto const value = stack.get(addr).get_int();
-            stack.push_int_value(value);
-        }
-        break;
-    }
     case 006: {
         // Indirection: argument point to another argument in parent's frame.
         unsigned arg_level, arg_frame;
@@ -694,6 +671,36 @@ void Processor::take_formal(unsigned dynamic_addr, Formal_Op post_op)
     }
     default:
         throw std::runtime_error("Unknown descriptor of formal argument: " + to_octal(arg_descr));
+    }
+}
+
+//
+// Apply given operation to the retrieved address of formal parameter.
+//
+void Processor::apply_operation(Formal_Op post_op, unsigned addr, Cell_Type type)
+{
+    switch (post_op) {
+    case Formal_Op::PUSH_VALUE:
+        if (type == Cell_Type::INTEGER_ADDRESS) {
+            // Get integer value.
+            stack.push_int_value(load_word(addr));
+        } else {
+            // Get real value.
+            stack.push_real_value(load_real(addr));
+        }
+        break;
+    case Formal_Op::PUSH_ADDRESS:
+    case Formal_Op::PUSH_STRING:
+        if (type == Cell_Type::INTEGER_ADDRESS) {
+            // Get integer address.
+            stack.push_int_addr(addr);
+        } else {
+            // Get real address.
+            stack.push_real_addr(addr);
+        }
+        break;
+    default:
+        throw std::runtime_error("Unsupported operation in apply_operation()");
     }
 }
 
