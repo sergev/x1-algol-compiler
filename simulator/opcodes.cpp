@@ -874,7 +874,7 @@ bool Processor::call_opc(unsigned opc)
             frame_ptr = stack_base + Frame_Offset::FP - Frame_Offset::ARG;
         }
         set_block_level(core.B);
-        update_display(core.B);
+        update_display(core.B, frame_ptr);
         break;
     }
     case OPC_RSF: {
@@ -1006,7 +1006,7 @@ bool Processor::call_opc(unsigned opc)
             auto prev_bn = stack.get(prev_fp + Frame_Offset::BN).get_int();
             block_level  = prev_bn + 1;
             set_block_level(block_level);
-            update_display(block_level);
+            update_display(block_level, frame_ptr);
         }
         // Get argument.
         take_formal(0240 + block_level, Formal_Op::PUSH_VALUE);

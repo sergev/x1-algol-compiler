@@ -126,8 +126,8 @@ public:
     unsigned get_block_level() const;
     unsigned get_display(unsigned block_level) const;
 
-    // Update all display[] entries starting from given level.
-    void update_display(unsigned block_level);
+    // Update all display[] entries starting from given level and frame.
+    void update_display(unsigned block_level, unsigned fp);
 
     // Roll stack back to the 'goto' frame, starting from base.
     bool roll_back(unsigned frame_base);
