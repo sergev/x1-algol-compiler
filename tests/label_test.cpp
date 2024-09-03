@@ -178,3 +178,21 @@ TEST_F(x1_machine, goto_recursive)
 )";
     EXPECT_EQ(output, expect);
 }
+
+TEST_F(x1_machine, DISABLED_goto_from_for_loop)
+{
+    auto output = compile_and_run(R"(
+        b̲e̲g̲i̲n̲
+            i̲n̲t̲e̲g̲e̲r̲ n;
+            f̲o̲r̲ n := 1 s̲t̲e̲p̲ 1 u̲n̲t̲i̲l̲ 1 d̲o̲ b̲e̲g̲i̲n̲
+                print(123);
+                g̲o̲t̲o̲ done;
+            e̲n̲d̲;
+    done:   print(456);
+        e̲n̲d̲
+    )");
+    const std::string expect = R"(123
+456
+)";
+    EXPECT_EQ(output, expect);
+}
