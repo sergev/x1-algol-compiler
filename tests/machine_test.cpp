@@ -80,8 +80,8 @@ TEST_F(x1_machine, digraph_encoding)
     unsigned start = machine->get_entry(0);
     EXPECT_EQ(machine->mem_load(start), 96);            // START
     EXPECT_EQ(machine->mem_load(start+3), 0x67'5c'66);  // := ≔
-    EXPECT_EQ(machine->mem_load(start+12), 0x67'45'66);  // |∧ ↑
-    EXPECT_EQ(machine->mem_load(start+21), 0x67'4b'66);  // |= ≠
+    EXPECT_EQ(machine->mem_load(start+12), 0x67'45'66); // |∧ ↑
+    EXPECT_EQ(machine->mem_load(start+21), 0x67'4b'66); // |= ≠
     EXPECT_EQ(machine->mem_load(start+30), 0x67'66'66); // |< |> ` '
     EXPECT_EQ(machine->mem_load(start+39), 0x67'47'66); // _> ≥
     EXPECT_EQ(machine->mem_load(start+48), 0x67'50'66); // _= ≡

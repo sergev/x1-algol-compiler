@@ -720,3 +720,71 @@ TEST_F(x1_machine, easter_sunday)
 )";
     EXPECT_EQ(output, expect);
 }
+
+TEST_F(x1_machine, seven_plus_two)
+{
+    auto output = compile_and_run(R"(
+        b̲e̲g̲i̲n̲
+            i̲n̲t̲e̲g̲e̲r̲ p̲r̲o̲c̲e̲d̲u̲r̲e̲ two;
+                two := 2;
+
+            p̲r̲o̲c̲e̲d̲u̲r̲e̲ seven plus x(x); i̲n̲t̲e̲g̲e̲r̲ x;
+                print(7 + x);
+
+            seven plus x(two)
+        e̲n̲d̲
+    )");
+    const std::string expect = "9\n";
+    EXPECT_EQ(output, expect);
+}
+
+TEST_F(x1_machine, seven_minus_two)
+{
+    auto output = compile_and_run(R"(
+        b̲e̲g̲i̲n̲
+            i̲n̲t̲e̲g̲e̲r̲ p̲r̲o̲c̲e̲d̲u̲r̲e̲ two;
+                two := 2;
+
+            p̲r̲o̲c̲e̲d̲u̲r̲e̲ seven minus x(x); i̲n̲t̲e̲g̲e̲r̲ x;
+                print(7 - x);
+
+            seven minus x(two)
+        e̲n̲d̲
+    )");
+    const std::string expect = "5\n";
+    EXPECT_EQ(output, expect);
+}
+
+TEST_F(x1_machine, seven_multiply_two)
+{
+    auto output = compile_and_run(R"(
+        b̲e̲g̲i̲n̲
+            i̲n̲t̲e̲g̲e̲r̲ p̲r̲o̲c̲e̲d̲u̲r̲e̲ two;
+                two := 2;
+
+            p̲r̲o̲c̲e̲d̲u̲r̲e̲ seven multiply x(x); i̲n̲t̲e̲g̲e̲r̲ x;
+                print(7 × x);
+
+            seven multiply x(two)
+        e̲n̲d̲
+    )");
+    const std::string expect = "14\n";
+    EXPECT_EQ(output, expect);
+}
+
+TEST_F(x1_machine, seven_divide_two)
+{
+    auto output = compile_and_run(R"(
+        b̲e̲g̲i̲n̲
+            i̲n̲t̲e̲g̲e̲r̲ p̲r̲o̲c̲e̲d̲u̲r̲e̲ two;
+                two := 2;
+
+            p̲r̲o̲c̲e̲d̲u̲r̲e̲ seven divide x(x); i̲n̲t̲e̲g̲e̲r̲ x;
+                print(7 ÷ x);
+
+            seven divide x(two)
+        e̲n̲d̲
+    )");
+    const std::string expect = "3\n";
+    EXPECT_EQ(output, expect);
+}
