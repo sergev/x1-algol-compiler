@@ -72,6 +72,7 @@ private:
 
     // Pointer to a procedure frame in stack.
     unsigned frame_ptr{};
+    unsigned last_frame_ptr{};
 
     // Base of stack in current block.
     unsigned stack_base{};
@@ -113,9 +114,6 @@ public:
     bool get_c() const { return core.C; }
     Word get_a() const { return core.A; }
     Word get_s() const { return core.S; }
-
-    // Have we reached given address?
-    bool at_address(unsigned addr, unsigned fp) const { return OT == addr && frame_ptr == fp; }
 
     // Get frame pointer.
     unsigned get_frame_ptr() const { return frame_ptr; }

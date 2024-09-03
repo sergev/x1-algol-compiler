@@ -388,6 +388,7 @@ void Processor::frame_create(unsigned ret_addr, unsigned num_args)
 
     // Default post-operation is to leave value on stack.
     eis_operation[stack_base] = Formal_Op::PUSH_VALUE;
+    last_frame_ptr = frame_ptr;
 }
 
 //
@@ -408,6 +409,7 @@ unsigned Processor::frame_release()
     // Update display[BN...0] by unwinding stack.
     update_display(get_block_level(), frame_ptr);
 
+    last_frame_ptr = frame_ptr;
     return ret_addr;
 }
 
