@@ -204,11 +204,11 @@ next:   i̲f̲ b ≠ x t̲h̲e̲n̲ b̲e̲g̲i̲n̲
         NLCR;
         NLCR;
         f̲o̲r̲ k := 1 s̲t̲e̲p̲ 1 u̲n̲t̲i̲l̲ 5 d̲o̲ b̲e̲g̲i̲n̲
-            i̲f̲ k=1 t̲h̲e̲n̲ PRINTTEXT(`J ') e̲l̲s̲e̲
-            i̲f̲ k=2 t̲h̲e̲n̲ PRINTTEXT(`S ') e̲l̲s̲e̲
-            i̲f̲ k=3 t̲h̲e̲n̲ PRINTTEXT(`U ') e̲l̲s̲e̲
-            i̲f̲ k=4 t̲h̲e̲n̲ PRINTTEXT(`N ') e̲l̲s̲e̲
-                PRINTTEXT(`P ');
+            i̲f̲ k=1 t̲h̲e̲n̲ PRINTTEXT(`J   ') e̲l̲s̲e̲
+            i̲f̲ k=2 t̲h̲e̲n̲ PRINTTEXT(`S   ') e̲l̲s̲e̲
+            i̲f̲ k=3 t̲h̲e̲n̲ PRINTTEXT(`U   ') e̲l̲s̲e̲
+            i̲f̲ k=4 t̲h̲e̲n̲ PRINTTEXT(`N   ') e̲l̲s̲e̲
+                PRINTTEXT(`P   ');
             FIXT(2, 9, x[3*k-2]);
             FIXT(2, 9, x[3*k-1]);
             FIXT(2, 9, x[3*k]);
