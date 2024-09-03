@@ -1,25 +1,23 @@
 b̲e̲g̲i̲n̲
     c̲o̲m̲m̲e̲n̲t̲ zeef van Erathostenes;
     i̲n̲t̲e̲g̲e̲r̲ p, m;
-    B̲o̲o̲l̲e̲a̲n̲ a̲r̲r̲a̲y̲ prime [2 : 10000];
+    B̲o̲o̲l̲e̲a̲n̲ a̲r̲r̲a̲y̲ prime [2 : 100];
 
-    f̲o̲r̲ p := 2, 3 s̲t̲e̲p̲ 2 u̲n̲t̲i̲l̲ 10000 d̲o̲
+    f̲o̲r̲ p := 2, 3 s̲t̲e̲p̲ 2 u̲n̲t̲i̲l̲ 100 d̲o̲
         prime[p] := t̲r̲u̲e̲;
 
     f̲o̲r̲ p := 2, 3 s̲t̲e̲p̲ 2 u̲n̲t̲i̲l̲ 10 d̲o̲ b̲e̲g̲i̲n̲
         i̲f̲ prime[p] t̲h̲e̲n̲
-            f̲o̲r̲ m := p * p s̲t̲e̲p̲ p u̲n̲t̲i̲l̲ 10000 d̲o̲
+            f̲o̲r̲ m := p * p s̲t̲e̲p̲ p u̲n̲t̲i̲l̲ 100 d̲o̲
                 prime[m] := f̲a̲l̲s̲e̲
     e̲n̲d̲;
 
-    m := 0;
-    f̲o̲r̲ p := 2, 3 s̲t̲e̲p̲ 2 u̲n̲t̲i̲l̲ 10000 d̲o̲ b̲e̲g̲i̲n̲
+    PRINTTEXT(`Prime numbers in the first hundred:');
+    f̲o̲r̲ p := 2, 3 s̲t̲e̲p̲ 2 u̲n̲t̲i̲l̲ 100 d̲o̲ b̲e̲g̲i̲n̲
         i̲f̲ prime[p] t̲h̲e̲n̲ b̲e̲g̲i̲n̲
-            m := m + 1
+            SPACE(1);
+            print(p)
         e̲n̲d̲
     e̲n̲d̲;
-
-    PRINTTEXT(`number of primes below 10 000: ');
-    ABSFIXT(5, 0, m);
     NLCR
 e̲n̲d̲
