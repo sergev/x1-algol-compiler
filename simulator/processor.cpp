@@ -656,6 +656,7 @@ again:
         // Invoke implicit subroutine in caller's context.
         stack.push_int_value(0); // place for result
         frame_create(OT, 0);
+        eis_operation[frame_ptr] = post_op;
         if (arg_level > 0) {
             // Use caller's frame.
             frame_ptr = arg_frame;
@@ -675,15 +676,6 @@ again:
 void Processor::apply_operation(Formal_Op post_op, unsigned addr, Cell_Type type)
 {
     switch (post_op) {
-    case Formal_Op::PUSH_VALUE:
-        if (type == Cell_Type::INTEGER_ADDRESS) {
-            // Get integer value.
-            stack.push_int_value(load_word(addr));
-        } else {
-            // Get real value.
-            stack.push_real_value(load_real(addr));
-        }
-        break;
     case Formal_Op::PUSH_ADDRESS:
     case Formal_Op::PUSH_STRING:
         if (type == Cell_Type::INTEGER_ADDRESS) {
@@ -692,6 +684,25 @@ void Processor::apply_operation(Formal_Op post_op, unsigned addr, Cell_Type type
         } else {
             // Get real address.
             stack.push_real_addr(addr);
+        }
+        break;
+    case Formal_Op::PUSH_VALUE:
+    case Formal_Op::ADD:
+        Stack_Cell x;
+        if (type == Cell_Type::INTEGER_ADDRESS) {
+            x = { Cell_Type::INTEGER_VALUE, load_word(addr) };
+        } else {
+            x = { Cell_Type::REAL_VALUE, load_real(addr) };
+        }
+        switch (post_op) {
+        case Formal_Op::PUSH_VALUE:
+            stack.push(x);
+            break;
+        case Formal_Op::ADD:
+            stack.add(x);
+            break;
+        default:
+            throw std::runtime_error("Unsupported operation");
         }
         break;
     default:

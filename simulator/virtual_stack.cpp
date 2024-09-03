@@ -542,3 +542,13 @@ void Virtual_Stack::push(Cell_Type type, uint64_t value)
     item.value = value;
     Machine::trace_stack(storage.size() - 1, item.to_string(), "Push");
 }
+
+//
+// Arithmetic on top of stack.
+//
+void Virtual_Stack::add(const Stack_Cell &b)
+{
+    auto &a = top();
+    a.add(b);
+    Machine::trace_stack(storage.size() - 1, a.to_string(), "Add");
+}

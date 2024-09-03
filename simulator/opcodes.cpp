@@ -83,10 +83,21 @@ bool Processor::call_opc(unsigned opc)
     }
     case OPC_EIS: {
         // end of implicit subroutine
-        auto item   = stack.pop();
-        frame_ptr   = stack_base + Frame_Offset::FP - Frame_Offset::ARG;
-        OT          = frame_release();
-        stack.top() = item;
+        auto item    = stack.pop();
+        frame_ptr    = stack_base + Frame_Offset::FP - Frame_Offset::ARG;
+        auto post_op = eis_operation.at(frame_ptr);
+        OT           = frame_release();
+
+        // Apply operation.
+        switch (post_op) {
+        default:
+            stack.top() = item;
+            break;
+        case Formal_Op::ADD:
+            stack.pop();
+            stack.add(item);
+            break;
+        }
         break;
     }
     case OPC_TRAD: {
@@ -321,11 +332,7 @@ bool Processor::call_opc(unsigned opc)
         // add formal
         // Left argument is on stack.
         // Register S has dynamic address of right argument.
-        take_formal(core.S, Formal_Op::PUSH_VALUE);
-        auto b = stack.pop();
-        auto a = stack.pop();
-        a.add(b);
-        stack.push(a);
+        take_formal(core.S, Formal_Op::ADD);
         break;
     }
     case OPC_SURD: {

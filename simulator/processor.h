@@ -40,9 +40,10 @@ enum {
 // When retrieving a formal parameter, apply the following operation.
 //
 enum class Formal_Op {
-    PUSH_VALUE,     // Push value on stack
+    PUSH_VALUE,     // Push number on stack
     PUSH_ADDRESS,   // Push address on stack
     PUSH_STRING,    // Push string on stack
+    ADD,            // Add number to top of stack
 };
 
 //
@@ -82,7 +83,7 @@ private:
 
     // Apply this operation when returning from implicit subroutine (on EIS).
     // Indexed by frame pointer.
-    //TODO: std::unordered_map<unsigned, Formal_Op> eis_operation;
+    std::unordered_map<unsigned, Formal_Op> eis_operation;
 
 public:
     // Stack of arguments for OPC.
