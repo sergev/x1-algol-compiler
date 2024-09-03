@@ -144,6 +144,9 @@ public:
 
     // Arithmetic on top of stack
     void add(const Stack_Cell &another);
+    void subtract(const Stack_Cell &another);
+    void multiply(const Stack_Cell &another);
+    void divide(const Stack_Cell &another);
 };
 
 #endif // X1_VIRTUAL_STACK_H

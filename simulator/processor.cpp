@@ -688,6 +688,9 @@ void Processor::apply_operation(Formal_Op post_op, unsigned addr, Cell_Type type
         break;
     case Formal_Op::PUSH_VALUE:
     case Formal_Op::ADD:
+    case Formal_Op::SUBTRACT:
+    case Formal_Op::MULTIPLY:
+    case Formal_Op::DIVIDE:
         Stack_Cell x;
         if (type == Cell_Type::INTEGER_ADDRESS) {
             x = { Cell_Type::INTEGER_VALUE, load_word(addr) };
@@ -700,6 +703,15 @@ void Processor::apply_operation(Formal_Op post_op, unsigned addr, Cell_Type type
             break;
         case Formal_Op::ADD:
             stack.add(x);
+            break;
+        case Formal_Op::SUBTRACT:
+            stack.subtract(x);
+            break;
+        case Formal_Op::MULTIPLY:
+            stack.multiply(x);
+            break;
+        case Formal_Op::DIVIDE:
+            stack.divide(x);
             break;
         default:
             throw std::runtime_error("Unsupported operation");

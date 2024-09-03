@@ -552,3 +552,24 @@ void Virtual_Stack::add(const Stack_Cell &b)
     a.add(b);
     Machine::trace_stack(storage.size() - 1, a.to_string(), "Add");
 }
+
+void Virtual_Stack::subtract(const Stack_Cell &b)
+{
+    auto &a = top();
+    a.subtract(b);
+    Machine::trace_stack(storage.size() - 1, a.to_string(), "Subtract");
+}
+
+void Virtual_Stack::multiply(const Stack_Cell &b)
+{
+    auto &a = top();
+    a.multiply(b);
+    Machine::trace_stack(storage.size() - 1, a.to_string(), "Multiply");
+}
+
+void Virtual_Stack::divide(const Stack_Cell &b)
+{
+    auto &a = top();
+    a.divide(b);
+    Machine::trace_stack(storage.size() - 1, a.to_string(), "Divide");
+}

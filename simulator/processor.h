@@ -44,6 +44,9 @@ enum class Formal_Op {
     PUSH_ADDRESS,   // Push address on stack
     PUSH_STRING,    // Push string on stack
     ADD,            // Add number to top of stack
+    SUBTRACT,       // Subtract number from top of stack
+    MULTIPLY,       // Multily top of stack by number
+    DIVIDE,         // Divide top of stack by number
 };
 
 //

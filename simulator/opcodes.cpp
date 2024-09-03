@@ -97,6 +97,18 @@ bool Processor::call_opc(unsigned opc)
             stack.pop();
             stack.add(item);
             break;
+        case Formal_Op::SUBTRACT:
+            stack.pop();
+            stack.subtract(item);
+            break;
+        case Formal_Op::MULTIPLY:
+            stack.pop();
+            stack.multiply(item);
+            break;
+        case Formal_Op::DIVIDE:
+            stack.pop();
+            stack.divide(item);
+            break;
         }
         break;
     }
@@ -381,9 +393,7 @@ bool Processor::call_opc(unsigned opc)
         // subtract formal
         // Left argument is on stack.
         // Register S has dynamic address of right argument.
-        take_formal(core.S, Formal_Op::PUSH_VALUE);
-        auto b = stack.pop();
-        stack.top().subtract(b);
+        take_formal(core.S, Formal_Op::SUBTRACT);
         break;
     }
 
@@ -440,9 +450,7 @@ bool Processor::call_opc(unsigned opc)
         // multiply formal
         // Left argument is on stack.
         // Register S has dynamic address of right argument.
-        take_formal(core.S, Formal_Op::PUSH_VALUE);
-        auto b = stack.pop();
-        stack.top().multiply(b);
+        take_formal(core.S, Formal_Op::MULTIPLY);
         break;
     }
 
@@ -498,9 +506,7 @@ bool Processor::call_opc(unsigned opc)
         // divide formal
         // Left argument is on stack.
         // Register S has dynamic address of right argument.
-        take_formal(core.S, Formal_Op::PUSH_VALUE);
-        auto b = stack.pop();
-        stack.top().divide(b);
+        take_formal(core.S, Formal_Op::DIVIDE);
         break;
     }
 
