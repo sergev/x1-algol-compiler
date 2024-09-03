@@ -223,7 +223,7 @@ bool Processor::step()
         if (addr == 5) {
             // This instruction is used by PRINTTEXT to find out
             // the value of its formal parameter.
-            take_formal(0241, Formal_Op::PUSH_STRING);
+            take_formal((Frame_Offset::ARG << 5) + 1, Formal_Op::PUSH_STRING);
             core.B = stack.pop_addr();
         } else
             core.B = machine.mem_load((addr + core.B) & BITS(15));
@@ -420,27 +420,22 @@ void Processor::allocate_stack(unsigned nwords)
 }
 
 //
-// Roll stack back to the 'goto' frame, starting from base.
-// Return true on success.
-// Return false when the base is reached.
+// Roll stack back to the 'goto' frame.
 //
-bool Processor::roll_back(unsigned frame_base)
+void Processor::roll_back(unsigned goto_frame)
 {
-    if (goto_frame < frame_base) {
-        return false;
-    }
     unsigned fp = frame_ptr;
-    while (fp >= frame_base) {
+    while (fp > 0) {
         unsigned prev_fp = stack.get(fp + Frame_Offset::FP).get_addr();
         if (prev_fp == goto_frame) {
             frame_ptr = fp;
             frame_release();
             stack.pop();
-            return true;
+            return;
         }
         fp = prev_fp;
     }
-    return false;
+    throw std::runtime_error("Cannot find goto frame");
 }
 
 //

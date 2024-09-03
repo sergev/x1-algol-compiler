@@ -241,10 +241,8 @@ bool Processor::call_opc(unsigned opc)
     case OPC_GTA:
         // goto adjustment
         // Exit to block level given in register B.
-        frame_ptr  = stack_base + Frame_Offset::FP - Frame_Offset::ARG;
-        goto_frame = display[core.B];
-        machine.set_goto_flag();
-        return true;
+        roll_back(display[core.B]);
+        break;
 
     case OPC_SSI: {
         // store switch index
@@ -1026,7 +1024,7 @@ bool Processor::call_opc(unsigned opc)
         }
         // Get argument.
         eis_operation[frame_ptr] = Formal_Op::REMOVE_ARG;
-        take_formal(0240 + block_level, Formal_Op::PUSH_VALUE);
+        take_formal((Frame_Offset::ARG << 5) + block_level, Formal_Op::PUSH_VALUE);
         break;
     }
 

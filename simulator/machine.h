@@ -52,9 +52,6 @@ private:
     // Table of entry addresses from object program.
     std::vector<unsigned> entry_table;
 
-    // Non-local goto in progress.
-    bool goto_flag{};
-
     // True when stdin is connected to terminal.
     static bool is_interactive;
 
@@ -89,9 +86,6 @@ public:
 
     // Run simulation.
     void run(unsigned start_addr, unsigned finish_addr = 0, unsigned finish_frame = 0);
-
-    // Set flag of non-local goto.
-    void set_goto_flag() { goto_flag = true; }
 
     // Get address by name from symbol table.
     unsigned get_symbol(const std::string &name) { return symbol_table.at(name); }

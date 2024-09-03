@@ -116,20 +116,8 @@ void Machine::run(unsigned start_addr, unsigned finish_addr, unsigned finish_fra
     // Show initial state.
     trace_registers();
 
-    auto const frame_base = cpu.get_frame_ptr();
     for (;;) {
-        bool done{};
-        try {
-            done = cpu.step();
-
-        } catch (const Non_Local_Goto &) {
-            // Non-local GOTO: roll stack back.
-            if (!cpu.roll_back(frame_base)) {
-                // Jump to previous level.
-                throw;
-            }
-            trace_level();
-        }
+        bool done = cpu.step();
 
         // Show changed registers.
         trace_registers();
@@ -141,10 +129,6 @@ void Machine::run(unsigned start_addr, unsigned finish_addr, unsigned finish_fra
 
         if (done) {
             // Halted by 'STOP' code.
-            if (goto_flag) {
-                goto_flag = false;
-                throw Non_Local_Goto();
-            }
             return;
         }
         if (finish_addr != 0 && cpu.at_address(finish_addr, finish_frame)) {

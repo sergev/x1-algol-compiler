@@ -76,10 +76,6 @@ private:
     // Base of stack in current block.
     unsigned stack_base{};
 
-    // Target of a non-local goto.
-    unsigned goto_frame{};
-    bool goto_flag{};
-
     // Frame pointers for each block level.
     unsigned display[32]{};
 
@@ -135,8 +131,8 @@ public:
     // Update all display[] entries starting from given level and frame.
     void update_display(unsigned block_level, unsigned fp);
 
-    // Roll stack back to the 'goto' frame, starting from base.
-    bool roll_back(unsigned frame_base);
+    // Roll stack back to the 'goto' frame.
+    void roll_back(unsigned goto_frame);
 
 private:
     // Invoke run-time routine.
@@ -197,13 +193,6 @@ private:
 
     // Apply given operation to the retrieved address of formal parameter.
     void apply_operation(Formal_Op post_op, unsigned addr, Cell_Type type);
-};
-
-//
-// Non-local gotos are implemented as exceptions.
-//
-class Non_Local_Goto {
-    // Empty.
 };
 
 #endif // X1_PROCESSOR_H
