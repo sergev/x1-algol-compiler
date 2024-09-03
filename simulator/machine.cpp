@@ -502,14 +502,17 @@ void Machine::print_floating_point(std::ostream &out, int n, int m, long double 
         x /= powl(10.0, exponent);
     }
 
+    // Round.
+    x += 0.5 / powl(10.0, n);
+    if (x >= 1) {
+        x /= 10;
+        exponent++;
+    }
+
     // Print mantissa.
     out << sign_symbol << '.';
     for (int count = 0; count < n; count++) {
         x *= 10.0;
-        if (count + 1 == n && x < 9.0) {
-            // Round last digit.
-            x += 0.5;
-        }
         int digit = x;
         assert(digit >= 0 && digit <= 9);
         x -= digit;
