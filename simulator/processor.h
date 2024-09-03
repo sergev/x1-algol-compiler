@@ -193,6 +193,8 @@ private:
 
     // Apply given operation to the retrieved address of formal parameter.
     void apply_operation(Formal_Op post_op, unsigned addr, Cell_Type type);
+
+    void increment_stack_base(int amount);
 };
 
 #endif // X1_PROCESSOR_H

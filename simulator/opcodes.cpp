@@ -74,7 +74,7 @@ bool Processor::call_opc(unsigned opc)
     case OPC_RET: {
         // return from procedure
         // Jump to address from stack.
-        auto post_op = eis_operation.at(frame_ptr);
+        auto post_op = eis_operation.at(stack_base);
         OT           = frame_release();
         if (stack.top().is_null()) {
             // Drop empty result.
@@ -103,7 +103,7 @@ bool Processor::call_opc(unsigned opc)
     case OPC_EIS: {
         // end of implicit subroutine
         auto item    = stack.pop();
-        auto post_op = eis_operation.at(frame_ptr);
+        auto post_op = eis_operation.at(stack_base);
         if (post_op == Formal_Op::REMOVE_ARG) {
             stack_base -= 2;
         }
@@ -893,7 +893,7 @@ bool Processor::call_opc(unsigned opc)
         auto prev_bn = stack.get(prev_fp + Frame_Offset::BN).get_int();
         core.B       = prev_bn + 1;
         allocate_stack(1);
-        stack_base += 1;
+        increment_stack_base(1);
         // In the complex, FOR0 jumps to SCC.
     }
         // FALLTHRU
@@ -905,9 +905,7 @@ bool Processor::call_opc(unsigned opc)
         }
         if (get_block_level() != 0) {
             // Convert implicit subroutine into procedure.
-            auto post_op = eis_operation[frame_ptr];
             frame_ptr = stack_base + Frame_Offset::FP - Frame_Offset::ARG;
-            eis_operation[frame_ptr] = post_op;
         }
         set_block_level(core.B);
         update_display(core.B, frame_ptr);
@@ -954,7 +952,7 @@ bool Processor::call_opc(unsigned opc)
         int offset = x1_to_integer(stack.get(addr + 1).get_int());
         stack.set(addr + 1, Stack_Cell{ ct, stack_base - offset + STACK_BASE });
         allocate_stack(words);
-        stack_base += words;
+        increment_stack_base(words);
         break;
     }
     case OPC_VAP: {
@@ -1022,7 +1020,7 @@ bool Processor::call_opc(unsigned opc)
             // Finally, store the true element size.
             stack.set_int_value(storage_fn + 2, elt_size % 10);
         }
-        stack_base += words;
+        increment_stack_base(words);
         break;
     }
     case OPC_START:
@@ -1045,7 +1043,7 @@ bool Processor::call_opc(unsigned opc)
             update_display(block_level, frame_ptr);
         }
         // Get argument.
-        eis_operation[frame_ptr] = Formal_Op::REMOVE_ARG;
+        eis_operation[stack_base] = Formal_Op::REMOVE_ARG;
         take_formal((Frame_Offset::ARG << 5) + block_level, Formal_Op::PUSH_VALUE);
         break;
     }

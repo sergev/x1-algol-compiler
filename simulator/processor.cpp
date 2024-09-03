@@ -161,7 +161,7 @@ bool Processor::step()
             break;
         case 062:
             // Increase stack pointer by amount in register A.
-            stack_base += core.A;
+            increment_stack_base(core.A);
             break;
         default:
             goto unknown;
@@ -387,7 +387,7 @@ void Processor::frame_create(unsigned ret_addr, unsigned num_args)
     stack_base = stack.count();
 
     // Default post-operation is to leave value on stack.
-    eis_operation[frame_ptr] = Formal_Op::PUSH_VALUE;
+    eis_operation[stack_base] = Formal_Op::PUSH_VALUE;
 }
 
 //
@@ -659,7 +659,7 @@ again:
             frame_ptr = arg_frame;
             update_display(arg_level, arg_frame);
         }
-        eis_operation[frame_ptr] = post_op;
+        eis_operation[stack_base] = post_op;
         OT = arg_addr;
         break;
     }
@@ -704,7 +704,7 @@ void Processor::apply_operation(Formal_Op post_op, unsigned addr, Cell_Type type
             // Remove dummy argument from stack.
             stack.pop();
             stack.pop();
-            stack_base -= 2;
+            stack_base -= 2; // TODO: is this correct?
             stack.push(x);
             break;
         case Formal_Op::ADD:
@@ -840,7 +840,7 @@ void Processor::make_storage_function_frame(int elt_size)
             stack.push(stack.get(stack_base + j));
         }
     }
-    stack_base += nitems * (ndim + 3);
+    increment_stack_base(nitems * (ndim + 3));
 }
 
 Word Processor::load_word(unsigned addr)
@@ -880,7 +880,15 @@ void Processor::make_value_array_function_frame(int elt_size)
     if (!seen_limit) {
         throw std::runtime_error("Too many dimensions for value array");
     }
-    stack_base += 8;
+    increment_stack_base(8);
+}
+
+void Processor::increment_stack_base(int amount)
+{
+    auto post_op = eis_operation.at(stack_base);
+
+    stack_base += amount;
+    eis_operation[stack_base] = post_op;
 }
 
 std::ostream &operator<<(std::ostream &out, const Formal_Op &op)
