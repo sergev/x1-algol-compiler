@@ -84,9 +84,12 @@ bool Processor::call_opc(unsigned opc)
     case OPC_EIS: {
         // end of implicit subroutine
         auto item    = stack.pop();
-        frame_ptr    = stack_base + Frame_Offset::FP - Frame_Offset::ARG;
         auto post_op = eis_operation.at(frame_ptr);
-        OT           = frame_release();
+        if (post_op == Formal_Op::REMOVE_ARG) {
+            stack_base -= 2;
+        }
+        frame_ptr = stack_base + Frame_Offset::FP - Frame_Offset::ARG;
+        OT        = frame_release();
 
         // Apply operation.
         switch (post_op) {
@@ -1022,13 +1025,8 @@ bool Processor::call_opc(unsigned opc)
             update_display(block_level, frame_ptr);
         }
         // Get argument.
+        eis_operation[frame_ptr] = Formal_Op::REMOVE_ARG;
         take_formal(0240 + block_level, Formal_Op::PUSH_VALUE);
-
-        // Remove dummy argument from stack.
-        auto result = stack.pop();
-        stack_base -= 2;
-        stack.erase(stack_base);
-        stack.push(result);
         break;
     }
 

@@ -47,7 +47,9 @@ enum class Formal_Op {
     SUBTRACT,       // Subtract number from top of stack
     MULTIPLY,       // Multily top of stack by number
     DIVIDE,         // Divide top of stack by number
+    REMOVE_ARG,     // Remove dummy argument from stack
 };
+std::ostream &operator<<(std::ostream &out, const Formal_Op &op);
 
 //
 // Electrologica X1 processor.

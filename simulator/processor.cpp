@@ -656,12 +656,12 @@ again:
         // Invoke implicit subroutine in caller's context.
         stack.push_int_value(0); // place for result
         frame_create(OT, 0);
-        eis_operation[frame_ptr] = post_op;
         if (arg_level > 0) {
             // Use caller's frame.
             frame_ptr = arg_frame;
             update_display(arg_level, arg_frame);
         }
+        eis_operation[frame_ptr] = post_op;
         OT = arg_addr;
         break;
     }
@@ -691,6 +691,7 @@ void Processor::apply_operation(Formal_Op post_op, unsigned addr, Cell_Type type
     case Formal_Op::SUBTRACT:
     case Formal_Op::MULTIPLY:
     case Formal_Op::DIVIDE:
+    case Formal_Op::REMOVE_ARG:
         Stack_Cell x;
         if (type == Cell_Type::INTEGER_ADDRESS) {
             x = { Cell_Type::INTEGER_VALUE, load_word(addr) };
@@ -699,6 +700,13 @@ void Processor::apply_operation(Formal_Op post_op, unsigned addr, Cell_Type type
         }
         switch (post_op) {
         case Formal_Op::PUSH_VALUE:
+            stack.push(x);
+            break;
+        case Formal_Op::REMOVE_ARG:
+            // Remove dummy argument from stack.
+            stack.pop();
+            stack.pop();
+            stack_base -= 2;
             stack.push(x);
             break;
         case Formal_Op::ADD:
@@ -875,4 +883,19 @@ void Processor::make_value_array_function_frame(int elt_size)
         throw std::runtime_error("Too many dimensions for value array");
     }
     stack_base += 8;
+}
+
+std::ostream &operator<<(std::ostream &out, const Formal_Op &op)
+{
+    switch (op) {
+    case Formal_Op::PUSH_VALUE:   out << "PUSH_VALUE"; break;
+    case Formal_Op::PUSH_ADDRESS: out << "PUSH_ADDRESS"; break;
+    case Formal_Op::PUSH_STRING:  out << "PUSH_STRING"; break;
+    case Formal_Op::ADD:          out << "ADD"; break;
+    case Formal_Op::SUBTRACT:     out << "SUBTRACT"; break;
+    case Formal_Op::MULTIPLY:     out << "MULTIPLY"; break;
+    case Formal_Op::DIVIDE:       out << "DIVIDE"; break;
+    case Formal_Op::REMOVE_ARG:   out << "REMOVE_ARG"; break;
+    }
+    return out;
 }
