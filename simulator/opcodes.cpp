@@ -241,6 +241,7 @@ bool Processor::call_opc(unsigned opc)
     case OPC_GTA:
         // goto adjustment
         // Exit to block level given in register B.
+        frame_ptr = stack_base + Frame_Offset::FP - Frame_Offset::ARG;
         roll_back(display[core.B]);
         break;
 
