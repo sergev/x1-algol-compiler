@@ -83,7 +83,7 @@ private:
     static unsigned const STACK_BASE = 0100000;
 
     // Apply this operation when returning from implicit subroutine (on EIS).
-    // Indexed by frame pointer.
+    // Indexed by stack base.
     std::unordered_map<unsigned, Formal_Op> eis_operation;
 
 public:
