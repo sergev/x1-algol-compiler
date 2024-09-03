@@ -385,6 +385,9 @@ void Processor::frame_create(unsigned ret_addr, unsigned num_args)
     }
     frame_ptr  = new_frame_ptr;
     stack_base = stack.count();
+
+    // Default post-operation is to leave value on stack.
+    eis_operation[frame_ptr] = Formal_Op::PUSH_VALUE;
 }
 
 //

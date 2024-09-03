@@ -728,8 +728,10 @@ TEST_F(x1_machine, seven_plus_two)
             i̲n̲t̲e̲g̲e̲r̲ p̲r̲o̲c̲e̲d̲u̲r̲e̲ two;
                 two := 2;
 
-            p̲r̲o̲c̲e̲d̲u̲r̲e̲ seven plus x(x); i̲n̲t̲e̲g̲e̲r̲ x;
+            p̲r̲o̲c̲e̲d̲u̲r̲e̲ seven plus x(x); i̲n̲t̲e̲g̲e̲r̲ x; b̲e̲g̲i̲n̲
                 print(7 + x);
+                NLCR
+            e̲n̲d̲;
 
             seven plus x(two)
         e̲n̲d̲
@@ -745,8 +747,10 @@ TEST_F(x1_machine, seven_minus_two)
             i̲n̲t̲e̲g̲e̲r̲ p̲r̲o̲c̲e̲d̲u̲r̲e̲ two;
                 two := 2;
 
-            p̲r̲o̲c̲e̲d̲u̲r̲e̲ seven minus x(x); i̲n̲t̲e̲g̲e̲r̲ x;
+            p̲r̲o̲c̲e̲d̲u̲r̲e̲ seven minus x(x); i̲n̲t̲e̲g̲e̲r̲ x; b̲e̲g̲i̲n̲
                 print(7 - x);
+                NLCR
+            e̲n̲d̲;
 
             seven minus x(two)
         e̲n̲d̲
@@ -762,8 +766,10 @@ TEST_F(x1_machine, seven_multiply_two)
             i̲n̲t̲e̲g̲e̲r̲ p̲r̲o̲c̲e̲d̲u̲r̲e̲ two;
                 two := 2;
 
-            p̲r̲o̲c̲e̲d̲u̲r̲e̲ seven multiply x(x); i̲n̲t̲e̲g̲e̲r̲ x;
+            p̲r̲o̲c̲e̲d̲u̲r̲e̲ seven multiply x(x); i̲n̲t̲e̲g̲e̲r̲ x; b̲e̲g̲i̲n̲
                 print(7 × x);
+                NLCR
+            e̲n̲d̲;
 
             seven multiply x(two)
         e̲n̲d̲
@@ -779,8 +785,10 @@ TEST_F(x1_machine, seven_divide_two)
             i̲n̲t̲e̲g̲e̲r̲ p̲r̲o̲c̲e̲d̲u̲r̲e̲ two;
                 two := 2;
 
-            p̲r̲o̲c̲e̲d̲u̲r̲e̲ seven divide x(x); i̲n̲t̲e̲g̲e̲r̲ x;
+            p̲r̲o̲c̲e̲d̲u̲r̲e̲ seven divide x(x); i̲n̲t̲e̲g̲e̲r̲ x; b̲e̲g̲i̲n̲
                 print(7 ÷ x);
+                NLCR
+            e̲n̲d̲;
 
             seven divide x(two)
         e̲n̲d̲

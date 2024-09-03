@@ -74,10 +74,29 @@ bool Processor::call_opc(unsigned opc)
     case OPC_RET: {
         // return from procedure
         // Jump to address from stack.
-        OT = frame_release();
+        auto post_op = eis_operation.at(frame_ptr);
+        OT           = frame_release();
         if (stack.top().is_null()) {
             // Drop empty result.
             stack.pop();
+        } else {
+            // Apply operation.
+            switch (post_op) {
+            default:
+                break;
+            case Formal_Op::ADD:
+                stack.add(stack.pop());
+                break;
+            case Formal_Op::SUBTRACT:
+                stack.subtract(stack.pop());
+                break;
+            case Formal_Op::MULTIPLY:
+                stack.multiply(stack.pop());
+                break;
+            case Formal_Op::DIVIDE:
+                stack.divide(stack.pop());
+                break;
+            }
         }
         break;
     }
@@ -886,7 +905,9 @@ bool Processor::call_opc(unsigned opc)
         }
         if (get_block_level() != 0) {
             // Convert implicit subroutine into procedure.
+            auto post_op = eis_operation[frame_ptr];
             frame_ptr = stack_base + Frame_Offset::FP - Frame_Offset::ARG;
+            eis_operation[frame_ptr] = post_op;
         }
         set_block_level(core.B);
         update_display(core.B, frame_ptr);
