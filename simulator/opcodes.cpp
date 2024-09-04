@@ -1098,7 +1098,12 @@ bool Processor::call_opc(unsigned opc)
         std::cout << std::endl;
         break;
 
-        // TODO: case OPC_XEEN:
+    case OPC_XEEN: {
+        // Read console switches.
+        auto bitmask = stack.pop_integer();
+        stack.push_int_value(machine.read_console_switches(std::cin, bitmask));
+        break;
+    }
     case OPC_SPACE: {
         // Print N spaces.
         auto a = stack.pop_integer();
@@ -1108,7 +1113,11 @@ bool Processor::call_opc(unsigned opc)
         std::cout << std::flush;
         break;
     }
-        // TODO: case OPC_stop:
+    case OPC_stop:
+        // Stop machine and ask operator for console input.
+        machine.ask_console_input();
+        break;
+
         // TODO: case OPC_P21:
 
     case OPC_FLOT: {

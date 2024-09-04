@@ -48,3 +48,44 @@ long double Machine::input_real(std::istream &input_stream)
         input_stream.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
     }
 }
+
+//
+// Read console switches.
+// Called by XEEN procedure.
+//
+unsigned Machine::read_console_switches(std::istream &input_stream, unsigned bitmask)
+{
+    if (!switches_are_valid) {
+        // Loop until user enters a valid input
+        for (;;) {
+            if (is_interactive) {
+                std::cout << "\n";
+                std::cout << "Enter console switches (up to 27 binary digits)\n";
+                std::cout << ": " << std::flush;
+            }
+            try {
+                std::string line;
+                if (std::getline(input_stream, line)) {
+                    console_switches = std::stoul(line, nullptr, 2);
+                    break;
+                }
+            } catch (...) {
+                // No valid number.
+            }
+
+            // Cannot parse the input.
+            if (input_stream.eof()) {
+                throw std::runtime_error("No input");
+            }
+            if (!is_interactive) {
+                throw std::runtime_error("Bad input");
+            }
+            std::cout << "Bad input, try again.\n";
+            input_stream.clear();
+
+            // Remove bad input and try again.
+            input_stream.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+        }
+    }
+    return console_switches & bitmask;
+}

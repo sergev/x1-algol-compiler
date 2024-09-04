@@ -55,6 +55,10 @@ private:
     // True when stdin is connected to terminal.
     static bool is_interactive;
 
+    // State of console switches.
+    unsigned console_switches{};
+    bool switches_are_valid{};
+
 public:
     // Electrologica X1 processor.
     Processor cpu{ *this };
@@ -124,6 +128,12 @@ public:
 
     // Read number from stream.
     static long double input_real(std::istream &stream);
+
+    // Read console switches.
+    unsigned read_console_switches(std::istream &stream, unsigned bitmask);
+
+    // Ask operator for console input.
+    void ask_console_input() { switches_are_valid = false; }
 
     // Print number in floating-point representation.
     static void print_floating_point(std::ostream &stream, int n, int m, long double x);
