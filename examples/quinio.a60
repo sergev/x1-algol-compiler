@@ -172,12 +172,21 @@ UIT:    e̲n̲d̲;
             v̲a̲l̲u̲e̲ x, y;
             i̲n̲t̲e̲g̲e̲r̲ x, y;
         b̲e̲g̲i̲n̲
-            i̲f̲ EVEN(znr) < 0 ∨ XEEN(-1) < 0 t̲h̲e̲n̲
-                NLCR;
+            NLCR;
             ABSFIXT(5, 0, znr);
             PRINTTEXT(`.');
             ABSFIXT(3, 0, x);
-            FIXT(3, 0, -y)
+            FIXT(3, 0, -y);
+            NLCR; SPACE(6);
+            PRINTTEXT(`1  2  3  4  5  6  7  8  9 10 11 12 13 14 15 16 17 18 19'); NLCR;
+            BORD[x,y] := kleur;
+            _f_o_r x := 1 _s_t_e_p 1 _u_n_t_i_l nt _d_o _b_e_g_i_n
+                ABSFIXT(3, 0, x);
+            _f_o_r y := 1 _s_t_e_p 1 _u_n_t_i_l nt _d_o _b_e_g_i_n
+            _i_f BORD[x,y] = 2 _t_h_e_n PRINTTEXT(` . ') _e_l_s_e
+            _i_f BORD[x,y] = 0 _t_h_e_n PRINTTEXT(` X ') _e_l_s_e PRINTTEXT(` O ');
+            _e_n_d; NLCR
+            _e_n_d
         e̲n̲d̲;
 
         i̲n̲t̲e̲g̲e̲r̲ p̲r̲o̲c̲e̲d̲u̲r̲e̲ SEL; b̲e̲g̲i̲n̲
