@@ -762,6 +762,44 @@ void Processor::apply_operation(Formal_Op post_op, unsigned addr, Cell_Type type
 }
 
 //
+// Apply operation on top of stack.
+//
+void Processor::apply_operation(Formal_Op post_op)
+{
+    switch (post_op) {
+    default:
+        break;
+    case Formal_Op::ADD:
+        stack.add(stack.pop());
+        break;
+    case Formal_Op::SUBTRACT:
+        stack.subtract(stack.pop());
+        break;
+    case Formal_Op::MULTIPLY:
+        stack.multiply(stack.pop());
+        break;
+    case Formal_Op::DIVIDE:
+        stack.divide(stack.pop());
+        break;
+    case Formal_Op::PUSH_DEREF:
+        stack.top() = load_value(stack.top());
+        break;
+    case Formal_Op::ADD_DEREF:
+        stack.add(load_value(stack.pop()));
+        break;
+    case Formal_Op::SUBTRACT_DEREF:
+        stack.subtract(load_value(stack.pop()));
+        break;
+    case Formal_Op::MULTIPLY_DEREF:
+        stack.multiply(load_value(stack.pop()));
+        break;
+    case Formal_Op::DIVIDE_DEREF:
+        stack.divide(load_value(stack.pop()));
+        break;
+    }
+}
+
+//
 // Get lexical scope level, or block number (BN) from stack.
 //
 unsigned Processor::get_block_level() const

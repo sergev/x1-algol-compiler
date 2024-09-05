@@ -80,23 +80,8 @@ bool Processor::call_opc(unsigned opc)
             // Drop empty result.
             stack.pop();
         } else {
-            // Apply operation.
-            switch (post_op) {
-            default:
-                break;
-            case Formal_Op::ADD:
-                stack.add(stack.pop());
-                break;
-            case Formal_Op::SUBTRACT:
-                stack.subtract(stack.pop());
-                break;
-            case Formal_Op::MULTIPLY:
-                stack.multiply(stack.pop());
-                break;
-            case Formal_Op::DIVIDE:
-                stack.divide(stack.pop());
-                break;
-            }
+            // Apply operation on top of stack.
+            apply_operation(post_op);
         }
         break;
     }
@@ -110,28 +95,9 @@ bool Processor::call_opc(unsigned opc)
         frame_ptr = stack_base + Frame_Offset::FP - Frame_Offset::ARG;
         OT        = frame_release();
 
-        // Apply operation.
-        switch (post_op) {
-        default:
-            stack.top() = item;
-            break;
-        case Formal_Op::ADD:
-            stack.pop();
-            stack.add(item);
-            break;
-        case Formal_Op::SUBTRACT:
-            stack.pop();
-            stack.subtract(item);
-            break;
-        case Formal_Op::MULTIPLY:
-            stack.pop();
-            stack.multiply(item);
-            break;
-        case Formal_Op::DIVIDE:
-            stack.pop();
-            stack.divide(item);
-            break;
-        }
+        // Apply operation with given item.
+        stack.top() = item;
+        apply_operation(post_op);
         break;
     }
     case OPC_TRAD: {

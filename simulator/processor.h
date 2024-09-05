@@ -198,6 +198,9 @@ private:
     // Apply given operation to the retrieved address of formal parameter.
     void apply_operation(Formal_Op post_op, unsigned addr, Cell_Type type);
 
+    // Apply operation on top of stack.
+    void apply_operation(Formal_Op post_op);
+
     void increment_stack_base(int amount);
 };
 
