@@ -796,3 +796,85 @@ TEST_F(x1_machine, seven_divide_two)
     const std::string expect = "3\n";
     EXPECT_EQ(output, expect);
 }
+
+TEST_F(x1_machine, array_deref)
+{
+    auto output = compile_and_run(R"(
+        b̲e̲g̲i̲n̲
+            r̲e̲a̲l̲ a̲r̲r̲a̲y̲ a[1:1];
+            p̲r̲o̲c̲e̲d̲u̲r̲e̲ get(x); r̲e̲a̲l̲ x;
+                x := 123.456;
+            p̲r̲o̲c̲e̲d̲u̲r̲e̲ pr(x); r̲e̲a̲l̲ x;
+                print(x);
+            get(a[1]);
+            pr(a[1]);
+            NLCR
+        e̲n̲d̲
+    )");
+    const std::string expect = "123.456\n";
+    EXPECT_EQ(output, expect);
+}
+
+TEST_F(x1_machine, add_deref)
+{
+    auto output = compile_and_run(R"(
+        b̲e̲g̲i̲n̲
+            i̲n̲t̲e̲g̲e̲r̲ a̲r̲r̲a̲y̲ a[1:1];
+            p̲r̲o̲c̲e̲d̲u̲r̲e̲ pr(x); i̲n̲t̲e̲g̲e̲r̲ x;
+                print(x);
+            a[1] := 2;
+            pr(7 + a[1]);
+            NLCR
+        e̲n̲d̲
+    )");
+    const std::string expect = "9\n";
+    EXPECT_EQ(output, expect);
+}
+
+TEST_F(x1_machine, subtract_deref)
+{
+    auto output = compile_and_run(R"(
+        b̲e̲g̲i̲n̲
+            i̲n̲t̲e̲g̲e̲r̲ a̲r̲r̲a̲y̲ a[1:1];
+            p̲r̲o̲c̲e̲d̲u̲r̲e̲ pr(x); i̲n̲t̲e̲g̲e̲r̲ x;
+                print(x);
+            a[1] := 2;
+            pr(7 - a[1]);
+            NLCR
+        e̲n̲d̲
+    )");
+    const std::string expect = "5\n";
+    EXPECT_EQ(output, expect);
+}
+
+TEST_F(x1_machine, multiply_deref)
+{
+    auto output = compile_and_run(R"(
+        b̲e̲g̲i̲n̲
+            i̲n̲t̲e̲g̲e̲r̲ a̲r̲r̲a̲y̲ a[1:1];
+            p̲r̲o̲c̲e̲d̲u̲r̲e̲ pr(x); i̲n̲t̲e̲g̲e̲r̲ x;
+                print(x);
+            a[1] := 2;
+            pr(7 × a[1]);
+            NLCR
+        e̲n̲d̲
+    )");
+    const std::string expect = "14\n";
+    EXPECT_EQ(output, expect);
+}
+
+TEST_F(x1_machine, divide_deref)
+{
+    auto output = compile_and_run(R"(
+        b̲e̲g̲i̲n̲
+            i̲n̲t̲e̲g̲e̲r̲ a̲r̲r̲a̲y̲ a[1:1];
+            p̲r̲o̲c̲e̲d̲u̲r̲e̲ pr(x); i̲n̲t̲e̲g̲e̲r̲ x;
+                print(x);
+            a[1] := 2;
+            pr(7 ÷ a[1]);
+            NLCR
+        e̲n̲d̲
+    )");
+    const std::string expect = "3\n";
+    EXPECT_EQ(output, expect);
+}
