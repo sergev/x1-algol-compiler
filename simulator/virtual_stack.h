@@ -70,7 +70,7 @@ private:
     std::vector<Stack_Cell> storage;
 
     // Some arbitrary limit on stack size.
-    static unsigned const SIZE_LIMIT = 0100000;
+    static unsigned const SIZE_LIMIT = 0x100000;
 
 public:
     // How many items are on stack?

@@ -526,7 +526,7 @@ bool Processor::call_opc(unsigned opc)
         int base      = load_word(addr + 1);
         int limit     = x1_to_integer(load_word(addr + 2 + ndim));
         // The limit must look like a negative number with a reasonable absolute value.
-        if (limit >= 0 || -limit > 32767) {
+        if (limit >= 0 || -limit > 0xfffff) {
             throw std::runtime_error("A wrong number of indexes for an array");
         }
         int elt_addr = base;
@@ -539,7 +539,7 @@ bool Processor::call_opc(unsigned opc)
                 idx0 = idx;
             elt_addr += idx * dimsize;
         }
-        elt_addr &= BITS(16); // 16 rather than 15 is to catch "negative" addresses
+        elt_addr &= BITS(20); // 16 rather than 15 is to catch "negative" addresses
         if (elt_addr < location || elt_addr + limit >= location) {
             std::ostringstream ostr;
             int elsize = x1_to_integer(load_word(addr + 2));
