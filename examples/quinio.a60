@@ -229,23 +229,35 @@ who:    PRINTTEXT(`Who plays first, you (1), or I (0)?');
             g̲o̲t̲o̲ who;
         sw := znr := 1;
         i̲f̲ kleur = 0 t̲h̲e̲n̲ b̲e̲g̲i̲n̲
-            PRINTTEXT(`                   X1                             N.N.');
+            PRINTTEXT(`            X1               N.N.');
             PRINTZET(tn, tn);
             ZET(tn, tn)
-        e̲n̲d̲ e̲l̲s̲e̲
-            PRINTTEXT(`                   N.N.                     X1');
+        e̲n̲d̲ e̲l̲s̲e̲ b̲e̲g̲i̲n̲
+            PRINTTEXT(`           N.N.               X1');
+            NLCR;
+        e̲n̲d̲;
 MENS:
-        stop;
-        x := XEEN(992) ÷ 32;
-        y := XEEN(31);
-        i̲f̲ x = 0 ∨ x > nt ∨ y = 0 ∨ y > nt t̲h̲e̲n̲
-            g̲o̲ t̲o̲ MENS;
+askx:   PRINTTEXT(`Which row?');
+        NLCR;
+        x := read;
+        i̲f̲ x < 1 ∨ x > nt t̲h̲e̲n̲
+            g̲o̲t̲o̲ askx;
+
+asky:   PRINTTEXT(`Which column?');
+        NLCR;
+        y := read;
+        i̲f̲ y < 1 ∨ y > nt t̲h̲e̲n̲
+            g̲o̲t̲o̲ asky;
+
         i̲f̲ BORD[x, y] ≠ 2 t̲h̲e̲n̲
             g̲o̲ t̲o̲ MENS;
         PRINTZET(x, y);
-        stop;
-        i̲f̲ XEEN(-1) < 0 t̲h̲e̲n̲
+
+        PRINTTEXT(`Are you sure (1), or not (0)?');
+        NLCR;
+        i̲f̲ read ≠ 1 t̲h̲e̲n̲
             g̲o̲ t̲o̲ MENS;
+
         ZET(x, y);
         i̲f̲ klaar t̲h̲e̲n̲
             g̲o̲ t̲o̲ KLAAR;
@@ -253,7 +265,7 @@ MENS:
 MACH:   km := SEL;
         i̲f̲ km = 0 t̲h̲e̲n̲ b̲e̲g̲i̲n̲
             NLCR;
-            PRINTTEXT(`      Ik geef op');
+            PRINTTEXT(`     Ik geef op');
             g̲o̲ t̲o̲ KLAAR
         e̲n̲d̲;
         x := X[km];
@@ -264,8 +276,8 @@ MACH:   km := SEL;
             g̲o̲ t̲o̲ MENS;
 KLAAR:  NLCR;
         i̲f̲ kleur = 0 t̲h̲e̲n̲
-            PRINTTEXT(`       U hebt gewonnen')
+            PRINTTEXT(`     U hebt gewonnen')
         e̲l̲s̲e̲
-            PRINTTEXT(`      Ik heb gewonnen')
+            PRINTTEXT(`     Ik heb gewonnen')
    e̲n̲d̲
 e̲n̲d̲
