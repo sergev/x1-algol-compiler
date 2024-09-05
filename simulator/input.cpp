@@ -1,4 +1,6 @@
 #include <iostream>
+#include <istream>
+#include <streambuf>
 #include <limits>
 
 #include "machine.h"
@@ -11,6 +13,57 @@ bool Machine::is_interactive = _isatty(0);
 bool Machine::is_interactive = isatty(0);
 #endif
 
+class ReplaceTenWithEStreamBuf : public std::streambuf {
+public:
+    explicit ReplaceTenWithEStreamBuf(std::istream& inp) : in_stream(inp.rdbuf()) {}
+
+protected:
+    // Override underflow to replace '⏨' with 'E'
+    int underflow() override {
+        int ch = in_stream->sbumpc();  // Read the next character from the input stream
+
+        if (ch == EOF) {  // Check for end-of-file
+            return EOF;
+        }
+
+        const unsigned char U_23E8[] = "⏨";
+        int buf_pos = 0;
+        if (ch == U_23E8[0]) {
+            char_buffer[buf_pos++] = ch;
+            ch = in_stream->sbumpc();
+            if (ch == EOF)
+                return EOF;     // in the middle of a UTF-8 symbol
+            if (ch == U_23E8[1]) {
+                char_buffer[buf_pos++] = ch;
+                ch = in_stream->sbumpc();
+                if (ch == EOF)
+                    return EOF;     // in the middle of a UTF-8 symbol
+                if (ch == U_23E8[2]) {
+                    ch = 'E';
+                    buf_pos = 0;
+                }
+            }
+        }
+
+        // Put the character back into the stream
+        this->setg(char_buffer, char_buffer, char_buffer + buf_pos + 1);
+        char_buffer[buf_pos] = ch;
+        return int(char_buffer[0]) & 0xFF;
+}
+
+private:
+    std::streambuf* in_stream;  // The original stream buffer
+    char char_buffer[3]{};        // Buffer to store up to 3 characters
+};
+
+class ReplaceTenWithEStream : public std::istream {
+public:
+    explicit ReplaceTenWithEStream(std::istream& inp) : std::istream(&buf), buf(inp) {}
+
+private:
+    ReplaceTenWithEStreamBuf buf;  // Custom stream buffer
+};
+
 //
 // Read real or integer number from input stream.
 // Return the number.
@@ -19,8 +72,9 @@ bool Machine::is_interactive = isatty(0);
 //  - throw exception when non-interactive
 //  - retry when in interactive mode
 //
-long double Machine::input_real(std::istream &input_stream)
+long double Machine::input_real(std::istream &orig_stream)
 {
+    ReplaceTenWithEStream input_stream(orig_stream);
     // Loop until user enters a valid input
     for (;;) {
         if (is_interactive) {
