@@ -641,6 +641,11 @@ again:
         dynamic_addr = (arg_descr >> 22) | (arg_addr << 5);
         goto again;
     }
+    case 060:
+        // Call implicit subroutine, which returns address.
+        // Modify post_op to dereferece the result.
+        post_op = deref(post_op);
+        [[fallthrough]];
     case 040: {
         if (post_op == Formal_Op::PUSH_STRING) {
             // String passed as parameter.
@@ -671,6 +676,23 @@ again:
 }
 
 //
+// Modify post-operation to dereferece the result.
+//
+Formal_Op deref(Formal_Op op)
+{
+    switch (op) {
+    case Formal_Op::PUSH_ADDRESS: return Formal_Op::PUSH_ADDRESS;
+    case Formal_Op::PUSH_VALUE:   return Formal_Op::PUSH_DEREF;
+    case Formal_Op::ADD:          return Formal_Op::ADD_DEREF;
+    case Formal_Op::SUBTRACT:     return Formal_Op::SUBTRACT_DEREF;
+    case Formal_Op::MULTIPLY:     return Formal_Op::MULTIPLY_DEREF;
+    case Formal_Op::DIVIDE:       return Formal_Op::DIVIDE_DEREF;
+    default:
+        throw std::runtime_error("Bad operation for dereferencing");
+    }
+}
+
+//
 // Apply given operation to the retrieved address of formal parameter.
 //
 void Processor::apply_operation(Formal_Op post_op, unsigned addr, Cell_Type type)
@@ -686,12 +708,19 @@ void Processor::apply_operation(Formal_Op post_op, unsigned addr, Cell_Type type
             stack.push_real_addr(addr);
         }
         break;
+    case Formal_Op::PUSH_DEREF:
+    case Formal_Op::ADD_DEREF:
+    case Formal_Op::SUBTRACT_DEREF:
+    case Formal_Op::MULTIPLY_DEREF:
+    case Formal_Op::DIVIDE_DEREF:
+        // Dereference the result.
+        addr = load_word(addr);
+        [[fallthrough]];
     case Formal_Op::PUSH_VALUE:
     case Formal_Op::ADD:
     case Formal_Op::SUBTRACT:
     case Formal_Op::MULTIPLY:
     case Formal_Op::DIVIDE:
-    case Formal_Op::REMOVE_ARG:
         Stack_Cell x;
         if (type == Cell_Type::INTEGER_ADDRESS) {
             x = { Cell_Type::INTEGER_VALUE, load_word(addr) };
@@ -700,31 +729,31 @@ void Processor::apply_operation(Formal_Op post_op, unsigned addr, Cell_Type type
         }
         switch (post_op) {
         case Formal_Op::PUSH_VALUE:
-            stack.push(x);
-            break;
-        case Formal_Op::REMOVE_ARG:
-            // Remove dummy argument from stack.
-            stack.pop();
-            stack.pop();
-            stack_base -= 2; // TODO: is this correct?
+        case Formal_Op::PUSH_DEREF:
             stack.push(x);
             break;
         case Formal_Op::ADD:
+        case Formal_Op::ADD_DEREF:
             stack.add(x);
             break;
         case Formal_Op::SUBTRACT:
+        case Formal_Op::SUBTRACT_DEREF:
             stack.subtract(x);
             break;
         case Formal_Op::MULTIPLY:
+        case Formal_Op::MULTIPLY_DEREF:
             stack.multiply(x);
             break;
         case Formal_Op::DIVIDE:
+        case Formal_Op::DIVIDE_DEREF:
             stack.divide(x);
             break;
         default:
             throw std::runtime_error("Unsupported operation");
         }
         break;
+    case Formal_Op::REMOVE_ARG:
+        throw std::runtime_error("Unexpected TFP");
     default:
         throw std::runtime_error("Unsupported operation in apply_operation()");
     }
@@ -893,17 +922,22 @@ void Processor::increment_stack_base(int amount)
     eis_operation[stack_base] = post_op;
 }
 
-std::ostream &operator<<(std::ostream &out, const Formal_Op &op)
+std::ostream &operator<<(std::ostream &out, Formal_Op op)
 {
     switch (op) {
-    case Formal_Op::PUSH_VALUE:   out << "PUSH_VALUE"; break;
-    case Formal_Op::PUSH_ADDRESS: out << "PUSH_ADDRESS"; break;
-    case Formal_Op::PUSH_STRING:  out << "PUSH_STRING"; break;
-    case Formal_Op::ADD:          out << "ADD"; break;
-    case Formal_Op::SUBTRACT:     out << "SUBTRACT"; break;
-    case Formal_Op::MULTIPLY:     out << "MULTIPLY"; break;
-    case Formal_Op::DIVIDE:       out << "DIVIDE"; break;
-    case Formal_Op::REMOVE_ARG:   out << "REMOVE_ARG"; break;
+    case Formal_Op::PUSH_VALUE:     out << "PUSH_VALUE"; break;
+    case Formal_Op::PUSH_ADDRESS:   out << "PUSH_ADDRESS"; break;
+    case Formal_Op::PUSH_STRING:    out << "PUSH_STRING"; break;
+    case Formal_Op::REMOVE_ARG:     out << "REMOVE_ARG"; break;
+    case Formal_Op::ADD:            out << "ADD"; break;
+    case Formal_Op::SUBTRACT:       out << "SUBTRACT"; break;
+    case Formal_Op::MULTIPLY:       out << "MULTIPLY"; break;
+    case Formal_Op::DIVIDE:         out << "DIVIDE"; break;
+    case Formal_Op::PUSH_DEREF:     out << "PUSH_DEREF"; break;
+    case Formal_Op::ADD_DEREF:      out << "ADD_DEREF"; break;
+    case Formal_Op::SUBTRACT_DEREF: out << "SUBTRACT_DEREF"; break;
+    case Formal_Op::MULTIPLY_DEREF: out << "MULTIPLY_DEREF"; break;
+    case Formal_Op::DIVIDE_DEREF:   out << "DIVIDE_DEREF"; break;
     }
     return out;
 }

@@ -61,12 +61,13 @@ unsigned Machine::read_console_switches(std::istream &input_stream, unsigned bit
             if (is_interactive) {
                 std::cout << "\n";
                 std::cout << "Enter console switches (up to 27 binary digits)\n";
-                std::cout << ": " << std::flush;
+                std::cout << "> " << std::flush;
             }
             try {
                 std::string line;
                 if (std::getline(input_stream, line)) {
                     console_switches = std::stoul(line, nullptr, 2);
+                    switches_are_valid = true;
                     break;
                 }
             } catch (...) {

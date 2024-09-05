@@ -43,13 +43,19 @@ enum class Formal_Op {
     PUSH_VALUE,     // Push number on stack
     PUSH_ADDRESS,   // Push address on stack
     PUSH_STRING,    // Push string on stack
+    REMOVE_ARG,     // Remove dummy argument from stack
     ADD,            // Add number to top of stack
     SUBTRACT,       // Subtract number from top of stack
     MULTIPLY,       // Multily top of stack by number
     DIVIDE,         // Divide top of stack by number
-    REMOVE_ARG,     // Remove dummy argument from stack
+    PUSH_DEREF,     // Dereference then push on stack
+    ADD_DEREF,      // Dereference then add
+    SUBTRACT_DEREF, // Dereference then subtract
+    MULTIPLY_DEREF, // Dereference then multiply
+    DIVIDE_DEREF,   // Dereference then divide
 };
-std::ostream &operator<<(std::ostream &out, const Formal_Op &op);
+std::ostream &operator<<(std::ostream &out, Formal_Op op);
+Formal_Op deref(Formal_Op op);
 
 //
 // Electrologica X1 processor.
