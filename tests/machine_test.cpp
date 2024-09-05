@@ -9,7 +9,7 @@ TEST_F(x1_machine, input_encoding)
             PRINTTEXT(`0123456789'); NLCR;
             PRINTTEXT(`abcdefghijklmnopqrstuvwxyz'); NLCR;
             PRINTTEXT(`ABCDEFGHIJKLMNOPQRSTUVWXYZ'); NLCR;
-            PRINTTEXT(`+-*×/>=<¬∧∨,.⏨@:; ()[]'); NLCR;
+            PRINTTEXT(`+-*×/÷↑>≥=≤<≠¬∧∨⊃≡,.⏨@:; ()[]"?'); NLCR;
         e̲n̲d̲
     )");
     // Note: symbols " ? _ are prohibited in strings.
@@ -44,19 +44,22 @@ TEST_F(x1_machine, input_encoding)
     EXPECT_EQ(machine->mem_load(start+38), 0xff'3e'3d); // Y Z \377
 
     EXPECT_EQ(machine->mem_load(start+46), 0x42'41'40); // + - *
-    EXPECT_EQ(machine->mem_load(start+47), 0x46'43'42); // × / >
-    EXPECT_EQ(machine->mem_load(start+48), 0x4c'4a'48); // = < ¬
-    EXPECT_EQ(machine->mem_load(start+49), 0x57'4e'4d); // ∧ ∨ ,
-    EXPECT_EQ(machine->mem_load(start+50), 0x59'59'58); // . ⏨ @
-    EXPECT_EQ(machine->mem_load(start+51), 0x5d'5b'5a); // : ; space
-    EXPECT_EQ(machine->mem_load(start+52), 0x64'63'62); // ( ) [
-    EXPECT_EQ(machine->mem_load(start+53), 0x00'ff'65); // ] \377
+    EXPECT_EQ(machine->mem_load(start+47), 0x44'43'42); // × / ÷
+    EXPECT_EQ(machine->mem_load(start+48), 0x47'46'45); // ↑ > ≥
+    EXPECT_EQ(machine->mem_load(start+49), 0x4a'49'48); // = ≤ <
+    EXPECT_EQ(machine->mem_load(start+50), 0x4d'4c'4b); // ≠ ¬ ∧
+    EXPECT_EQ(machine->mem_load(start+51), 0x50'4f'4e); // ∨ ⊃ ≡
+    EXPECT_EQ(machine->mem_load(start+52), 0x59'58'57); // , . ⏨
+    EXPECT_EQ(machine->mem_load(start+53), 0x5b'5a'59); // ⏨ : ;
+    EXPECT_EQ(machine->mem_load(start+54), 0x63'62'5d); // space ( )
+    EXPECT_EQ(machine->mem_load(start+55), 0x79'65'64); // [ ] "
+    EXPECT_EQ(machine->mem_load(start+56), 0x00'ff'7a); // ? \377
 
     // Check output.
     const std::string expect = R"(0123456789
 abcdefghijklmnopqrstuvwxyz
 ABCDEFGHIJKLMNOPQRSTUVWXYZ
-+-××/>=<¬∧∨,.⏨⏨:; ()[]
++-××/÷↑>≥=≤<≠¬∧∨⊃≡,.⏨⏨:; ()[]"?
 )";
     EXPECT_EQ(output, expect);
 }

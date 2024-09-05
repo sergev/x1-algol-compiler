@@ -308,6 +308,12 @@ _L1:
         }
         return sym;
     }
+    if (sym == 121) { /*"*/
+        return sym;
+    }
+    if (sym == 122) { /*?*/
+        return sym;
+    }
     if (sym == 124) { /*:*/
         sym = read_utf8_symbol();
         if (sym == 72)
@@ -341,7 +347,7 @@ _L1:
         return sym;
     }
     if (sym != 163) { /*_*/
-        stop(14, "Unpermitted char, likely ? or \"");
+        stop(14, "Unpermitted char");
         /*? or "*/
         return sym;
     }
@@ -3710,7 +3716,7 @@ int main(int argc, char *argv[])
     prefill_lib_proc("PRINTTEXT", 1);
     prefill_lib_proc("EVEN", 2);
     prefill_lib_proc("TIMEOFDAY", 77);
-    // prefill_lib_proc("arctan", 3);     
+    // prefill_lib_proc("arctan", 3);
     // prefill_lib_proc("FLOT", 5);
     // prefill_lib_proc("FIXT", 6);
     // prefill_lib_proc("ABSFIXT", 24);
