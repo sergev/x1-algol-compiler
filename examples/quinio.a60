@@ -278,6 +278,7 @@ KLAAR:  NLCR;
         i̲f̲ kleur = 0 t̲h̲e̲n̲
             PRINTTEXT(`     U hebt gewonnen')
         e̲l̲s̲e̲
-            PRINTTEXT(`     Ik heb gewonnen')
+            PRINTTEXT(`     Ik heb gewonnen');
+        NLCR;
    e̲n̲d̲
 e̲n̲d̲
