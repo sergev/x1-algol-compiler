@@ -83,9 +83,6 @@ unsigned Machine::read_console_switches(std::istream &input_stream, unsigned bit
             }
             std::cout << "Bad input, try again.\n";
             input_stream.clear();
-
-            // Remove bad input and try again.
-            input_stream.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
         }
     }
     return console_switches & bitmask;
