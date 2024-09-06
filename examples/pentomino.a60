@@ -111,7 +111,8 @@ down:       nummer := nummer - 1
                 teller := teller + 4
             e̲n̲d̲
         e̲n̲d̲;
-        f̲o̲r̲ i := - 39 s̲t̲e̲p̲ 1 u̲n̲t̲i̲l̲ 0, 61 s̲t̲e̲p̲ 1 u̲n̲t̲i̲l̲ 100 d̲o̲
+        f̲o̲r̲ i := -4 * lengte + 1 s̲t̲e̲p̲ 1 u̲n̲t̲i̲l̲ 0,
+                    61 s̲t̲e̲p̲ 1 u̲n̲t̲i̲l̲ 60 + 4 * lengte d̲o̲
             bord[i] := - 1;
         f̲o̲r̲ i := 1 s̲t̲e̲p̲ 1 u̲n̲t̲i̲l̲ 60 d̲o̲
             bord[i] := 0;
