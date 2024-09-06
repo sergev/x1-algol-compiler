@@ -16,11 +16,8 @@ b̲e̲g̲i̲n̲
     i := 0;
     f̲o̲r̲ r := 1 s̲t̲e̲p̲ 1 u̲n̲t̲i̲l̲ n d̲o̲ b̲e̲g̲i̲n̲
         f̲o̲r̲ c := 1 s̲t̲e̲p̲ 1 u̲n̲t̲i̲l̲ n d̲o̲ b̲e̲g̲i̲n̲
-            b := pattern[(r-1) ÷ m+1, (c-1) ÷ m+1];
-            i̲f̲ b = 1 t̲h̲e̲n̲
-                t := i + 1
-            e̲l̲s̲e̲
-                t := s - i;
+            b := pattern[1 + ((r - 1) ÷ m), 1 + ((c - 1) ÷ m)];
+            t := i̲f̲ b = 1 t̲h̲e̲n̲ i + 1 e̲l̲s̲e̲ s - i;
             SPACE(1);
             i̲f̲ t < 10 t̲h̲e̲n̲
                 SPACE(1);
