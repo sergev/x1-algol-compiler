@@ -194,3 +194,15 @@ TEST_F(x1_machine, dynamic_arith)
 )";
     EXPECT_EQ(output, expect);
 }
+
+TEST_F(x1_machine, multiply_large_ints)
+{
+    auto output = compile_and_run(R"(
+        b̲e̲g̲i̲n̲
+            print(1048579 * 1048579); NLCR;
+        e̲n̲d̲
+)");
+    // Note: result differs from 1048579^2 = 1099517919241.
+    const std::string expect = "1099517919242\n";
+    EXPECT_EQ(output, expect);
+}

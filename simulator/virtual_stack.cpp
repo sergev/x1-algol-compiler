@@ -108,8 +108,7 @@ std::string Stack_Cell::to_string() const
         break;
     }
     case Cell_Type::REAL_VALUE:
-        buf << "real ";
-        x1_print_real(buf, get_real());
+        buf << "real " << std::hexfloat << x1_to_ieee(get_real()) << std::defaultfloat;
         break;
     case Cell_Type::INTEGER_ADDRESS:
     case Cell_Type::REAL_ADDRESS:

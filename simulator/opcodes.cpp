@@ -289,6 +289,7 @@ bool Processor::call_opc(unsigned opc)
         // add real dynamic
         auto b = get_dynamic_real(core.S);
         stack.top().add(b);
+        Machine::trace_stack(stack.count(), stack.top().to_string(), "Write");
         break;
     }
     case OPC_ADRS: {
@@ -310,6 +311,7 @@ bool Processor::call_opc(unsigned opc)
         // add integer dynamic
         auto b = get_dynamic_int(core.S);
         stack.top().add(b);
+        Machine::trace_stack(stack.count(), stack.top().to_string(), "Write");
         break;
     }
     case OPC_ADIS: {
@@ -338,6 +340,7 @@ bool Processor::call_opc(unsigned opc)
         // subtract real dynamic
         auto b = get_dynamic_real(core.S);
         stack.top().subtract(b);
+        Machine::trace_stack(stack.count(), stack.top().to_string(), "Write");
         break;
     }
     case OPC_SURS: {
@@ -359,6 +362,7 @@ bool Processor::call_opc(unsigned opc)
         // subtract integer dynamic
         auto b = get_dynamic_int(core.S);
         stack.top().subtract(b);
+        Machine::trace_stack(stack.count(), stack.top().to_string(), "Write");
         break;
     }
     case OPC_SUIS: {
@@ -416,6 +420,7 @@ bool Processor::call_opc(unsigned opc)
         // multiply integer dynamic
         auto b = get_dynamic_int(core.S);
         stack.top().multiply(b);
+        Machine::trace_stack(stack.count(), stack.top().to_string(), "Write");
         break;
     }
     case OPC_MUIS: {
@@ -424,6 +429,7 @@ bool Processor::call_opc(unsigned opc)
         b.value = machine.mem_load(core.B);
         b.type = Cell_Type::INTEGER_VALUE;
         stack.top().multiply(b);
+        Machine::trace_stack(stack.count(), stack.top().to_string(), "Write");
         break;
     }
     case OPC_MUF: {
@@ -438,6 +444,7 @@ bool Processor::call_opc(unsigned opc)
         // divide real dynamic
         auto b = get_dynamic_real(core.S);
         stack.top().divide(b);
+        Machine::trace_stack(stack.count(), stack.top().to_string(), "Write");
         break;
     }
     case OPC_DIRS: {
@@ -462,6 +469,7 @@ bool Processor::call_opc(unsigned opc)
         // divide integer dynamic
         auto b = get_dynamic_int(core.S);
         stack.top().divide(b);
+        Machine::trace_stack(stack.count(), stack.top().to_string(), "Write");
         break;
     }
     case OPC_DIIS: {
@@ -616,6 +624,7 @@ bool Processor::call_opc(unsigned opc)
         // to the power
         auto b = stack.pop();
         stack.top().exponentiate(b);
+        Machine::trace_stack(stack.count(), stack.top().to_string(), "Write");
         break;
     }
 
