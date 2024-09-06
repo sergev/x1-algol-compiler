@@ -1019,6 +1019,7 @@ bool Processor::call_opc(unsigned opc)
     case OPC_TAS:
         // type Algol symbol
         algol_putc(core.S, std::cout);
+        std::cout << std::flush;
         break;
         // TODO: case OPC_OBC6: // output buffer class 6
         // TODO: case OPC_FLOATER:

@@ -18,7 +18,7 @@ b̲e̲g̲i̲n̲
             B̲o̲o̲l̲e̲a̲n̲ divisible;
             limit := entier(sqrt(n));
             divisible := f̲a̲l̲s̲e̲;
-            f̲o̲r̲ i := 3 w̲h̲i̲l̲e̲ i <= limit ∧ ¬ divisible d̲o̲ b̲e̲g̲i̲n̲
+            f̲o̲r̲ i := 3, i+2 w̲h̲i̲l̲e̲ i ≤ limit ∧ ¬ divisible d̲o̲ b̲e̲g̲i̲n̲
                 i̲f̲ entier(n / i) * i = n t̲h̲e̲n̲
                     divisible := t̲r̲u̲e̲;
                 i := i + 2

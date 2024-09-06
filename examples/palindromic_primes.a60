@@ -1,0 +1,47 @@
+b̲e̲g̲i̲n̲
+    i̲n̲t̲e̲g̲e̲r̲ p, m;
+    b̲e̲g̲i̲n̲
+        B̲o̲o̲l̲e̲a̲n̲ a̲r̲r̲a̲y̲ prime[2 : 100000];
+
+        c̲o̲m̲m̲e̲n̲t̲ Check for palindromic prime;
+        B̲o̲o̲l̲e̲a̲n̲ p̲r̲o̲c̲e̲d̲u̲r̲e̲ ispalindrome(n); v̲a̲l̲u̲e̲ n; i̲n̲t̲e̲g̲e̲r̲ n; b̲e̲g̲i̲n̲
+            i̲n̲t̲e̲g̲e̲r̲ i, j, q;
+            i̲n̲t̲e̲g̲e̲r̲ a̲r̲r̲a̲y̲ d[1:10];
+            c̲o̲m̲m̲e̲n̲t̲ - decompose n into its digits;
+            j := 0;
+            f̲o̲r̲ j := j w̲h̲i̲l̲e̲ n > 0 d̲o̲ b̲e̲g̲i̲n̲
+                j := j + 1;
+                q := entier(n / 10);
+                d[j] := n - q * 10;
+                n := q;
+            e̲n̲d̲;
+            c̲o̲m̲m̲e̲n̲t̲ - move from outside in checking for equality;
+            i := 1;
+            f̲o̲r̲ i := i w̲h̲i̲l̲e̲ (i < j) ∧ (d[i] = d[j]) d̲o̲ b̲e̲g̲i̲n̲
+                i := i + 1;
+                j := j - 1;
+            e̲n̲d̲;
+            ispalindrome := d[i] = d[j];
+        e̲n̲d̲;
+
+        c̲o̲m̲m̲e̲n̲t̲ Find primes using sieve of Eratosthenes;
+        PRINTTEXT(`Computing primes up to 100000...');
+        f̲o̲r̲ p := 2, 3 s̲t̲e̲p̲ 2 u̲n̲t̲i̲l̲ 100000 d̲o̲
+            prime[p] := t̲r̲u̲e̲;
+        f̲o̲r̲ p := 2, 3 s̲t̲e̲p̲ 2 u̲n̲t̲i̲l̲ 316 d̲o̲ b̲e̲g̲i̲n̲
+            i̲f̲ prime[p] t̲h̲e̲n̲
+                f̲o̲r̲ m := p * p s̲t̲e̲p̲ p u̲n̲t̲i̲l̲ 100000 d̲o̲
+                    prime[m] := f̲a̲l̲s̲e̲;
+        e̲n̲d̲;
+        NLCR;
+
+        PRINTTEXT(`Palindromic primes:');
+        f̲o̲r̲ p := 2, 3 s̲t̲e̲p̲ 2 u̲n̲t̲i̲l̲ 100000 d̲o̲ b̲e̲g̲i̲n̲
+            i̲f̲ prime[p] ∧ ispalindrome(p) t̲h̲e̲n̲ b̲e̲g̲i̲n̲
+                SPACE(1);
+                print(p)
+            e̲n̲d̲
+        e̲n̲d̲;
+        NLCR
+    e̲n̲d̲
+e̲n̲d̲

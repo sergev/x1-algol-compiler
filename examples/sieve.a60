@@ -4,22 +4,27 @@ b̲e̲g̲i̲n̲
     b̲e̲g̲i̲n̲
         B̲o̲o̲l̲e̲a̲n̲ a̲r̲r̲a̲y̲ prime [2 : 1000000];
 
+        PRINTTEXT(`Computing primes...');
         f̲o̲r̲ p := 2, 3 s̲t̲e̲p̲ 2 u̲n̲t̲i̲l̲ 1000000 d̲o̲
             prime[p] := t̲r̲u̲e̲;
-
+        PRINTTEXT(`.');
         f̲o̲r̲ p := 2, 3 s̲t̲e̲p̲ 2 u̲n̲t̲i̲l̲ 1000 d̲o̲ b̲e̲g̲i̲n̲
             i̲f̲ prime[p] t̲h̲e̲n̲
                 f̲o̲r̲ m := p * p s̲t̲e̲p̲ p u̲n̲t̲i̲l̲ 1000000 d̲o̲
-                    prime[m] := f̲a̲l̲s̲e̲
+                    prime[m] := f̲a̲l̲s̲e̲;
+            i̲f̲ p ÷ 100 * 100 + 1 = p t̲h̲e̲n̲
+                PRINTTEXT(`.');
         e̲n̲d̲;
+        NLCR;
 
-        PRINTTEXT(`Prime numbers:');
+        m := 0;
         f̲o̲r̲ p := 2, 3 s̲t̲e̲p̲ 2 u̲n̲t̲i̲l̲ 1000000 d̲o̲ b̲e̲g̲i̲n̲
             i̲f̲ prime[p] t̲h̲e̲n̲ b̲e̲g̲i̲n̲
-                SPACE(1);
-                print(p)
+                m := m + 1
             e̲n̲d̲
         e̲n̲d̲;
+        PRINTTEXT(`Number of primes below 1000 000: ');
+        print(m);
         NLCR
     e̲n̲d̲
 e̲n̲d̲
