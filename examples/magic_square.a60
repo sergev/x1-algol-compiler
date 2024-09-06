@@ -1,0 +1,36 @@
+b̲e̲g̲i̲n̲
+    c̲o̲m̲m̲e̲n̲t̲ Magic squares of doubly even order - 10/02/2021;
+    i̲n̲t̲e̲g̲e̲r̲ a̲r̲r̲a̲y̲ pattern[1:4, 1:4];
+    i̲n̲t̲e̲g̲e̲r̲ n, r, c, s, m, i, b, t;
+    n := 8;
+    f̲o̲r̲ r := 1 s̲t̲e̲p̲ 1 u̲n̲t̲i̲l̲ 4 d̲o̲
+        f̲o̲r̲ c := 1 s̲t̲e̲p̲ 1 u̲n̲t̲i̲l̲ 4 d̲o̲
+            pattern[r,c] := i̲f̲ ((c=1 ∨ c=4) ∧ (r=1 ∨ r=4)) ∨
+                               ((c=2 ∨ c=3) ∧ (r=2 ∨ r=3)) t̲h̲e̲n̲ 1 e̲l̲s̲e̲ 0;
+    s := n * n;
+    m := n ÷ 4;
+    PRINTTEXT(`magic square, n = ');
+    print(n);
+    NLCR;
+    NLCR;
+    i := 0;
+    f̲o̲r̲ r := 1 s̲t̲e̲p̲ 1 u̲n̲t̲i̲l̲ n d̲o̲ b̲e̲g̲i̲n̲
+        f̲o̲r̲ c := 1 s̲t̲e̲p̲ 1 u̲n̲t̲i̲l̲ n d̲o̲ b̲e̲g̲i̲n̲
+            b := pattern[(r-1) ÷ m+1, (c-1) ÷ m+1];
+            i̲f̲ b = 1 t̲h̲e̲n̲
+                t := i + 1
+            e̲l̲s̲e̲
+                t := s - i;
+            SPACE(1);
+            i̲f̲ t < 10 t̲h̲e̲n̲
+                SPACE(1);
+            print(t);
+            i := i + 1
+        e̲n̲d̲;
+        NLCR
+    e̲n̲d̲;
+    NLCR;
+    PRINTTEXT(`magic constant = ');
+    print((s + 1) * n ÷ 2);
+    NLCR
+e̲n̲d̲
