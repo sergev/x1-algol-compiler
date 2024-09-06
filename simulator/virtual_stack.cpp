@@ -180,19 +180,27 @@ void Stack_Cell::exponentiate(const Stack_Cell &another)
 //
 void Stack_Cell::multiply(const Stack_Cell &another)
 {
+    long double real_product;
     if (is_int_value() && another.is_int_value()) {
         // Multiply two integers with integer result.
         int a = x1_to_integer(get_int());
         int b = x1_to_integer(another.get_int());
-        value = integer_to_x1(a * b);
-        return;
-    }
+        auto int_product = (int64_t)a * b;
 
-    // Multiply two values with real result.
-    long double a = is_real_value() ? x1_to_ieee(get_real()) : x1_to_integer(get_int());
-    long double b =
-        another.is_real_value() ? x1_to_ieee(another.get_real()) : x1_to_integer(another.get_int());
-    value = ieee_to_x1(a * b);
+        if (int_product >= -(int)BITS(26) && int_product <= (int)BITS(26)) {
+            value = integer_to_x1(int_product);
+            return;
+        }
+        // Too large - convert to real number.
+        real_product = int_product;
+    } else {
+        // Multiply two values with real result.
+        long double a = is_real_value() ? x1_to_ieee(get_real()) : x1_to_integer(get_int());
+        long double b = another.is_real_value() ? x1_to_ieee(another.get_real()) :
+                                                  x1_to_integer(another.get_int());
+        real_product = a * b;
+    }
+    value = ieee_to_x1(real_product);
     type  = Cell_Type::REAL_VALUE;
 }
 

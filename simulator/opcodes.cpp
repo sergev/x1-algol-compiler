@@ -420,17 +420,10 @@ bool Processor::call_opc(unsigned opc)
     }
     case OPC_MUIS: {
         // multiply integer static
-        auto b    = x1_to_integer(machine.mem_load(core.B));
-        auto item = stack.pop();
-        if (item.is_int_value()) {
-            auto a = x1_to_integer(item.get_int());
-            stack.push_int_value(integer_to_x1(a * b));
-        } else if (item.is_real_value()) {
-            auto a = x1_to_ieee(item.get_real());
-            stack.push_real_value(ieee_to_x1(a * b));
-        } else {
-            throw std::runtime_error("Cannot multiply address by integer");
-        }
+        Stack_Cell b;
+        b.value = machine.mem_load(core.B);
+        b.type = Cell_Type::INTEGER_VALUE;
+        stack.top().multiply(b);
         break;
     }
     case OPC_MUF: {
