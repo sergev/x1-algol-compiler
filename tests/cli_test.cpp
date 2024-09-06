@@ -57,3 +57,12 @@ TEST(cli, print123_x1)
 
     EXPECT_EQ(result, "123\n");
 }
+
+TEST(cli, lib_sum)
+{
+    std::string result;
+    run_command(result, "../simulator/x1sim " TEST_DIR "/../examples/sum.a60 " TEST_DIR "/../library/sum.lib");
+
+    // This example shoult print 55*20 = 1100.
+    EXPECT_EQ(result, "1100\n");
+}
