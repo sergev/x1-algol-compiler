@@ -10,9 +10,9 @@ b̲e̲g̲i̲n̲
     lb := lengte * (breedte - 1);
 
     b̲e̲g̲i̲n̲
-        i̲n̲t̲e̲g̲e̲r̲ a̲r̲r̲a̲y̲ bord[-39 : 100],
+        i̲n̲t̲e̲g̲e̲r̲ a̲r̲r̲a̲y̲ bord[-3*lengte+1 : 60+4*lengte],
                       standen, wijzer[1 : aantal stenen],
-                      informatie[1 : 8 * aantal standen];
+                      informatie[1 : 4 * aantal standen];
         B̲o̲o̲l̲e̲a̲n̲ a̲r̲r̲a̲y̲ ongebruikt[1 : aantal stenen];
 
         p̲r̲o̲c̲e̲d̲u̲r̲e̲ output; b̲e̲g̲i̲n̲
@@ -102,8 +102,12 @@ down:       nummer := nummer - 1
             wijzer[i] := teller;
             standen[i] := read;
             f̲o̲r̲ j := 1 s̲t̲e̲p̲ 1 u̲n̲t̲i̲l̲ standen[i] d̲o̲ b̲e̲g̲i̲n̲
-                f̲o̲r̲ k := 0 s̲t̲e̲p̲ 1 u̲n̲t̲i̲l̲ 3 d̲o̲
-                    informatie[teller + k] := read;
+                f̲o̲r̲ k := 0 s̲t̲e̲p̲ 1 u̲n̲t̲i̲l̲ 3 d̲o̲ b̲e̲g̲i̲n̲
+                    nummer := read;
+                    nummer := nummer + 5 * sign(nummer);
+                    informatie[teller + k] := nummer - nummer _: 10 * 10 +
+                                              nummer _: 10 * lengte - 5 * sign(nummer)
+                e̲n̲d̲;
                 teller := teller + 4
             e̲n̲d̲
         e̲n̲d̲;

@@ -6,7 +6,7 @@ x1sim pentomino.a60 << END_OF_INPUT
 10
 6
 12
-60
+63
 1   1   -9 1 2 11
 
 2   4   1 2 10 12
