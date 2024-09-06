@@ -1,0 +1,36 @@
+b̲e̲g̲i̲n̲
+    c̲o̲m̲m̲e̲n̲t̲ Return n mod m;
+    i̲n̲t̲e̲g̲e̲r̲ p̲r̲o̲c̲e̲d̲u̲r̲e̲ mod(n, m); v̲a̲l̲u̲e̲ n, m; i̲n̲t̲e̲g̲e̲r̲ n, m; b̲e̲g̲i̲n̲
+        mod := n - (n ÷ m * m);
+    e̲n̲d̲;
+
+    c̲o̲m̲m̲e̲n̲t̲ Check whether is perfect;
+    B̲o̲o̲l̲e̲a̲n̲ p̲r̲o̲c̲e̲d̲u̲r̲e̲ isperfect(n); v̲a̲l̲u̲e̲ n; i̲n̲t̲e̲g̲e̲r̲ n; b̲e̲g̲i̲n̲
+        i̲n̲t̲e̲g̲e̲r̲ sum, f1, f2;
+        sum := 1;
+        f1 := 1;
+        f̲o̲r̲ f1 := f1 + 1 w̲h̲i̲l̲e̲ (f1 * f1) ≤ n d̲o̲ b̲e̲g̲i̲n̲
+            i̲f̲ mod(n, f1) = 0 t̲h̲e̲n̲ b̲e̲g̲i̲n̲
+                sum := sum + f1;
+                f2 := n / f1;
+                i̲f̲ f2 > f1 t̲h̲e̲n̲
+                    sum := sum + f2;
+            e̲n̲d̲;
+        e̲n̲d̲;
+        isperfect := (sum = n);
+    e̲n̲d̲;
+
+    i̲n̲t̲e̲g̲e̲r̲ i, count;
+    PRINTTEXT(`Searching up to 10000 for perfect numbers:');
+    count := 0;
+    f̲o̲r̲ i := 2 s̲t̲e̲p̲ 1 u̲n̲t̲i̲l̲ 10000 d̲o̲
+        i̲f̲ isperfect(i) t̲h̲e̲n̲ b̲e̲g̲i̲n̲
+            SPACE(1);
+            print(i);
+            count := count + 1
+        e̲n̲d̲;
+    NLCR;
+    print(count);
+    PRINTTEXT(` were found.');
+    NLCR
+e̲n̲d̲
