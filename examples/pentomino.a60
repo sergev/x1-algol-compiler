@@ -29,7 +29,7 @@ b̲e̲g̲i̲n̲
                 PRINTTEXT(`I');
                 f̲o̲r̲ j := 1 s̲t̲e̲p̲ 1 u̲n̲t̲i̲l̲ lengte - 1 d̲o̲ b̲e̲g̲i̲n̲
                     SPACE(3);
-                    i̲f̲ bord[i + j] |= bord[i + j + 1] t̲h̲e̲n̲
+                    i̲f̲ bord[i + j] ≠ bord[i + j + 1] t̲h̲e̲n̲
                         PRINTTEXT(`I')
                     e̲l̲s̲e̲
                         SPACE(1)
@@ -37,7 +37,7 @@ b̲e̲g̲i̲n̲
                 SPACE(3); PRINTTEXT(`I'); NLCR; SPACE(1);
                 i̲f̲ i < lb t̲h̲e̲n̲ b̲e̲g̲i̲n̲
                     f̲o̲r̲ j := 1 s̲t̲e̲p̲ 1 u̲n̲t̲i̲l̲ lengte d̲o̲ b̲e̲g̲i̲n̲
-                        i̲f̲ bord[i + j] |= bord[i + j + lengte] t̲h̲e̲n̲ b̲e̲g̲i̲n̲
+                        i̲f̲ bord[i + j] ≠ bord[i + j + lengte] t̲h̲e̲n̲ b̲e̲g̲i̲n̲
                             PRINTTEXT(`-'); SPACE(1);
                             PRINTTEXT(`-'); SPACE(1)
                         e̲n̲d̲ e̲l̲s̲e̲

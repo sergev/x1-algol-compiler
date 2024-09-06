@@ -1,0 +1,23 @@
+b̲e̲g̲i̲n̲
+    c̲o̲m̲m̲e̲n̲t̲ square root test;
+    c̲o̲m̲m̲e̲n̲t̲ From article "Design and correctness proof of an emulation of the
+            floating-point operations of the Electrologica X8. A case study"
+            by F.E.J. Kruseman Aretz.
+            https://pure.tue.nl/ws/portalfiles/portal/3023549/674735.pdf;
+    i̲n̲t̲e̲g̲e̲r̲ i;
+    r̲e̲a̲l̲ si;
+
+    f̲o̲r̲ i := 1 s̲t̲e̲p̲ 1 u̲n̲t̲i̲l̲ 1 048 576 + 3 d̲o̲ b̲e̲g̲i̲n̲
+        si := sqrt(i * i);
+        i̲f̲ si ≠ i t̲h̲e̲n̲ b̲e̲g̲i̲n̲
+            ABSFIXT(7, 0, i);
+            FLOT(13, 3, si);
+            NLCR
+        e̲n̲d̲;
+        i̲f̲ i ÷ 100 000 * 100 000 = i t̲h̲e̲n̲ b̲e̲g̲i̲n̲
+            ABSFIXT(7, 0, i);
+            PRINTTEXT(`passed');
+            NLCR
+        e̲n̲d̲
+    e̲n̲d̲
+e̲n̲d̲
