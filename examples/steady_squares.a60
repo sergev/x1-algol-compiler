@@ -1,0 +1,29 @@
+b̲e̲g̲i̲n̲
+    c̲o̲m̲m̲e̲n̲t̲ Find steady squares - numbers whose square ends in the number
+            e.g.: 376^2 = 141 376;
+
+    i̲n̲t̲e̲g̲e̲r̲ powerOfTen, p;
+    powerOfTen := 10;
+
+    c̲o̲m̲m̲e̲n̲t̲ note the final digit must be 1, 5 or 6;
+    PRINTTEXT(`Searching up to 10000 for steady squares:');
+    NLCR;
+    f̲o̲r̲ p := 0 s̲t̲e̲p̲ 10 u̲n̲t̲i̲l̲ 1000 d̲o̲ b̲e̲g̲i̲n̲
+        i̲n̲t̲e̲g̲e̲r̲ d;
+        i̲f̲ p = powerOfTen t̲h̲e̲n̲ b̲e̲g̲i̲n̲
+            c̲o̲m̲m̲e̲n̲t̲ number of digits has increased;
+            powerOfTen := powerOfTen * 10
+        e̲n̲d̲;
+        f̲o̲r̲ d := 1, 5, 6 d̲o̲ b̲e̲g̲i̲n̲
+            i̲n̲t̲e̲g̲e̲r̲ m, n, n2;
+            n  := p + d;
+            n2 := n * n;
+            m  := n2 - (n2 ÷ powerOfTen * powerOfTen);
+            i̲f̲ m = n t̲h̲e̲n̲̲ b̲e̲g̲i̲n̲
+                SPACE(1);
+                print(n)
+            e̲n̲d̲
+        e̲n̲d̲
+    e̲n̲d̲;
+    NLCR
+e̲n̲d̲
