@@ -105,8 +105,8 @@ down:       nummer := nummer - 1
                 f̲o̲r̲ k := 0 s̲t̲e̲p̲ 1 u̲n̲t̲i̲l̲ 3 d̲o̲ b̲e̲g̲i̲n̲
                     nummer := read;
                     nummer := nummer + 5 * sign(nummer);
-                    informatie[teller + k] := nummer - nummer _: 10 * 10 +
-                                              nummer _: 10 * lengte - 5 * sign(nummer)
+                    informatie[teller + k] := nummer - nummer ÷ 10 * 10 +
+                                              nummer ÷ 10 * lengte - 5 * sign(nummer)
                 e̲n̲d̲;
                 teller := teller + 4
             e̲n̲d̲
