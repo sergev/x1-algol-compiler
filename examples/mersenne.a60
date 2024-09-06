@@ -1,0 +1,44 @@
+b̲e̲g̲i̲n̲
+    i̲n̲t̲e̲g̲e̲r̲ p̲r̲o̲c̲e̲d̲u̲r̲e̲ mersenne(n); v̲a̲l̲u̲e̲ n; i̲n̲t̲e̲g̲e̲r̲ n; b̲e̲g̲i̲n̲
+        i̲n̲t̲e̲g̲e̲r̲ i, m;
+        m := 1;
+        f̲o̲r̲ i := 1 s̲t̲e̲p̲ 1 u̲n̲t̲i̲l̲ n d̲o̲
+            m := m * 2;
+        mersenne := m - 1;
+    e̲n̲d̲;
+
+    B̲o̲o̲l̲e̲a̲n̲ p̲r̲o̲c̲e̲d̲u̲r̲e̲ isprime(n); v̲a̲l̲u̲e̲ n; i̲n̲t̲e̲g̲e̲r̲ n; b̲e̲g̲i̲n̲
+        i̲f̲ n < 2 t̲h̲e̲n̲
+            isprime := f̲a̲l̲s̲e̲
+        e̲l̲s̲e̲ i̲f̲ entier(n / 2) * 2 = n t̲h̲e̲n̲
+            isprime := (n = 2)
+        e̲l̲s̲e̲ b̲e̲g̲i̲n̲
+            c̲o̲m̲m̲e̲n̲t̲ - check odd divisors up to sqrt(n);
+            i̲n̲t̲e̲g̲e̲r̲ i, limit;
+            B̲o̲o̲l̲e̲a̲n̲ divisible;
+            limit := entier(sqrt(n));
+            divisible := f̲a̲l̲s̲e̲;
+            f̲o̲r̲ i := 3 w̲h̲i̲l̲e̲ i <= limit ∧ ¬ divisible d̲o̲ b̲e̲g̲i̲n̲
+                i̲f̲ entier(n / i) * i = n t̲h̲e̲n̲
+                    divisible := t̲r̲u̲e̲;
+                i := i + 2
+            e̲n̲d̲;
+            isprime := i̲f̲ divisible t̲h̲e̲n̲ f̲a̲l̲s̲e̲ e̲l̲s̲e̲ t̲r̲u̲e̲
+        e̲n̲d̲
+    e̲n̲d̲;
+
+    c̲o̲m̲m̲e̲n̲t̲ - main code begins here;
+    i̲n̲t̲e̲g̲e̲r̲ i, m;
+    PRINTTEXT(`Searching to M(19) for Mersenne primes');
+    NLCR;
+    f̲o̲r̲ i := 1 s̲t̲e̲p̲ 1 u̲n̲t̲i̲l̲ 19 d̲o̲ b̲e̲g̲i̲n̲
+        m := mersenne(i);
+        i̲f̲ isprime(m) t̲h̲e̲n̲ b̲e̲g̲i̲n̲
+            PRINTTEXT(`M(');
+            print(i);
+            PRINTTEXT(`) : ');
+            print(m);
+            NLCR
+        e̲n̲d̲
+    e̲n̲d̲
+e̲n̲d̲
