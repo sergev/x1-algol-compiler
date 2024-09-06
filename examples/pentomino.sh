@@ -3,8 +3,8 @@
 # Run pentomino solver.
 #
 x1sim pentomino.a60 << END_OF_INPUT
-10
-6
+12
+5
 12
 63
 1   1   -9 1 2 11
