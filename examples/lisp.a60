@@ -1,0 +1,766 @@
+b̲e̲g̲i̲n̲
+    c̲o̲m̲m̲e̲n̲t̲ ALGOL 60 version of program lisp(input,output).
+    *** version 1, March 28, l988 ***
+    *** author: F.E.J. Kruseman Aretz ***
+    *** Philips Research Laboratory Eindhoven ***;
+    i̲n̲t̲e̲g̲e̲r̲ maxidf, maxnbr, maxstruct;
+    maxidf := 200;
+    maxnbr := 200;
+    maxstruct := 2000;
+    b̲e̲g̲i̲n̲
+        i̲n̲t̲e̲g̲e̲r̲ sym, shift, lastidf, lastnbr, d24, d25, free, indentation, linewidth, dummy,
+                f, args, p, id, olp, t, nilv, quote, cond, lambda, define, car, cdr, cons,
+                equal, atom, numberp, lessp, greaterp, add1, sub1, add, minus, timesv, divf;
+        i̲n̲t̲e̲g̲e̲r̲ a̲r̲r̲a̲y̲ idf[0:maxidf, 0:9], alist[0:maxidf];
+        r̲e̲a̲l̲ a̲r̲r̲a̲y̲ nbr[0:maxnbr];
+        i̲n̲t̲e̲g̲e̲r̲ a̲r̲r̲a̲y̲ a, d[1:maxstruct];
+        B̲o̲o̲l̲e̲a̲n̲ a̲r̲r̲a̲y̲ m[1:maxstruct];
+
+        c̲o̲m̲m̲e̲n̲t̲ *** error handling ***;
+
+        p̲r̲o̲c̲e̲d̲u̲r̲e̲ errorhandler(errorstring); s̲t̲r̲i̲n̲g̲ errorstring; b̲e̲g̲i̲n̲
+            NLCR;
+            NLCR;
+            PRINTTEXT(`+++ error: ');
+            PRINTTEXT(errorstring);
+            g̲o̲t̲o̲ ex;
+        e̲n̲d̲ errorhandler;
+
+        c̲o̲m̲m̲e̲n̲t̲ *** representation dependent functions ***;
+
+        p̲r̲o̲c̲e̲d̲u̲r̲e̲ collect garbage; b̲e̲g̲i̲n̲
+            i̲n̲t̲e̲g̲e̲r̲ i, j;
+            free := 0;
+            f̲o̲r̲ i := 1 s̲t̲e̲p̲ 1 u̲n̲t̲i̲l̲ maxstruct d̲o̲
+                m[i] := t̲r̲u̲e̲;
+            NLCR;
+            PRINTTEXT(`garbage collector: ');
+            mark(olp);
+            f̲o̲r̲ i := 0 s̲t̲e̲p̲ 1 u̲n̲t̲i̲l̲ lastidf - 1 d̲o̲
+                mark(alist[i]);
+            f̲o̲r̲ i := 1 s̲t̲e̲p̲ 1 u̲n̲t̲i̲l̲ maxstruct d̲o̲
+                i̲f̲ m[i] t̲h̲e̲n̲ b̲e̲g̲i̲n̲
+                    a[i] := free;
+                    free := i
+                e̲n̲d̲;
+            i̲f̲ free = 0 t̲h̲e̲n̲
+                errorhandler(`free list exhausted');
+            i := 1;
+            j := free;
+            f̲o̲r̲ j := carf(j) w̲h̲i̲l̲e̲ j ≠ 0 d̲o̲
+                i := i + 1;
+            ABSFIXT(4, 0, i);
+            NLCR
+        e̲n̲d̲ collect garbage;
+
+        p̲r̲o̲c̲e̲d̲u̲r̲e̲ mark(ref); v̲a̲l̲u̲e̲ ref; i̲n̲t̲e̲g̲e̲r̲ ref; b̲e̲g̲i̲n̲
+work:       i̲f̲ ref < d24 t̲h̲e̲n̲ b̲e̲g̲i̲n̲
+                i̲f̲ m[ref] t̲h̲e̲n̲ b̲e̲g̲i̲n̲
+                    m[ref] := f̲a̲l̲s̲e̲;
+                    mark(a[ref]);
+                    ref := d[ref];
+                    g̲o̲t̲o̲ work
+                e̲n̲d̲
+            e̲n̲d̲
+        e̲n̲d̲ mark;
+
+        i̲n̲t̲e̲g̲e̲r̲ p̲r̲o̲c̲e̲d̲u̲r̲e̲ createidf; b̲e̲g̲i̲n̲
+            i̲n̲t̲e̲g̲e̲r̲ i, j;
+            i := 0;
+            f̲o̲r̲ dummy := 0 w̲h̲i̲l̲e̲ i < lastidf d̲o̲ b̲e̲g̲i̲n̲
+                f̲o̲r̲ j := 0 s̲t̲e̲p̲ 1 u̲n̲t̲i̲l̲ 9 d̲o̲
+                    i̲f̲ idf[lastidf, j] ≠ idf[i, j] t̲h̲e̲n̲
+                        g̲o̲t̲o̲ diff;
+                g̲o̲t̲o̲ old;
+diff:           i := i + 1
+            e̲n̲d̲;
+new:        i := lastidf;
+            alist[i] := nilv;
+            lastidf := lastidf + 1;
+            i̲f̲ lastidf = maxidf t̲h̲e̲n̲ b̲e̲g̲i̲n̲
+                f̲o̲r̲ i := 0 s̲t̲e̲p̲ 1 u̲n̲t̲i̲l̲ 99 d̲o̲ b̲e̲g̲i̲n̲
+                    NLCR;
+                    write(d25+i)
+                e̲n̲d̲;
+                errorhandler(`too much identifiers')
+            e̲n̲d̲;
+old:        createidf := d25 + i
+        e̲n̲d̲ createidf;
+
+        i̲n̲t̲e̲g̲e̲r̲ p̲r̲o̲c̲e̲d̲u̲r̲e̲ createnum(x); r̲e̲a̲l̲ x; b̲e̲g̲i̲n̲
+            i̲n̲t̲e̲g̲e̲r̲ i;
+            nbr[last nbr] := x;
+            i := 0;
+            f̲o̲r̲ dummy := 0 w̲h̲i̲l̲e̲ i < last nbr d̲o̲ b̲e̲g̲i̲n̲
+                i̲f̲ nbr[last nbr] = nbr[i] t̲h̲e̲n̲
+                    g̲o̲t̲o̲ old;
+                i := i + 1
+            e̲n̲d̲;
+new:        i := last nbr;
+            last nbr := last nbr + 1;
+            i̲f̲ last nbr = maxnbr t̲h̲e̲n̲
+                errorhandler(`too much numbers');
+old:        createnum := d24 + i
+        e̲n̲d̲ createnum;
+
+        B̲o̲o̲l̲e̲a̲n̲ p̲r̲o̲c̲e̲d̲u̲r̲e̲ atomf(x); v̲a̲l̲u̲e̲ x; i̲n̲t̲e̲g̲e̲r̲ x; b̲e̲g̲i̲n̲
+            atomf := x > d24
+        e̲n̲d̲ atomf;
+
+        B̲o̲o̲l̲e̲a̲n̲ p̲r̲o̲c̲e̲d̲u̲r̲e̲ numberpf(x); v̲a̲l̲u̲e̲ x; i̲n̲t̲e̲g̲e̲r̲ x; b̲e̲g̲i̲n̲
+            numberpf := x > d24 ∧ x < d25
+        e̲n̲d̲ numberpf;
+
+        p̲r̲o̲c̲e̲d̲u̲r̲e̲ getidfval(x, idf); v̲a̲l̲u̲e̲ x; i̲n̲t̲e̲g̲e̲r̲ x, idf; b̲e̲g̲i̲n̲
+            idf := x - d25
+        e̲n̲d̲ getidfval;
+
+        r̲e̲a̲l̲ p̲r̲o̲c̲e̲d̲u̲r̲e̲ numval(x); v̲a̲l̲u̲e̲ x; i̲n̲t̲e̲g̲e̲r̲ x; b̲e̲g̲i̲n̲
+            numval :=nbr[ x - d24]
+        e̲n̲d̲ numval;
+
+        i̲n̲t̲e̲g̲e̲r̲ p̲r̲o̲c̲e̲d̲u̲r̲e̲ carf(x); v̲a̲l̲u̲e̲ x; i̲n̲t̲e̲g̲e̲r̲ x; b̲e̲g̲i̲n̲
+            i̲f̲ x > d24 t̲h̲e̲n̲
+                errorhandler(`car undefined for atomic lisp value');
+            carf := a[x]
+        e̲n̲d̲ carf;
+
+        i̲n̲t̲e̲g̲e̲r̲ p̲r̲o̲c̲e̲d̲u̲r̲e̲ cdrf(x); v̲a̲l̲u̲e̲ x; i̲n̲t̲e̲g̲e̲r̲ x; b̲e̲g̲i̲n̲
+             i̲f̲ x > d24 t̲h̲e̲n̲
+                errorhandler(`cdr undefined for atomic lisp value');
+            cdrf := d[x]
+        e̲n̲d̲ cdrf;
+
+        i̲n̲t̲e̲g̲e̲r̲ p̲r̲o̲c̲e̲d̲u̲r̲e̲ consf(x, y); v̲a̲l̲u̲e̲ x, y; i̲n̲t̲e̲g̲e̲r̲ x, y; b̲e̲g̲i̲n̲
+            i̲n̲t̲e̲g̲e̲r̲ n;
+            i̲f̲ free = 0 t̲h̲e̲n̲
+                collect garbage;
+            n := free;
+            free := a[free];
+            a[n] := x;
+            d[n] := y;
+            consf := n
+        e̲n̲d̲ consf;
+
+        p̲r̲o̲c̲e̲d̲u̲r̲e̲ returncell(x); v̲a̲l̲u̲e̲ x; i̲n̲t̲e̲g̲e̲r̲ x; b̲e̲g̲i̲n̲
+            a[x] := free;
+            free := x
+        e̲n̲d̲;
+
+        p̲r̲o̲c̲e̲d̲u̲r̲e̲ returnlist(x); v̲a̲l̲u̲e̲ x; i̲n̲t̲e̲g̲e̲r̲ x; b̲e̲g̲i̲n̲
+            f̲o̲r̲ dummy := 0 w̲h̲i̲l̲e̲ x ≠ nilv d̲o̲ b̲e̲g̲i̲n̲
+                returncell(x); x := d[x]
+            e̲n̲d̲
+        e̲n̲d̲ returnlist;
+
+        p̲r̲o̲c̲e̲d̲u̲r̲e̲ recycle(x); v̲a̲l̲u̲e̲ x; i̲n̲t̲e̲g̲e̲r̲ x; b̲e̲g̲i̲n̲
+            f̲o̲r̲ dummy := 0 w̲h̲i̲l̲e̲ ¬ atomf(x) d̲o̲ b̲e̲g̲i̲n̲
+                recycle(a[x]);
+                returncell(x);
+                x := d[x]
+            e̲n̲d̲
+        e̲n̲d̲ recycle;
+
+        B̲o̲o̲l̲e̲a̲n̲ p̲r̲o̲c̲e̲d̲u̲r̲e̲ equalf(x, y); v̲a̲l̲u̲e̲ x, y; i̲n̲t̲e̲g̲e̲r̲ x, y; b̲e̲g̲i̲n̲
+            s̲w̲i̲t̲c̲h̲ s := str, num, id;
+work:
+            i̲f̲ x ÷ d24 = y ÷ d24 t̲h̲e̲n̲ b̲e̲g̲i̲n̲
+                g̲o̲t̲o̲ s[x ÷ d24 + 1];
+id: num:        equalf := x = y;
+                g̲o̲t̲o̲ ex;
+str:            i̲f̲ equalf(a[x], a[y]) t̲h̲e̲n̲ b̲e̲g̲i̲n̲
+                    x := d[x];
+                    y := d[y];
+                    g̲o̲t̲o̲ work
+                e̲n̲d̲ e̲l̲s̲e̲
+                    equalf := f̲a̲l̲s̲e̲
+            e̲n̲d̲ e̲l̲s̲e̲
+                equalf := f̲a̲l̲s̲e̲;
+ex:
+        e̲n̲d̲ equalf;
+
+        c̲o̲m̲m̲e̲n̲t̲ *** input procedures ***;
+
+        i̲n̲t̲e̲g̲e̲r̲ p̲r̲o̲c̲e̲d̲u̲r̲e̲ RESYM; b̲e̲g̲i̲n̲
+            i̲n̲t̲e̲g̲e̲r̲ s;
+            s := read;
+            i̲f̲ s = 122 ∨ s = 124 t̲h̲e̲n̲ b̲e̲g̲i̲n̲
+                shift := s;
+                RESYM := RESYM
+            e̲n̲d̲ e̲l̲s̲e̲ i̲f̲ s = 16 t̲h̲e̲n̲ RESYM := 93
+            e̲l̲s̲e̲ i̲f̲ s = 26 t̲h̲e̲n̲ RESYM := 119
+            e̲l̲s̲e̲ i̲f̲ s = 8 ∧ shift = 124 t̲h̲e̲n̲ RESYM := 98
+            e̲l̲s̲e̲ i̲f̲ s = 25 ∧ shift = 124 t̲h̲e̲n̲ RESYM := 99
+            e̲l̲s̲e̲ i̲f̲ s = 107 t̲h̲e̲n̲ RESYM := 88
+            e̲l̲s̲e̲ i̲f̲ s = 32 t̲h̲e̲n̲ RESYM := 0
+            e̲l̲s̲e̲ b̲e̲g̲i̲n̲ s := s ÷ 32*32 + s - s ÷ 16*16;
+                i̲f̲ s = 0 t̲h̲e̲n̲
+                    errorhandler(`eof');
+                RESYM := i̲f̲ s < 10 t̲h̲e̲n̲ s
+                    e̲l̲s̲e̲ i̲f̲ s < 64 t̲h̲e̲n̲ s - 6
+                    e̲l̲s̲e̲ i̲f̲ s < 96 t̲h̲e̲n̲ s - 46
+                    e̲l̲s̲e̲ s - 87
+            e̲n̲d̲
+        e̲n̲d̲ RESYM;
+
+        p̲r̲o̲c̲e̲d̲u̲r̲e̲ nextsym; b̲e̲g̲i̲n̲
+            sym := RESYM;
+            PRSYM(sym)
+        e̲n̲d̲ nextsym;
+
+        p̲r̲o̲c̲e̲d̲u̲r̲e̲ skipspaces; b̲e̲g̲i̲n̲
+            f̲o̲r̲ dummy := 0 w̲h̲i̲l̲e̲ sym = 93 ∨ sym = 118 ∨ sym = 119 d̲o̲
+                nextsym
+        e̲n̲d̲ skipspaces;
+
+        i̲n̲t̲e̲g̲e̲r̲ p̲r̲o̲c̲e̲d̲u̲r̲e̲ number; b̲e̲g̲i̲n̲
+            r̲e̲a̲l̲ x;
+            B̲o̲o̲l̲e̲a̲n̲ signed;
+            x := 0;
+            signed := (sym = 65);
+            i̲f̲ signed t̲h̲e̲n̲ b̲e̲g̲i̲n̲
+                nextsym;
+                i̲f̲ sym > 9 t̲h̲e̲n̲
+                    errorhandler(`digit expected in input')
+            e̲n̲d̲;
+            f̲o̲r̲ dummy := 0 w̲h̲i̲l̲e̲ sym < 10 d̲o̲ b̲e̲g̲i̲n̲
+                x := 10 * x + sym;
+                nextsym
+            e̲n̲d̲;
+            number := createnum(i̲f̲ signed t̲h̲e̲n̲ -x e̲l̲s̲e̲ x)
+        e̲n̲d̲ number;
+
+        i̲n̲t̲e̲g̲e̲r̲ p̲r̲o̲c̲e̲d̲u̲r̲e̲ identifier; b̲e̲g̲i̲n̲
+            i̲n̲t̲e̲g̲e̲r̲ i;
+            idf[lastidf, 0] := sym;
+            nextsym;
+            f̲o̲r̲ i := 1 s̲t̲e̲p̲ 1 u̲n̲t̲i̲l̲ 9 d̲o̲
+                idf[lastidf, i] := 93;
+            i := 0;
+            f̲o̲r̲ dummy := 0 w̲h̲i̲l̲e̲ sym < 64 ∧ i < 9 d̲o̲ b̲e̲g̲i̲n̲
+                i := i + 1;
+                idf[lastidf, i] := sym;
+                nextsym
+            e̲n̲d̲;
+            f̲o̲r̲ dummy := 0 w̲h̲i̲l̲e̲ sym < 64 d̲o̲
+                nextsym;
+            identifier := createidf
+        e̲n̲d̲ identifier;
+
+        i̲n̲t̲e̲g̲e̲r̲ p̲r̲o̲c̲e̲d̲u̲r̲e̲ nextitem; b̲e̲g̲i̲n̲
+            i̲n̲t̲e̲g̲e̲r̲ lv, op;
+            skipspaces;
+            i̲f̲ sym < 10 ∨ sym = 65 t̲h̲e̲n̲
+                nextitem := number
+            e̲l̲s̲e̲ i̲f̲ sym < 64 t̲h̲e̲n̲
+                nextitem := identifier
+            e̲l̲s̲e̲ i̲f̲ sym = 98 t̲h̲e̲n̲ b̲e̲g̲i̲n̲
+                nextsym;
+                skipspaces;
+                i̲f̲ sym = 99 t̲h̲e̲n̲ b̲e̲g̲i̲n̲
+                    nextitem := nilv;
+                    nextsym
+                e̲n̲d̲ e̲l̲s̲e̲ b̲e̲g̲i̲n̲
+                    op := olp;
+                    olp := consf(nilv, op);
+                    lv := a[olp] := consf(nilv, nilv);
+                    nextitem := lv;
+                    a[lv] := nextitem;
+                    skipspaces;
+                    i̲f̲ sym = 88 t̲h̲e̲n̲ b̲e̲g̲i̲n̲
+                        nextsym;
+                        d[lv] := nextitem;
+                        skipspaces;
+                        i̲f̲ sym ≠ 99 t̲h̲e̲n̲
+                            errorhandler(`close missing for dotted pair in input')
+                    e̲n̲d̲ e̲l̲s̲e̲
+                        f̲o̲r̲ dummy := 0 w̲h̲i̲l̲e̲ sym ≠ 99 d̲o̲ b̲e̲g̲i̲n̲
+                            lv := d[lv] := consf(nilv, nilv);
+                            a[lv] := nextitem;
+                            skipspaces
+                        e̲n̲d̲;
+                    nextsym;
+                    olp := op
+                e̲n̲d̲;
+            e̲n̲d̲ e̲l̲s̲e̲ i̲f̲ sym = 120 t̲h̲e̲n̲ b̲e̲g̲i̲n̲
+                nextsym;
+                op := olp;
+                olp := consf(nilv, olp);
+                lv := a[olp] := consf(nilv, nilv);
+                nextitem := lv;
+                a[lv] := quote;
+                lv := d[lv] := consf(nilv, nilv);
+                a[lv] := nextitem;
+                olp := op
+            e̲n̲d̲ e̲l̲s̲e̲
+                errorhandler(`illegal symbol in input')
+        e̲n̲d̲ nextitem;
+
+        c̲o̲m̲m̲e̲n̲t̲ *** output procedures ***;
+
+        p̲r̲o̲c̲e̲d̲u̲r̲e̲ PRSYM(sym); v̲a̲l̲u̲e̲ sym; i̲n̲t̲e̲g̲e̲r̲ sym; b̲e̲g̲i̲n̲
+            s̲w̲i̲t̲c̲h̲ sw := a0, a1, a2, a3, a4, a5, a6, a7, a8, a9,
+                         a, b, c, d, e, f, g, h, i, j, k, l, m,
+                         n, o, p, q, r, s, t, u, v, w, x, y, z;
+            i̲f̲ sym = 93 t̲h̲e̲n̲ SPACE(1)
+            e̲l̲s̲e̲ i̲f̲ sym = 88 t̲h̲e̲n̲ PRINTTEXT(`.')
+            e̲l̲s̲e̲ i̲f̲ sym = 98 t̲h̲e̲n̲ PRINTTEXT(`(')
+            e̲l̲s̲e̲ i̲f̲ sym = 99 t̲h̲e̲n̲ PRINTTEXT(`)')
+            e̲l̲s̲e̲ i̲f̲ sym = 119 t̲h̲e̲n̲ NLCR
+            e̲l̲s̲e̲ b̲e̲g̲i̲n̲
+                i̲f̲ sym > 35 t̲h̲e̲n̲
+                    errorhandler(`illegal output symbol');
+                g̲o̲t̲o̲ sw[sym+1];
+a0:             PRINTTEXT(`0'); g̲o̲t̲o̲ ex;
+a1:             PRINTTEXT(`1'); g̲o̲t̲o̲ ex;
+a2:             PRINTTEXT(`2'); g̲o̲t̲o̲ ex;
+a3:             PRINTTEXT(`3'); g̲o̲t̲o̲ ex;
+a4:             PRINTTEXT(`4'); g̲o̲t̲o̲ ex;
+a5:             PRINTTEXT(`5'); g̲o̲t̲o̲ ex;
+a6:             PRINTTEXT(`6'); g̲o̲t̲o̲ ex;
+a7:             PRINTTEXT(`7'); g̲o̲t̲o̲ ex;
+a8:             PRINTTEXT(`8'); g̲o̲t̲o̲ ex;
+a9:             PRINTTEXT(`9'); g̲o̲t̲o̲ ex;
+a:              PRINTTEXT(`a'); g̲o̲t̲o̲ ex;
+b:              PRINTTEXT(`b'); g̲o̲t̲o̲ ex;
+c:              PRINTTEXT(`c'); g̲o̲t̲o̲ ex;
+d:              PRINTTEXT(`d'); g̲o̲t̲o̲ ex;
+e:              PRINTTEXT(`e'); g̲o̲t̲o̲ ex;
+f:              PRINTTEXT(`f'); g̲o̲t̲o̲ ex;
+g:              PRINTTEXT(`g'); g̲o̲t̲o̲ ex;
+h:              PRINTTEXT(`h'); g̲o̲t̲o̲ ex;
+i:              PRINTTEXT(`i'); g̲o̲t̲o̲ ex;
+j:              PRINTTEXT(`j'); g̲o̲t̲o̲ ex;
+k:              PRINTTEXT(`k'); g̲o̲t̲o̲ ex;
+l:              PRINTTEXT(`l'); g̲o̲t̲o̲ ex;
+m:              PRINTTEXT(`m'); g̲o̲t̲o̲ ex;
+n:              PRINTTEXT(`n'); g̲o̲t̲o̲ ex;
+o:              PRINTTEXT(`o'); g̲o̲t̲o̲ ex;
+p:              PRINTTEXT(`p'); g̲o̲t̲o̲ ex;
+q:              PRINTTEXT(`q'); g̲o̲t̲o̲ ex;
+r:              PRINTTEXT(`r'); g̲o̲t̲o̲ ex;
+s:              PRINTTEXT(`s'); g̲o̲t̲o̲ ex;
+t:              PRINTTEXT(`t'); g̲o̲t̲o̲ ex;
+u:              PRINTTEXT(`u'); g̲o̲t̲o̲ ex;
+v:              PRINTTEXT(`v'); g̲o̲t̲o̲ ex;
+w:              PRINTTEXT(`w'); g̲o̲t̲o̲ ex;
+x:              PRINTTEXT(`x'); g̲o̲t̲o̲ ex;
+y:              PRINTTEXT(`y'); g̲o̲t̲o̲ ex;
+z:              PRINTTEXT(`z')
+            e̲n̲d̲;
+ex:
+        e̲n̲d̲ PRSYM;
+
+        p̲r̲o̲c̲e̲d̲u̲r̲e̲ analyse(x, r); v̲a̲l̲u̲e̲ x; i̲n̲t̲e̲g̲e̲r̲ x, r; b̲e̲g̲i̲n̲
+            i̲n̲t̲e̲g̲e̲r̲ n, l;
+            B̲o̲o̲l̲e̲a̲n̲ simple;
+            i̲f̲ numberpf(x) t̲h̲e̲n̲ b̲e̲g̲i̲n̲
+                r̲e̲a̲l̲ dg, v, absv;
+                v := numval(x);
+                i̲f̲ v > 0 t̲h̲e̲n̲ b̲e̲g̲i̲n̲
+                    absv := v;
+                    l := 1
+                e̲n̲d̲ e̲l̲s̲e̲ b̲e̲g̲i̲n̲
+                    absv := - v;
+                    l := 2
+                e̲n̲d̲;
+                dg := 10;
+                f̲o̲r̲ dummy := 0 w̲h̲i̲l̲e̲ dg < absv d̲o̲ b̲e̲g̲i̲n̲
+                    l := l + 1;
+                    dg := 10 * dg
+                e̲n̲d̲;
+                r := createnum(l)
+            e̲n̲d̲ e̲l̲s̲e̲ i̲f̲ atomf(x) t̲h̲e̲n̲ b̲e̲g̲i̲n̲
+                getidfval(x, id);
+                n := 10;
+                f̲o̲r̲ dummy := 0 w̲h̲i̲l̲e̲ idf[id, n-1] = 93 d̲o̲
+                    n := n - 1;
+                r := createnum(n)
+            e̲n̲d̲ e̲l̲s̲e̲ i̲f̲ islist(x) t̲h̲e̲n̲ b̲e̲g̲i̲n̲
+                indentation := indentation + 1;
+                analyselist(x, r, l, simple);
+                indentation := indentation - 1;
+                i̲f̲ simple ∧ indentation + l < linewidth t̲h̲e̲n̲ b̲e̲g̲i̲n̲
+                    recycle(r);
+                    r := createnum(l)
+                e̲n̲d̲
+            e̲n̲d̲ e̲l̲s̲e̲ b̲e̲g̲i̲n̲
+                indentation := indentation + 1;
+                olp := consf(nilv, olp);
+                r := a[olp] := consf(nilv, nilv);
+                analyse(carf(x), a[r]);
+                analyse(cdrf(x), d[r]);
+                indentation := indentation - 1;
+                i̲f̲ atomf(a[r]) ∧ atomf(d[r]) t̲h̲e̲n̲ b̲e̲g̲i̲n̲
+                    l := numval(carf(r)) + numval(cdrf(r)) + 5;
+                    i̲f̲ indentation + l < linewidth t̲h̲e̲n̲ b̲e̲g̲i̲n̲
+                        recycle(r);
+                        r := createnum(l)
+                    e̲n̲d̲
+                e̲n̲d̲;
+                returncell(olp);
+                olp := d[olp]
+            e̲n̲d̲
+        e̲n̲d̲ analyse;
+
+        p̲r̲o̲c̲e̲d̲u̲r̲e̲ analyselist(x, r, l, simple);
+            v̲a̲l̲u̲e̲ x;
+            i̲n̲t̲e̲g̲e̲r̲ x, r, l;
+            B̲o̲o̲l̲e̲a̲n̲ simple;
+        b̲e̲g̲i̲n̲
+            i̲f̲ x = nilv t̲h̲e̲n̲ b̲e̲g̲i̲n̲
+                r := nilv;
+                l := 1;
+                simple := t̲r̲u̲e̲
+            e̲n̲d̲ e̲l̲s̲e̲ b̲e̲g̲i̲n̲
+                olp := consf(nilv, olp);
+                r := a[olp] := consf(nilv, nilv);
+                analyse(carf(x), a[r]);
+                analyselist(cdrf(x), d[r], l, simple);
+                i̲f̲ simple ∧ atomf(a[r]) t̲h̲e̲n̲
+                    l := numval(a[r]) + l + 1
+                e̲l̲s̲e̲
+                    simple := f̲a̲l̲s̲e̲;
+                returncell(olp);
+                olp := d[olp]
+            e̲n̲d̲
+        e̲n̲d̲ analyselist;
+
+        B̲o̲o̲l̲e̲a̲n̲ p̲r̲o̲c̲e̲d̲u̲r̲e̲ islist(x); v̲a̲l̲u̲e̲ x; i̲n̲t̲e̲g̲e̲r̲ x; b̲e̲g̲i̲n̲
+work:       i̲f̲ atomf(x) t̲h̲e̲n̲
+                islist := equalf(x, nilv)
+            e̲l̲s̲e̲ b̲e̲g̲i̲n̲
+                x := cdrf(x);
+                g̲o̲t̲o̲ work
+            e̲n̲d̲
+        e̲n̲d̲ islist;
+
+        p̲r̲o̲c̲e̲d̲u̲r̲e̲ writenumber(x); v̲a̲l̲u̲e̲ x; i̲n̲t̲e̲g̲e̲r̲ x; b̲e̲g̲i̲n̲
+            i̲n̲t̲e̲g̲e̲r̲ n, d, v;
+            v := numval(x);
+            i̲f̲ v < 0 t̲h̲e̲n̲
+                v := - v;
+            d := 10;
+            f̲o̲r̲ dummy := 0 w̲h̲i̲l̲e̲ d < v d̲o̲
+                d := d * 10;
+            f̲o̲r̲ d := d ÷ 10 w̲h̲i̲l̲e̲ d > 0.5 d̲o̲ b̲e̲g̲i̲n̲
+                n := v ÷ d;
+                PRSYM(n);
+                v := v - d * n
+            e̲n̲d̲
+        e̲n̲d̲ writenumber;
+
+        p̲r̲o̲c̲e̲d̲u̲r̲e̲ writeidentifier(x); v̲a̲l̲u̲e̲ x; i̲n̲t̲e̲g̲e̲r̲ x; b̲e̲g̲i̲n̲
+            i̲n̲t̲e̲g̲e̲r̲ i;
+            getidfval(x, id);
+            f̲o̲r̲ i := 0 s̲t̲e̲p̲ 1 u̲n̲t̲i̲l̲ 9 d̲o̲
+                i̲f̲ idf[id, i] ≠ 93 t̲h̲e̲n̲
+                    PRSYM(idf[id, i])
+        e̲n̲d̲ writeidentifier;
+
+        p̲r̲o̲c̲e̲d̲u̲r̲e̲ writelist(x, r); v̲a̲l̲u̲e̲ x, r; i̲n̲t̲e̲g̲e̲r̲ x, r; b̲e̲g̲i̲n̲
+            i̲n̲t̲e̲g̲e̲r̲ a, ind;
+            B̲o̲o̲l̲e̲a̲n̲ simple, nl;
+            PRSYM(98);
+            i̲f̲ atomf(r) t̲h̲e̲n̲ b̲e̲g̲i̲n̲
+                f̲o̲r̲ dummy := 0 w̲h̲i̲l̲e̲ x ≠ nilv d̲o̲ b̲e̲g̲i̲n̲
+                    writevalue(carf(x), r);
+                    x := cdrf(x);
+                    i̲f̲ x ≠ nilv t̲h̲e̲n̲
+                        PRSYM(93)
+                e̲n̲d̲
+            e̲n̲d̲ e̲l̲s̲e̲ b̲e̲g̲i̲n̲
+                indentation := indentation + 1;
+                ind := indentation;
+                f̲o̲r̲ dummy := 0 w̲h̲i̲l̲e̲ x ≠ nilv d̲o̲ b̲e̲g̲i̲n̲
+                    a := carf(r);
+                    simple := atomf(a);
+                    i̲f̲ simple t̲h̲e̲n̲
+                        nl := numval(a) + indentation > linewidth
+                    e̲l̲s̲e̲
+                        nl := indentation > ind;
+                    i̲f̲ nl t̲h̲e̲n̲ b̲e̲g̲i̲n̲
+                        indentation := ind;
+                        NLCR;
+                        SPACE(ind)
+                    e̲n̲d̲ e̲l̲s̲e̲ i̲f̲ indentation > ind t̲h̲e̲n̲
+                        PRSYM(93);
+                    writevalue(carf(x), a);
+                    i̲f̲ simple t̲h̲e̲n̲
+                        indentation := indentation + numval(a) + 1
+                    e̲l̲s̲e̲
+                        indentation := linewidth + 1;
+                    x := cdrf(x);
+                    r := cdrf(r)
+                e̲n̲d̲;
+                indentation := ind - 1;
+                NLCR;
+                SPACE(indentation)
+            e̲n̲d̲;
+            PRSYM(99)
+        e̲n̲d̲ writelist;
+
+        p̲r̲o̲c̲e̲d̲u̲r̲e̲ writepair(x, r); v̲a̲l̲u̲e̲ x, r; i̲n̲t̲e̲g̲e̲r̲ x, r; b̲e̲g̲i̲n̲
+            PRSYM(98);
+            i̲f̲ atomf(r) t̲h̲e̲n̲ b̲e̲g̲i̲n̲
+                writevalue(carf(x), r);
+                PRINTTEXT(` . ');
+                writevalue(cdrf(x), r)
+            e̲n̲d̲ e̲l̲s̲e̲ b̲e̲g̲i̲n̲
+                indentation := indentation + 1;
+                writevalue(carf(x), carf(r));
+                NLCR;
+                SPACE(indentation-1);
+                PRINTTEXT(` . ');
+                NLCR;
+                SPACE(indentation);
+                writevalue(cdrf(x), cdrf(r));
+                NLCR;
+                SPACE(indentation)
+            e̲n̲d̲;
+            PRSYM(99)
+        e̲n̲d̲ writepair;
+
+        p̲r̲o̲c̲e̲d̲u̲r̲e̲ writevalue(x, r); v̲a̲l̲u̲e̲ x, r; i̲n̲t̲e̲g̲e̲r̲ x, r; b̲e̲g̲i̲n̲
+            i̲f̲ numberpf(x) t̲h̲e̲n̲
+                writenumber(x)
+            e̲l̲s̲e̲ i̲f̲ atomf(x) t̲h̲e̲n̲
+                writeidentifier(x)
+            e̲l̲s̲e̲ i̲f̲ islist(x) t̲h̲e̲n̲
+                 writelist(x, r)
+            e̲l̲s̲e̲
+                writepair(x, r)
+        e̲n̲d̲ writevalue;
+
+        p̲r̲o̲c̲e̲d̲u̲r̲e̲ write(x); v̲a̲l̲u̲e̲ x; i̲n̲t̲e̲g̲e̲r̲ x; b̲e̲g̲i̲n̲
+            i̲n̲t̲e̲g̲e̲r̲ r;
+            indentation := 0;
+            analyse(x, r);
+            writevalue(x, r);
+            recycle(r)
+        e̲n̲d̲ write;
+
+        c̲o̲m̲m̲e̲n̲t̲ *** interpreter proper ***;
+
+        i̲n̲t̲e̲g̲e̲r̲ p̲r̲o̲c̲e̲d̲u̲r̲e̲ assoc(x); v̲a̲l̲u̲e̲ x; i̲n̲t̲e̲g̲e̲r̲ x; b̲e̲g̲i̲n̲
+            i̲n̲t̲e̲g̲e̲r̲ ax;
+            getidfval(x, id);
+            ax := alist[id];
+            i̲f̲ ax = nilv t̲h̲e̲n̲
+                errorhandler(`identifier has no value');
+            assoc := carf(ax)
+        e̲n̲d̲ assoc;
+
+        p̲r̲o̲c̲e̲d̲u̲r̲e̲ pairlis(x, y); v̲a̲l̲u̲e̲ x, y; i̲n̲t̲e̲g̲e̲r̲ x, y; b̲e̲g̲i̲n̲
+            f̲o̲r̲ dummy := 0 w̲h̲i̲l̲e̲ ¬ equalf(x, nilv) d̲o̲ b̲e̲g̲i̲n̲
+                getidfval(carf(x), id);
+                alist[id] := consf(carf(y), alist[id]);
+                x := cdrf(x);
+                y := cdrf(y)
+            e̲n̲d̲
+        e̲n̲d̲ pairlis;
+
+        p̲r̲o̲c̲e̲d̲u̲r̲e̲ depairlis(x); v̲a̲l̲u̲e̲ x; i̲n̲t̲e̲g̲e̲r̲ x; b̲e̲g̲i̲n̲
+            f̲o̲r̲ dummy := 0 w̲h̲i̲l̲e̲ ¬ equalf(x, nilv) d̲o̲ b̲e̲g̲i̲n̲
+                getidfval(carf(x), id);
+                alist[id] := cdrf(alist[id]);
+                x := cdrf(x)
+            e̲n̲d̲
+        e̲n̲d̲ depairlis;
+
+        i̲n̲t̲e̲g̲e̲r̲ p̲r̲o̲c̲e̲d̲u̲r̲e̲ eval(e); v̲a̲l̲u̲e̲ e; i̲n̲t̲e̲g̲e̲r̲ e; b̲e̲g̲i̲n̲
+            i̲n̲t̲e̲g̲e̲r̲ care;
+work:       i̲f̲ atomf(e) t̲h̲e̲n̲ b̲e̲g̲i̲n̲
+                i̲f̲ equalf(e, nilv) ∨ equalf(e, t) ∨ numberpf(e) t̲h̲e̲n̲
+                    eval := e
+                e̲l̲s̲e̲
+                    eval := assoc(e)
+            e̲n̲d̲ e̲l̲s̲e̲ b̲e̲g̲i̲n̲
+                care := carf(e);
+                i̲f̲ equalf(care, cond) t̲h̲e̲n̲ b̲e̲g̲i̲n̲
+                    e := evcon(cdrf(e));
+                    g̲o̲t̲o̲ work
+                e̲n̲d̲ e̲l̲s̲e̲ i̲f̲ equalf(care, quote) t̲h̲e̲n̲
+                    eval := carf(cdrf(e))
+                e̲l̲s̲e̲ b̲e̲g̲i̲n̲
+                    olp := consf(nilv, olp);
+                    a[olp] := evlist(cdrf(e));
+                    eval := apply(care, a[olp]);
+                    returnlist(a[olp]);
+                    returncell(olp);
+                    olp := cdrf(olp)
+                e̲n̲d̲
+            e̲n̲d̲
+        e̲n̲d̲ eval;
+
+        i̲n̲t̲e̲g̲e̲r̲ p̲r̲o̲c̲e̲d̲u̲r̲e̲ apply(f, x); v̲a̲l̲u̲e̲ f, x; i̲n̲t̲e̲g̲e̲r̲ f, x; b̲e̲g̲i̲n̲
+work:       i̲f̲ atomf(f) t̲h̲e̲n̲ b̲e̲g̲i̲n̲
+                i̲f̲ equalf(f, car) t̲h̲e̲n̲
+                    apply := carf(carf(x))
+                e̲l̲s̲e̲ i̲f̲ equalf(f, cdr) t̲h̲e̲n̲
+                    apply := cdrf(carf(x))
+                e̲l̲s̲e̲ i̲f̲ equalf(f, cons) t̲h̲e̲n̲
+                    apply := consf(carf(x), carf(cdrf(x)))
+                e̲l̲s̲e̲ i̲f̲ equalf(f, equal) t̲h̲e̲n̲ b̲e̲g̲i̲n̲
+                    i̲f̲ equalf(carf(x), carf(cdrf(x))) t̲h̲e̲n̲
+                        apply := t
+                    e̲l̲s̲e̲
+                        apply := nilv
+                e̲n̲d̲ e̲l̲s̲e̲ i̲f̲ equalf(f, atom) t̲h̲e̲n̲ b̲e̲g̲i̲n̲
+                    i̲f̲ atomf(carf(x)) t̲h̲e̲n̲
+                        apply := t
+                    e̲l̲s̲e̲
+                        apply := nilv
+                e̲n̲d̲ e̲l̲s̲e̲ i̲f̲ equalf(f, numberp) t̲h̲e̲n̲ b̲e̲g̲i̲n̲
+                    i̲f̲ numberpf(carf(x)) t̲h̲e̲n̲
+                        apply := t
+                    e̲l̲s̲e̲
+                        apply := nilv
+                e̲n̲d̲ e̲l̲s̲e̲ i̲f̲ equalf(f, lessp) t̲h̲e̲n̲ b̲e̲g̲i̲n̲
+                    i̲f̲ numval(carf(x)) < numval(carf(cdrf(x))) t̲h̲e̲n̲
+                        apply := t
+                    e̲l̲s̲e̲
+                        apply := nilv
+                e̲n̲d̲ e̲l̲s̲e̲ i̲f̲ equalf(f, greaterp) t̲h̲e̲n̲ b̲e̲g̲i̲n̲
+                    i̲f̲ numval(carf(x)) > numval(carf(cdrf(x))) t̲h̲e̲n̲
+                        apply := t
+                    e̲l̲s̲e̲
+                        apply := nilv
+                e̲n̲d̲ e̲l̲s̲e̲ i̲f̲ equalf(f, add) t̲h̲e̲n̲
+                    apply := createnum(numval(carf(x)) + 1)
+                e̲l̲s̲e̲ i̲f̲ equalf(f, sub1) t̲h̲e̲n̲
+                    apply := createnum(numval(carf(x)) - 1)
+                e̲l̲s̲e̲ i̲f̲ equalf(f, add) t̲h̲e̲n̲
+                    apply := createnum(numval(carf(x)) + numval(carf(cdrf(x))))
+                e̲l̲s̲e̲ i̲f̲ equalf(f, minus) t̲h̲e̲n̲
+                    apply := createnum(numval(carf(x)) - numval(carf(cdrf(x))))
+                e̲l̲s̲e̲ i̲f̲ equalf(f, timesv) t̲h̲e̲n̲
+                    apply := createnum(numval(carf(x)) * numval(carf(cdrf(x))))
+                e̲l̲s̲e̲ i̲f̲ equalf(f, divf) t̲h̲e̲n̲
+                    apply := createnum(numval(carf(x)) ÷ numval(carf(cdrf(x))))
+                e̲l̲s̲e̲ b̲e̲g̲i̲n̲
+                    f := assoc(f);
+                    g̲o̲t̲o̲ work
+                e̲n̲d̲
+            e̲n̲d̲ e̲l̲s̲e̲ b̲e̲g̲i̲n̲
+                pairlis(carf(cdrf(f)), x);
+                apply := eval(carf(cdrf(cdrf(f))));
+                depairlis(carf(cdrf(f)))
+            e̲n̲d̲
+        e̲n̲d̲ apply;
+
+        i̲n̲t̲e̲g̲e̲r̲ p̲r̲o̲c̲e̲d̲u̲r̲e̲ evcon(x); v̲a̲l̲u̲e̲ x; i̲n̲t̲e̲g̲e̲r̲ x; b̲e̲g̲i̲n̲
+            i̲n̲t̲e̲g̲e̲r̲ r;
+work:       r := carf(x);
+            i̲f̲ equalf(eval(carf(r)), nilv) t̲h̲e̲n̲ b̲e̲g̲i̲n̲
+                x := cdrf(x);
+                g̲o̲t̲o̲ work
+            e̲n̲d̲ e̲l̲s̲e̲
+            evcon := carf(cdrf(r))
+        e̲n̲d̲ evcon;
+
+        i̲n̲t̲e̲g̲e̲r̲ p̲r̲o̲c̲e̲d̲u̲r̲e̲ evlist(x); v̲a̲l̲u̲e̲ x; i̲n̲t̲e̲g̲e̲r̲ x; b̲e̲g̲i̲n̲
+            i̲n̲t̲e̲g̲e̲r̲ res;
+            i̲f̲ equalf(x, nilv) t̲h̲e̲n̲
+                evlist := nilv
+            e̲l̲s̲e̲ b̲e̲g̲i̲n̲
+                olp := consf(nilv, olp);
+                a[olp] := res := consf(nilv, nilv);
+                a[res] := eval(carf(x));
+                d[res] := evlist(cdrf(x));
+                evlist := res;
+                returncell(olp);
+                olp := cdrf(olp)
+            e̲n̲d̲
+        e̲n̲d̲ evlist;
+
+        c̲o̲m̲m̲e̲n̲t̲ *** initialization ***;
+
+        p̲r̲o̲c̲e̲d̲u̲r̲e̲ create(lv); i̲n̲t̲e̲g̲e̲r̲ lv; b̲e̲g̲i̲n̲
+            skipspaces;
+            lv := identifier;
+        e̲n̲d̲ create;
+
+        p̲r̲o̲c̲e̲d̲u̲r̲e̲ init; b̲e̲g̲i̲n̲
+            i̲n̲t̲e̲g̲e̲r̲ i, j;
+            d24 := 16777216;
+            d25 := 33554432;
+            last idf := 0;
+            sym := 93;
+            nilv := d25 + 1;
+            create(t);
+            create(nilv);
+            create(quote);
+            create(cond);
+            create(lambda);
+            create(define);
+            create(car);
+            create(cdr);
+            create(cons);
+            create(equal);
+            create(atom);
+            create(numberp);
+            create(lessp);
+            create(greaterp);
+            create(add1);
+            create(sub1);
+            create(add);
+            create(minus);
+            create(timesv);
+            create(divf);
+            olp := nilv;
+            free := 1;
+            last nbr := 0;
+            linewidth := 40;
+            f̲o̲r̲ i := 1 s̲t̲e̲p̲ 1 u̲n̲t̲i̲l̲ maxstruct - 1 d̲o̲
+                a[i] := i + 1;
+            a[maxstruct] := 0
+        e̲n̲d̲ init;
+
+        c̲o̲m̲m̲e̲n̲t̲ *** main program ***;
+
+        p̲r̲o̲c̲e̲d̲u̲r̲e̲ function definitions(x, a, r); v̲a̲l̲u̲e̲ x; i̲n̲t̲e̲g̲e̲r̲ x, a, r; b̲e̲g̲i̲n̲
+            i̲n̲t̲e̲g̲e̲r̲ carx, lr;
+            i̲f̲ equalf(x, nilv) t̲h̲e̲n̲
+                r := nilv
+            e̲l̲s̲e̲ b̲e̲g̲i̲n̲
+                carx := carf(x);
+                a := consf(consf(carf(carx), carf(cdrf(carx))), a);
+                function definitions(cdrf(x), a, lr);
+                r := consf(carf(carx), lr)
+            e̲n̲d̲
+        e̲n̲d̲ function definitions;
+
+        PRINTTEXT(`Lisp interpreter version 1, Oktober 2004');
+        NLCR;
+        NLCR;
+        init;
+        f̲o̲r̲ dummy := 0 w̲h̲i̲l̲e̲ t̲r̲u̲e̲ d̲o̲ b̲e̲g̲i̲n̲
+            olp := consf(nilv, olp);
+            a[olp] := p := consf(nilv, nilv);
+            a[p] := f := nextitem;
+            d[p] := args := nextitem;
+            NLCR;
+            i̲f̲ equalf(f, define) t̲h̲e̲n̲ b̲e̲g̲i̲n̲
+                args := carf(args);
+                PRSYM(98);
+                f̲o̲r̲ dummy := 0 w̲h̲i̲l̲e̲ ¬ equalf(args, nilv) d̲o̲ b̲e̲g̲i̲n̲
+                    p := carf(args);
+                    write(carf(p));
+                    getidfval(carf(p), id);
+                    alist[id] := consf(carf(cdrf(p)), nilv);
+                    args := cdrf(args);
+                    i̲f̲ ¬ equalf(args, nilv) t̲h̲e̲n̲
+                        SPACE(1)
+                e̲n̲d̲;
+                PRSYM(99)
+            e̲n̲d̲ e̲l̲s̲e̲ b̲e̲g̲i̲n̲
+                p := apply(f, args);
+                NLCR;
+                write(p)
+            e̲n̲d̲;
+            olp := cdrf(olp)
+        e̲n̲d̲;
+ex:
+    e̲n̲d̲
+e̲n̲d̲
