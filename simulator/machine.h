@@ -129,6 +129,9 @@ public:
     // Read number from stream.
     static long double input_real(std::istream &stream);
 
+    // Read character from stdin.
+    static int input_char(std::istream &stream);
+
     // Read console switches.
     unsigned read_console_switches(std::istream &stream, unsigned bitmask);
 

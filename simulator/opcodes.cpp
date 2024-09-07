@@ -1021,11 +1021,19 @@ bool Processor::call_opc(unsigned opc)
         algol_putc(core.S, std::cout);
         std::cout << std::flush;
         break;
-        // TODO: case OPC_OBC6: // output buffer class 6
-        // TODO: case OPC_FLOATER:
+    case OPC_OBC6:
+        // output buffer class 6
+        throw std::runtime_error("Opcode OBC6 in not supported");
+    case OPC_FLOATER:
+        throw std::runtime_error("Opcode FLOATER in not supported");
     case OPC_read:
+#if 0
+        // Read character from stdin.
+        stack.push_int_value(Machine::input_char(std::cin));
+#else
         // Read real number from stdin.
         stack.push_ieee(Machine::input_real(std::cin));
+#endif
         break;
 
     case OPC_print: {
@@ -1087,7 +1095,8 @@ bool Processor::call_opc(unsigned opc)
         machine.ask_console_input();
         break;
 
-        // TODO: case OPC_P21:
+    case OPC_P21:
+        throw std::runtime_error("Opcode P21 in not supported");
 
     case OPC_FLOT: {
         // Print number in floating-point representation.
@@ -1126,11 +1135,8 @@ bool Processor::call_opc(unsigned opc)
         break;
     }
 
-    default: {
-        std::ostringstream ostr;
-        x1_print_instruction(ostr, opc);
-        throw std::runtime_error("NYI OPC " + ostr.str());
-    }
+    default:
+        throw std::runtime_error("Opcode " + std::to_string(opc) + " is not supported");
     }
     return false;
 }

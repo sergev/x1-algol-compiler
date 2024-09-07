@@ -141,3 +141,18 @@ unsigned Machine::read_console_switches(std::istream &input_stream, unsigned bit
     }
     return console_switches & bitmask;
 }
+
+//
+// Read character from input stream.
+// Return integer number.
+// On end of file, return 0.
+//
+int Machine::input_char(std::istream &stream)
+{
+    char ch;
+    if (stream.get(ch)) {
+        // TODO: encode to Algol.
+        return (uint8_t) ch;
+    }
+    return 0;
+}

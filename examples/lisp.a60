@@ -184,23 +184,9 @@ ex:
         i̲n̲t̲e̲g̲e̲r̲ p̲r̲o̲c̲e̲d̲u̲r̲e̲ RESYM; b̲e̲g̲i̲n̲
             i̲n̲t̲e̲g̲e̲r̲ s;
             s := read;
-            i̲f̲ s = 122 ∨ s = 124 t̲h̲e̲n̲ b̲e̲g̲i̲n̲
-                shift := s;
-                RESYM := RESYM
-            e̲n̲d̲ e̲l̲s̲e̲ i̲f̲ s = 16 t̲h̲e̲n̲ RESYM := 93
-            e̲l̲s̲e̲ i̲f̲ s = 26 t̲h̲e̲n̲ RESYM := 119
-            e̲l̲s̲e̲ i̲f̲ s = 8 ∧ shift = 124 t̲h̲e̲n̲ RESYM := 98
-            e̲l̲s̲e̲ i̲f̲ s = 25 ∧ shift = 124 t̲h̲e̲n̲ RESYM := 99
-            e̲l̲s̲e̲ i̲f̲ s = 107 t̲h̲e̲n̲ RESYM := 88
-            e̲l̲s̲e̲ i̲f̲ s = 32 t̲h̲e̲n̲ RESYM := 0
-            e̲l̲s̲e̲ b̲e̲g̲i̲n̲ s := s ÷ 32*32 + s - s ÷ 16*16;
-                i̲f̲ s = 0 t̲h̲e̲n̲
-                    errorhandler(`eof');
-                RESYM := i̲f̲ s < 10 t̲h̲e̲n̲ s
-                    e̲l̲s̲e̲ i̲f̲ s < 64 t̲h̲e̲n̲ s - 6
-                    e̲l̲s̲e̲ i̲f̲ s < 96 t̲h̲e̲n̲ s - 46
-                    e̲l̲s̲e̲ s - 87
-            e̲n̲d̲
+            i̲f̲ s = 255 t̲h̲e̲n̲
+                errorhandler(`eof');
+            RESYM := s
         e̲n̲d̲ RESYM;
 
         p̲r̲o̲c̲e̲d̲u̲r̲e̲ nextsym; b̲e̲g̲i̲n̲

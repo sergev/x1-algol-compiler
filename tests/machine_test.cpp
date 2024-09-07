@@ -128,6 +128,62 @@ TEST_F(x1_machine, string_quotes)
     EXPECT_EQ(output, expect);
 }
 
+TEST_F(x1_machine, input_char)
+{
+    std::stringstream stream(
+        "09azAZ"
+        "+-×*/÷↑>≥=≤<≠¬∧∨⊃≡,.⏨@:;"
+        " ()[]`'\t\n\"?"
+        "|_"
+    );
+    EXPECT_EQ(Machine::input_char(stream), 0);  // 0
+    EXPECT_EQ(Machine::input_char(stream), 9);  // 9
+    EXPECT_EQ(Machine::input_char(stream), 10); // a
+    EXPECT_EQ(Machine::input_char(stream), 35); // z
+    EXPECT_EQ(Machine::input_char(stream), 37); // A
+    EXPECT_EQ(Machine::input_char(stream), 62); // Z
+
+    EXPECT_EQ(Machine::input_char(stream), 64); // +
+    EXPECT_EQ(Machine::input_char(stream), 65); // -
+    EXPECT_EQ(Machine::input_char(stream), 66); // ×
+    EXPECT_EQ(Machine::input_char(stream), 66); // *
+    EXPECT_EQ(Machine::input_char(stream), 67); // /
+    EXPECT_EQ(Machine::input_char(stream), 68); // ÷
+    EXPECT_EQ(Machine::input_char(stream), 69); // ↑
+    EXPECT_EQ(Machine::input_char(stream), 70); // >
+    EXPECT_EQ(Machine::input_char(stream), 71); // ≥
+    EXPECT_EQ(Machine::input_char(stream), 72); // =
+    EXPECT_EQ(Machine::input_char(stream), 73); // ≤
+    EXPECT_EQ(Machine::input_char(stream), 74); // <
+    EXPECT_EQ(Machine::input_char(stream), 75); // ≠
+    EXPECT_EQ(Machine::input_char(stream), 76); // ¬
+    EXPECT_EQ(Machine::input_char(stream), 77); // ∧
+    EXPECT_EQ(Machine::input_char(stream), 78); // ∨
+    EXPECT_EQ(Machine::input_char(stream), 79); // ⊃
+    EXPECT_EQ(Machine::input_char(stream), 80); // ≡
+    EXPECT_EQ(Machine::input_char(stream), 87); // ,
+    EXPECT_EQ(Machine::input_char(stream), 88); // .
+    EXPECT_EQ(Machine::input_char(stream), 89); // ⏨
+    EXPECT_EQ(Machine::input_char(stream), 89); // @
+    EXPECT_EQ(Machine::input_char(stream), 90); // :
+    EXPECT_EQ(Machine::input_char(stream), 91); // ;
+
+    EXPECT_EQ(Machine::input_char(stream), 93);  // space
+    EXPECT_EQ(Machine::input_char(stream), 98);  // (
+    EXPECT_EQ(Machine::input_char(stream), 99);  // )
+    EXPECT_EQ(Machine::input_char(stream), 100); // [
+    EXPECT_EQ(Machine::input_char(stream), 101); // ]
+    EXPECT_EQ(Machine::input_char(stream), 102); // `
+    EXPECT_EQ(Machine::input_char(stream), 103); // '
+    EXPECT_EQ(Machine::input_char(stream), 118); // tab
+    EXPECT_EQ(Machine::input_char(stream), 119); // crlf
+    EXPECT_EQ(Machine::input_char(stream), 121); // "
+    EXPECT_EQ(Machine::input_char(stream), 122); // ?
+
+    EXPECT_EQ(Machine::input_char(stream), 162); // |
+    EXPECT_EQ(Machine::input_char(stream), 163); // _
+}
+
 TEST_F(x1_machine, virtual_stack)
 {
     // Check stack of OPC arguments.
