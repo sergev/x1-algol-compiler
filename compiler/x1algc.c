@@ -3219,6 +3219,38 @@ Local void put_crf_entry(int * addr, ...)
     va_end(ap);
 }
 
+void print_mcp_name(int mcp)
+{
+    int i = nlsc0;
+    printf("MCP %d: ", mcp);
+    while (i > nlscop) {
+        int idm = store[nlib + i - 1];
+        if ((idm & 127) == mcp) {
+            show_id(store[nlib + i - 2], store[nlib + i - 3]);
+            putchar('\n');
+            return;
+        }
+        if ((store[nlib + i - 2] & (d3 - 1)) == 0)
+            /*at most 4 letter/digit identifier*/
+            i -= 2;
+        else
+            /*at least 5 letters or digits*/
+            i -= 3;
+    }
+    printf("internal, unnamed\n");
+}
+
+void list_undefined_references()
+{
+    int i;
+    printf("\nUndefined external references:\n");
+    for (i = 0; i < 128; ++i) {
+        if (store[crfb+i] != 0) {
+            print_mcp_name(i);
+        }
+    }
+}
+
 Static Void program_loader()
 { /*program loader*/
     /*RZ*/
@@ -3323,7 +3355,6 @@ Static Void program_loader()
     }
     /*load MCP's from tape:*/
     while (mcp_count != 0) {
-        fprintf(stderr, "\nload (next) library tape into the tape reader\n");
         if (P_argc > optind) {
             lib_tape = fopen(P_argv[optind++], "r");
             if (!lib_tape) {
@@ -3331,10 +3362,7 @@ Static Void program_loader()
                 exit(EXIT_FAILURE);
             }
         } else if (!lib_tape || P_eof(lib_tape)) {
-            printf("bad library tape\n");
-            for (i = 0; i < 128; ++i)
-                if (store[crfb+i] != 0)
-                    printf("Need MCP %d\n", i);
+            list_undefined_references();
             exit(EXIT_FAILURE);
         }
         prepare_read_bit_string3(&V);
