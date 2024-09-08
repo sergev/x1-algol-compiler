@@ -85,7 +85,7 @@ int P_eof(FILE *f)
 #define plie   6783 /*6-19-31*/
 #define bim    (mcpb+MCPLEN+2)  /*0-29-nn */
 #define nlscop 43
-#define nlsc0  62
+#define nlsc0  65
 #define mlib   800   /*0-25-00*/
 #define klie   10165 /*9-29-21*/
 #define crfb   623   /*0-19-15*/
@@ -3731,6 +3731,7 @@ int main(int argc, char *argv[])
     prefill_lib_proc("PRINTTEXT", 1);
     prefill_lib_proc("EVEN", 2);
     prefill_lib_proc("RESYM", 7);
+    prefill_lib_proc("PRSYM", 8);
     prefill_lib_proc("RANDOM", 17);
     prefill_lib_proc("SETRANDOM", 18);
     prefill_lib_proc("TIMEOFDAY", 77);
@@ -3813,6 +3814,7 @@ int main(int argc, char *argv[])
     put_crf_entry(&ii, 20, 1, 7680); /* PRINTTEXT */
     put_crf_entry(&ii, 14, 2, 7680); /* EVEN */
     put_crf_entry(&ii, 7, 7, 7680);  /* RESYM */
+    put_crf_entry(&ii, 7, 8, 7680);  /* PRSYM */
     put_crf_entry(&ii, 7, 17, 7680); /* RANDOM */
     put_crf_entry(&ii, 7, 18, 7680); /* SETRANDOM */
     put_crf_entry(&ii, 7, 77, 7680); /* TIMEOFDAY */
