@@ -153,7 +153,7 @@ int Machine::input_char(std::istream &stream)
 again:
     if (!stream.get(ch)) {
         // End of file.
-        return 0;
+eof:    return 0377;
     }
     if (ch >= '0' && ch <= '9') {
         // Digits.
@@ -196,7 +196,7 @@ again:
     case '_': return 163;
     case '\302':
         if (!stream.get(ch)) {
-            return 0;
+            goto eof;
         }
         switch (ch) {
         case '\254': return 76; // ¬
@@ -204,7 +204,7 @@ again:
         }
     case '\303':
         if (!stream.get(ch)) {
-            return 0;
+            goto eof;
         }
         switch (ch) {
         case '\227': return 66; // ×
@@ -213,12 +213,12 @@ again:
         }
     case '\342':
         if (!stream.get(ch)) {
-            return 0;
+            goto eof;
         }
         switch (ch) {
         case '\206':
             if (!stream.get(ch)) {
-                return 0;
+                goto eof;
             }
             switch (ch) {
             case '\221': return 69; // ↑
@@ -226,7 +226,7 @@ again:
             }
         case '\210':
             if (!stream.get(ch)) {
-                return 0;
+                goto eof;
             }
             switch (ch) {
             case '\247': return 77; // ∧
@@ -235,7 +235,7 @@ again:
             }
         case '\211':
             if (!stream.get(ch)) {
-                return 0;
+                goto eof;
             }
             switch (ch) {
             case '\240': return 75; // ≠
@@ -246,7 +246,7 @@ again:
             }
         case '\212':
             if (!stream.get(ch)) {
-                return 0;
+                goto eof;
             }
             switch (ch) {
             case '\203': return 79; // ⊃
@@ -254,7 +254,7 @@ again:
             }
         case '\217':
             if (!stream.get(ch)) {
-                return 0;
+                goto eof;
             }
             switch (ch) {
             case '\250': return 89; // ⏨

@@ -5,6 +5,8 @@
 #
 x1sim lisp.a60 << END_OF_INPUT
 
+t nil quote cond lambda define car cdr cons equal atom numberp lessp greaterp add1 sub1 add minus times div
+
 define ((
     (crossriver (lambda ( ) (complete (cons (i) nil))))
 
@@ -123,5 +125,7 @@ define ((
 
     (caddddr (lambda (x) (car (cdr (cdr (cdr (cdr x)))))))
 ))
+
+crossriver ()
 
 END_OF_INPUT

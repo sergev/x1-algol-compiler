@@ -23,6 +23,7 @@ b̲e̲g̲i̲n̲
             NLCR;
             PRINTTEXT(`+++ error: ');
             PRINTTEXT(errorstring);
+            NLCR;
             g̲o̲t̲o̲ ex;
         e̲n̲d̲ errorhandler;
 
@@ -116,7 +117,7 @@ old:        createnum := d24 + i
         e̲n̲d̲ getidfval;
 
         r̲e̲a̲l̲ p̲r̲o̲c̲e̲d̲u̲r̲e̲ numval(x); v̲a̲l̲u̲e̲ x; i̲n̲t̲e̲g̲e̲r̲ x; b̲e̲g̲i̲n̲
-            numval :=nbr[ x - d24]
+            numval := nbr[x - d24]
         e̲n̲d̲ numval;
 
         i̲n̲t̲e̲g̲e̲r̲ p̲r̲o̲c̲e̲d̲u̲r̲e̲ carf(x); v̲a̲l̲u̲e̲ x; i̲n̲t̲e̲g̲e̲r̲ x; b̲e̲g̲i̲n̲
@@ -149,7 +150,8 @@ old:        createnum := d24 + i
 
         p̲r̲o̲c̲e̲d̲u̲r̲e̲ returnlist(x); v̲a̲l̲u̲e̲ x; i̲n̲t̲e̲g̲e̲r̲ x; b̲e̲g̲i̲n̲
             f̲o̲r̲ dummy := 0 w̲h̲i̲l̲e̲ x ≠ nilv d̲o̲ b̲e̲g̲i̲n̲
-                returncell(x); x := d[x]
+                returncell(x);
+                x := d[x]
             e̲n̲d̲
         e̲n̲d̲ returnlist;
 
@@ -268,7 +270,7 @@ ex:
                     nextsym;
                     olp := op
                 e̲n̲d̲;
-            e̲n̲d̲ e̲l̲s̲e̲ i̲f̲ sym = 120 t̲h̲e̲n̲ b̲e̲g̲i̲n̲
+            e̲n̲d̲ e̲l̲s̲e̲ i̲f̲ sym = 103 t̲h̲e̲n̲ b̲e̲g̲i̲n̲
                 nextsym;
                 op := olp;
                 olp := consf(nilv, olp);
