@@ -281,59 +281,6 @@ PRINTTEXT(`');
 
         c̲o̲m̲m̲e̲n̲t̲ *** output procedures ***;
 
-        p̲r̲o̲c̲e̲d̲u̲r̲e̲ PRSYM(sym); v̲a̲l̲u̲e̲ sym; i̲n̲t̲e̲g̲e̲r̲ sym; b̲e̲g̲i̲n̲
-            s̲w̲i̲t̲c̲h̲ sw := a0, a1, a2, a3, a4, a5, a6, a7, a8, a9,
-                         a, b, c, d, e, f, g, h, i, j, k, l, m,
-                         n, o, p, q, r, s, t, u, v, w, x, y, z;
-            i̲f̲ sym = 93 t̲h̲e̲n̲ SPACE(1)
-            e̲l̲s̲e̲ i̲f̲ sym = 88 t̲h̲e̲n̲ PRINTTEXT(`.')
-            e̲l̲s̲e̲ i̲f̲ sym = 98 t̲h̲e̲n̲ PRINTTEXT(`(')
-            e̲l̲s̲e̲ i̲f̲ sym = 99 t̲h̲e̲n̲ PRINTTEXT(`)')
-            e̲l̲s̲e̲ i̲f̲ sym = 119 t̲h̲e̲n̲ NLCR
-            e̲l̲s̲e̲ b̲e̲g̲i̲n̲
-                i̲f̲ sym > 35 t̲h̲e̲n̲
-                    errorhandler(`illegal output symbol');
-                g̲o̲t̲o̲ sw[sym+1];
-a0:             PRINTTEXT(`0'); g̲o̲t̲o̲ ex;
-a1:             PRINTTEXT(`1'); g̲o̲t̲o̲ ex;
-a2:             PRINTTEXT(`2'); g̲o̲t̲o̲ ex;
-a3:             PRINTTEXT(`3'); g̲o̲t̲o̲ ex;
-a4:             PRINTTEXT(`4'); g̲o̲t̲o̲ ex;
-a5:             PRINTTEXT(`5'); g̲o̲t̲o̲ ex;
-a6:             PRINTTEXT(`6'); g̲o̲t̲o̲ ex;
-a7:             PRINTTEXT(`7'); g̲o̲t̲o̲ ex;
-a8:             PRINTTEXT(`8'); g̲o̲t̲o̲ ex;
-a9:             PRINTTEXT(`9'); g̲o̲t̲o̲ ex;
-a:              PRINTTEXT(`a'); g̲o̲t̲o̲ ex;
-b:              PRINTTEXT(`b'); g̲o̲t̲o̲ ex;
-c:              PRINTTEXT(`c'); g̲o̲t̲o̲ ex;
-d:              PRINTTEXT(`d'); g̲o̲t̲o̲ ex;
-e:              PRINTTEXT(`e'); g̲o̲t̲o̲ ex;
-f:              PRINTTEXT(`f'); g̲o̲t̲o̲ ex;
-g:              PRINTTEXT(`g'); g̲o̲t̲o̲ ex;
-h:              PRINTTEXT(`h'); g̲o̲t̲o̲ ex;
-i:              PRINTTEXT(`i'); g̲o̲t̲o̲ ex;
-j:              PRINTTEXT(`j'); g̲o̲t̲o̲ ex;
-k:              PRINTTEXT(`k'); g̲o̲t̲o̲ ex;
-l:              PRINTTEXT(`l'); g̲o̲t̲o̲ ex;
-m:              PRINTTEXT(`m'); g̲o̲t̲o̲ ex;
-n:              PRINTTEXT(`n'); g̲o̲t̲o̲ ex;
-o:              PRINTTEXT(`o'); g̲o̲t̲o̲ ex;
-p:              PRINTTEXT(`p'); g̲o̲t̲o̲ ex;
-q:              PRINTTEXT(`q'); g̲o̲t̲o̲ ex;
-r:              PRINTTEXT(`r'); g̲o̲t̲o̲ ex;
-s:              PRINTTEXT(`s'); g̲o̲t̲o̲ ex;
-t:              PRINTTEXT(`t'); g̲o̲t̲o̲ ex;
-u:              PRINTTEXT(`u'); g̲o̲t̲o̲ ex;
-v:              PRINTTEXT(`v'); g̲o̲t̲o̲ ex;
-w:              PRINTTEXT(`w'); g̲o̲t̲o̲ ex;
-x:              PRINTTEXT(`x'); g̲o̲t̲o̲ ex;
-y:              PRINTTEXT(`y'); g̲o̲t̲o̲ ex;
-z:              PRINTTEXT(`z')
-            e̲n̲d̲;
-ex:
-        e̲n̲d̲ PRSYM;
-
         p̲r̲o̲c̲e̲d̲u̲r̲e̲ analyse(x, r); v̲a̲l̲u̲e̲ x; i̲n̲t̲e̲g̲e̲r̲ x, r; b̲e̲g̲i̲n̲
             i̲n̲t̲e̲g̲e̲r̲ n, l;
             B̲o̲o̲l̲e̲a̲n̲ simple;

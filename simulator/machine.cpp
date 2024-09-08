@@ -150,9 +150,18 @@ Word Machine::mem_fetch(unsigned addr)
 void Machine::mem_store(unsigned addr, Word val)
 {
     addr &= BITS(15);
-
-    memory[addr] = val;
     trace_memory_write(addr, val);
+
+    switch (addr) {
+    case 077773:
+        // Print character to stdout.
+        algol_putc(val, std::cout);
+        std::cout << std::flush;
+        break;
+    default:
+        memory[addr] = val;
+        break;
+    }
 }
 
 //
