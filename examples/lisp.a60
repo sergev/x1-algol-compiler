@@ -183,16 +183,10 @@ ex:
 
         c̲o̲m̲m̲e̲n̲t̲ *** input procedures ***;
 
-        i̲n̲t̲e̲g̲e̲r̲ p̲r̲o̲c̲e̲d̲u̲r̲e̲ RESYM; b̲e̲g̲i̲n̲
-            i̲n̲t̲e̲g̲e̲r̲ s;
-            s := read;
-            i̲f̲ s = 255 t̲h̲e̲n̲
-                errorhandler(`eof');
-            RESYM := s
-        e̲n̲d̲ RESYM;
-
         p̲r̲o̲c̲e̲d̲u̲r̲e̲ nextsym; b̲e̲g̲i̲n̲
             sym := RESYM;
+            i̲f̲ sym = 255 t̲h̲e̲n̲
+                errorhandler(`eof');
             PRSYM(sym)
         e̲n̲d̲ nextsym;
 
@@ -238,6 +232,7 @@ ex:
         i̲n̲t̲e̲g̲e̲r̲ p̲r̲o̲c̲e̲d̲u̲r̲e̲ nextitem; b̲e̲g̲i̲n̲
             i̲n̲t̲e̲g̲e̲r̲ lv, op;
             skipspaces;
+PRINTTEXT(`');
             i̲f̲ sym < 10 ∨ sym = 65 t̲h̲e̲n̲
                 nextitem := number
             e̲l̲s̲e̲ i̲f̲ sym < 64 t̲h̲e̲n̲

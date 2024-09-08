@@ -1027,13 +1027,8 @@ bool Processor::call_opc(unsigned opc)
     case OPC_FLOATER:
         throw std::runtime_error("Opcode FLOATER in not supported");
     case OPC_read:
-#if 0
-        // Read character from stdin.
-        stack.push_int_value(Machine::input_char(std::cin));
-#else
         // Read real number from stdin.
         stack.push_ieee(Machine::input_real(std::cin));
-#endif
         break;
 
     case OPC_print: {

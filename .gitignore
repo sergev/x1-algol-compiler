@@ -11,3 +11,4 @@ x1algc
 *.cpp-
 *.x1-
 examples/*.x1
+library/objfile

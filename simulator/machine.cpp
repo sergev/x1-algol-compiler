@@ -165,6 +165,10 @@ Word Machine::mem_load(unsigned addr)
     Word val;
     static Real time_of_day{};
     switch (addr) {
+    case 077774:
+        // Read character from stdin.
+        val = input_char(std::cin);
+        break;
     case 077775: {
         // TIMEOFDAY: get the time of day in seconds as a real value,
         // with an accuracy of about 0.002 seconds.
