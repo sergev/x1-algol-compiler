@@ -85,7 +85,7 @@ int P_eof(FILE *f)
 #define plie   6783 /*6-19-31*/
 #define bim    (mcpb+MCPLEN+2)  /*0-29-nn */
 #define nlscop 43
-#define nlsc0  53
+#define nlsc0  62
 #define mlib   800   /*0-25-00*/
 #define klie   10165 /*9-29-21*/
 #define crfb   623   /*0-19-15*/
@@ -141,6 +141,8 @@ size_t input_line_len;
 Static int input_pos;
 Static boolean input_eof_seen;
 Static boolean binary_lib_tape, verbose_tape, pass_formals;
+
+const char * mcp_names[128];
 
 Static Void stop(int n, const char * txt)
 {
@@ -3221,23 +3223,7 @@ Local void put_crf_entry(int * addr, ...)
 
 void print_mcp_name(int mcp)
 {
-    int i = nlsc0;
-    printf("MCP %d: ", mcp);
-    while (i > nlscop) {
-        int idm = store[nlib + i - 1];
-        if ((idm & 127) == mcp) {
-            show_id(store[nlib + i - 2], store[nlib + i - 3]);
-            putchar('\n');
-            return;
-        }
-        if ((store[nlib + i - 2] & (d3 - 1)) == 0)
-            /*at most 4 letter/digit identifier*/
-            i -= 2;
-        else
-            /*at least 5 letters or digits*/
-            i -= 3;
-    }
-    printf("internal, unnamed\n");
+    printf("MCP %d: %s\n", mcp, mcp_names[mcp] ? mcp_names[mcp] : "internal, unnamed");
 }
 
 void list_undefined_references()
@@ -3486,6 +3472,7 @@ void prefill_op_proc(const char * name, int o) {
 }
 
 void prefill_lib_proc(const char * name, int m) {
+    mcp_names[m] = name;
     if (strlen(name) >= 5)
         Wstore(nlib + prefill_cnt++, word2(name));
     Wstore(nlib + prefill_cnt++, word1(name));
@@ -3743,6 +3730,9 @@ int main(int argc, char *argv[])
     prefill_lib_proc("SUM", 0);
     prefill_lib_proc("PRINTTEXT", 1);
     prefill_lib_proc("EVEN", 2);
+    prefill_lib_proc("RESYM", 7);
+    prefill_lib_proc("RANDOM", 17);
+    prefill_lib_proc("SETRANDOM", 18);
     prefill_lib_proc("TIMEOFDAY", 77);
     // prefill_lib_proc("arctan", 3);
     // prefill_lib_proc("FLOT", 5);
@@ -3822,6 +3812,9 @@ int main(int argc, char *argv[])
     put_crf_entry(&ii, 54, 0, 7680); /* SUM */
     put_crf_entry(&ii, 20, 1, 7680); /* PRINTTEXT */
     put_crf_entry(&ii, 14, 2, 7680); /* EVEN */
+    put_crf_entry(&ii, 7, 7, 7680);  /* RESYM */
+    put_crf_entry(&ii, 7, 17, 7680); /* RANDOM */
+    put_crf_entry(&ii, 7, 18, 7680); /* SETRANDOM */
     put_crf_entry(&ii, 7, 77, 7680); /* TIMEOFDAY */
     // put_crf_entry(&ii, 63, 3, 7680); /* arctan - back to OPC*/
     // put_crf_entry(&ii, 15, 4, 3, 7680); /* MCP4 is needed by MCP3 */
