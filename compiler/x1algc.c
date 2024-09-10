@@ -140,7 +140,8 @@ Static char *input_line;
 size_t input_line_len;
 Static int input_pos;
 Static boolean input_eof_seen;
-Static boolean binary_lib_tape, verbose_tape, pass_formals;
+Static boolean binary_lib_tape, verbose_tape;
+Static boolean pass_formals = true; // Use 'passing of formals'
 
 const char * mcp_names[128];
 
@@ -3507,15 +3508,11 @@ int main(int argc, char *argv[])
             printf("Options:\n"
                    "    -h                      Display available options\n"
                    "    -v                      Verbose library tape actions\n"
-                   "    -f                      Use 'passing of formals'\n"
                    "    -b                      The library tape is raw binary (default: text decimal)\n");
             exit(EXIT_SUCCESS);
         case 'b':
             binary_lib_tape = true;
             continue;
-        case 'f':
-            pass_formals = true;
-            break;
         case 'v':
             verbose_tape = true;
             continue;

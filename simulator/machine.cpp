@@ -294,7 +294,6 @@ void Machine::run_program(const std::string &prog_path, const std::vector<std::s
         {
             std::vector<const char*> argv;
             argv.push_back(prog_path.c_str());
-            argv.push_back("-f"); // Enable passing of formals.
             for (const auto& arg : input_filenames) {
                 // cppcheck-suppress useStlAlgorithm
                 argv.push_back(arg.c_str());
