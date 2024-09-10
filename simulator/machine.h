@@ -5,6 +5,7 @@
 #include <chrono>
 #include <map>
 #include <memory>
+#include <random>
 #include <vector>
 
 #include "processor.h"
@@ -58,6 +59,11 @@ private:
     // State of console switches.
     unsigned console_switches{};
     bool switches_are_valid{};
+
+    // Initial value for random number generator.
+    unsigned random_seed{};
+    Real random_output{};
+    std::mt19937 random_generator{ 1 };
 
 public:
     // Electrologica X1 processor.

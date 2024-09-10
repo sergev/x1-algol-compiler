@@ -23,18 +23,6 @@ b̲e̲g̲i̲n̲
                      digit(num, 2) = digit(num, 3);
     e̲n̲d̲;
 
-    c̲o̲m̲m̲e̲n̲t̲ Ad hoc pseudo random generator;
-    r̲e̲a̲l̲ p̲r̲o̲c̲e̲d̲u̲r̲e̲ RANDOM; b̲e̲g̲i̲n̲
-        seed := seed * 16598013 + 12820163;
-        seed := seed - entier(seed / 16777216) * 16777216.0;
-        i̲f̲ seed < 0 t̲h̲e̲n̲
-            seed := -seed;
-        RANDOM := seed / 16777216.0
-    e̲n̲d̲;
-    p̲r̲o̲c̲e̲d̲u̲r̲e̲ SETRANDOM(x); v̲a̲l̲u̲e̲ x; r̲e̲a̲l̲ x; b̲e̲g̲i̲n̲
-        seed := x
-    e̲n̲d̲;
-
     SETRANDOM(TIMEOFDAY);
     secret := 0;
     f̲o̲r̲ i := 0 w̲h̲i̲l̲e̲ malformed(secret) d̲o̲

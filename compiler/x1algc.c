@@ -3816,7 +3816,7 @@ int main(int argc, char *argv[])
     put_crf_entry(&ii, 7, 7, 7680);  /* RESYM */
     put_crf_entry(&ii, 8, 8, 7680);  /* PRSYM */
     put_crf_entry(&ii, 7, 17, 7680); /* RANDOM */
-    put_crf_entry(&ii, 7, 18, 7680); /* SETRANDOM */
+    put_crf_entry(&ii, 8, 18, 7680); /* SETRANDOM */
     put_crf_entry(&ii, 7, 77, 7680); /* TIMEOFDAY */
     // put_crf_entry(&ii, 63, 3, 7680); /* arctan - back to OPC*/
     // put_crf_entry(&ii, 15, 4, 3, 7680); /* MCP4 is needed by MCP3 */

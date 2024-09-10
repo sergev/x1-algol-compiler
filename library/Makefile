@@ -9,7 +9,7 @@ MCP_RANDOM      = 17
 MCP_SETRANDOM   = 18
 MCP_TIMEOFDAY   = 77
 
-all:            resym.lib prsym.lib
+all:            resym.lib prsym.lib random.lib setrandom.lib
 
 clean:
 		rm -f *.o objfile
@@ -21,3 +21,9 @@ resym.lib:      objfile resym.src
 
 prsym.lib:      objfile prsym.src
 		./objfile $(MCP_PRSYM) < prsym.src > $@
+
+random.lib:     objfile random.src
+		./objfile $(MCP_RANDOM) < random.src > $@
+
+setrandom.lib:  objfile setrandom.src
+		./objfile $(MCP_SETRANDOM) < setrandom.src > $@

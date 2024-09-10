@@ -153,6 +153,16 @@ void Machine::mem_store(unsigned addr, Word val)
     trace_memory_write(addr, val);
 
     switch (addr) {
+    case 077771:
+        // SETRANDOM: set seed for random generator.
+        // First word.
+        random_seed = val;
+        break;
+    case 077772:
+        // SETRANDOM, second word.
+        random_seed += val & BITS(27);
+        random_generator.seed(random_seed);
+        break;
     case 077773:
         // Print character to stdout.
         algol_putc(val, std::cout);
@@ -174,6 +184,18 @@ Word Machine::mem_load(unsigned addr)
     Word val;
     static Real time_of_day{};
     switch (addr) {
+    case 077771: {
+        // GETRANDOM: get random real value in range [0, 1).
+        auto const value = std::generate_canonical<double, 40>(random_generator);
+        random_output = ieee_to_x1(value);
+        // First word.
+        val = random_output >> 27;
+        break;
+    }
+    case 077772:
+        // GETRANDOM, second word.
+        val = random_output;
+        break;
     case 077774:
         // Read character from stdin.
         val = input_char(std::cin);
@@ -201,9 +223,10 @@ Word Machine::mem_load(unsigned addr)
         val = memory[addr];
         break;
     }
+    val &= BITS(27);
     trace_memory_read(addr, val);
 
-    return val & BITS(27);
+    return val;
 }
 
 //

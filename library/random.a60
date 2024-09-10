@@ -1,0 +1,6 @@
+b̲e̲g̲i̲n̲
+    r̲e̲a̲l̲ p̲r̲o̲c̲e̲d̲u̲r̲e̲ RANDOM; b̲e̲g̲i̲n̲
+        o̲w̲n̲ r̲e̲a̲l̲ seed;
+        RANDOM := seed
+    e̲n̲d̲
+e̲n̲d̲
