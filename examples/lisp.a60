@@ -109,7 +109,7 @@ old:        createnum := d24 + i
         e̲n̲d̲ atomf;
 
         B̲o̲o̲l̲e̲a̲n̲ p̲r̲o̲c̲e̲d̲u̲r̲e̲ numberpf(x); v̲a̲l̲u̲e̲ x; i̲n̲t̲e̲g̲e̲r̲ x; b̲e̲g̲i̲n̲
-            numberpf := x > d24 ∧ x < d25
+            numberpf := x ≥ d24 ∧ x < d25
         e̲n̲d̲ numberpf;
 
         p̲r̲o̲c̲e̲d̲u̲r̲e̲ getidfval(x, idf); v̲a̲l̲u̲e̲ x; i̲n̲t̲e̲g̲e̲r̲ x, idf; b̲e̲g̲i̲n̲
@@ -121,13 +121,13 @@ old:        createnum := d24 + i
         e̲n̲d̲ numval;
 
         i̲n̲t̲e̲g̲e̲r̲ p̲r̲o̲c̲e̲d̲u̲r̲e̲ carf(x); v̲a̲l̲u̲e̲ x; i̲n̲t̲e̲g̲e̲r̲ x; b̲e̲g̲i̲n̲
-            i̲f̲ x > d24 t̲h̲e̲n̲
+            i̲f̲ x ≥ d24 t̲h̲e̲n̲
                 errorhandler(`car undefined for atomic lisp value');
             carf := a[x]
         e̲n̲d̲ carf;
 
         i̲n̲t̲e̲g̲e̲r̲ p̲r̲o̲c̲e̲d̲u̲r̲e̲ cdrf(x); v̲a̲l̲u̲e̲ x; i̲n̲t̲e̲g̲e̲r̲ x; b̲e̲g̲i̲n̲
-             i̲f̲ x > d24 t̲h̲e̲n̲
+             i̲f̲ x ≥ d24 t̲h̲e̲n̲
                 errorhandler(`cdr undefined for atomic lisp value');
             cdrf := d[x]
         e̲n̲d̲ cdrf;
@@ -232,7 +232,6 @@ ex:
         i̲n̲t̲e̲g̲e̲r̲ p̲r̲o̲c̲e̲d̲u̲r̲e̲ nextitem; b̲e̲g̲i̲n̲
             i̲n̲t̲e̲g̲e̲r̲ lv, op;
             skipspaces;
-PRINTTEXT(`');
             i̲f̲ sym < 10 ∨ sym = 65 t̲h̲e̲n̲
                 nextitem := number
             e̲l̲s̲e̲ i̲f̲ sym < 64 t̲h̲e̲n̲
@@ -287,7 +286,7 @@ PRINTTEXT(`');
             i̲f̲ numberpf(x) t̲h̲e̲n̲ b̲e̲g̲i̲n̲
                 r̲e̲a̲l̲ dg, v, absv;
                 v := numval(x);
-                i̲f̲ v > 0 t̲h̲e̲n̲ b̲e̲g̲i̲n̲
+                i̲f̲ v ≥ 0 t̲h̲e̲n̲ b̲e̲g̲i̲n̲
                     absv := v;
                     l := 1
                 e̲n̲d̲ e̲l̲s̲e̲ b̲e̲g̲i̲n̲
@@ -295,7 +294,7 @@ PRINTTEXT(`');
                     l := 2
                 e̲n̲d̲;
                 dg := 10;
-                f̲o̲r̲ dummy := 0 w̲h̲i̲l̲e̲ dg < absv d̲o̲ b̲e̲g̲i̲n̲
+                f̲o̲r̲ dummy := 0 w̲h̲i̲l̲e̲ dg ≤ absv d̲o̲ b̲e̲g̲i̲n̲
                     l := l + 1;
                     dg := 10 * dg
                 e̲n̲d̲;
@@ -310,7 +309,7 @@ PRINTTEXT(`');
                 indentation := indentation + 1;
                 analyselist(x, r, l, simple);
                 indentation := indentation - 1;
-                i̲f̲ simple ∧ indentation + l < linewidth t̲h̲e̲n̲ b̲e̲g̲i̲n̲
+                i̲f̲ simple ∧ indentation + l ≤ linewidth t̲h̲e̲n̲ b̲e̲g̲i̲n̲
                     recycle(r);
                     r := createnum(l)
                 e̲n̲d̲
@@ -323,7 +322,7 @@ PRINTTEXT(`');
                 indentation := indentation - 1;
                 i̲f̲ atomf(a[r]) ∧ atomf(d[r]) t̲h̲e̲n̲ b̲e̲g̲i̲n̲
                     l := numval(carf(r)) + numval(cdrf(r)) + 5;
-                    i̲f̲ indentation + l < linewidth t̲h̲e̲n̲ b̲e̲g̲i̲n̲
+                    i̲f̲ indentation + l ≤ linewidth t̲h̲e̲n̲ b̲e̲g̲i̲n̲
                         recycle(r);
                         r := createnum(l)
                     e̲n̲d̲
@@ -371,7 +370,7 @@ work:       i̲f̲ atomf(x) t̲h̲e̲n̲
             i̲f̲ v < 0 t̲h̲e̲n̲
                 v := - v;
             d := 10;
-            f̲o̲r̲ dummy := 0 w̲h̲i̲l̲e̲ d < v d̲o̲
+            f̲o̲r̲ dummy := 0 w̲h̲i̲l̲e̲ d ≤ v d̲o̲
                 d := d * 10;
             f̲o̲r̲ d := d ÷ 10 w̲h̲i̲l̲e̲ d > 0.5 d̲o̲ b̲e̲g̲i̲n̲
                 n := v ÷ d;
