@@ -41,6 +41,9 @@ private:
     // Compiler of choice.
     std::string compiler_path;
 
+    // Default Algol library.
+    std::string default_library;
+
     // Status of the simulation.
     int exit_status{ EXIT_SUCCESS };
 
@@ -81,6 +84,9 @@ public:
     // Set name of compiler.
     void set_compiler(const std::string &filename);
 
+    // Find location of default Algol library.
+    void find_default_library(const char *argv0);
+
     // Compile Algol file to object format.
     void compile(const std::vector<std::string> &filenames, const std::string &obj_filename);
 
@@ -88,8 +94,14 @@ public:
     void load_object_program(const std::string &obj_filename);
 
     // Run external program with given input and output files.
-    void run_program(const std::string &prog_path, const std::vector<std::string> &input_filenames,
-                     const std::string &output_filename);
+    static void run_program(const std::string &prog_path, const std::vector<std::string> &input_filenames,
+                            const std::string &output_filename);
+
+    // Build vector of argument pointers.
+    static std::vector<const char*> build_argv(const std::string &arg0, const std::vector<std::string> &args);
+
+    // Convert vector of arguments into C representation for execvp().
+    static auto get_argv(const std::vector<const char*> &argv) { return const_cast<char* const*>(argv.data()); }
 
     // Compile the input Algol file and simulate it.
     void compile_and_run();

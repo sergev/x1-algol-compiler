@@ -77,18 +77,23 @@ void Machine::compile_and_run()
         //
         // Compile file.a60 to file.x1, then load.
         //
+        if (input_files.size() < 2) {
+            // Use default Algol library.
+            add_input_file(default_library);
+        }
         const auto obj_filename = input_path.stem().string() + ".x1";
         compile(input_files, obj_filename);
         load_object_program(obj_filename);
+
     } else if (extension == ".x1") {
-        // There must be no extra files in the command line if an object file is given.
-        if (input_files.size() > 1) {
-            std::cerr << "Too many input files: " << input_files[1] << std::endl;
-            ::exit(EXIT_FAILURE);
-        }
         //
         // Load binary file.x1.
         //
+        if (input_files.size() > 1) {
+            // There must be no extra files in the command line if an object file is given.
+            std::cerr << "Too many input files: " << input_files[1] << std::endl;
+            ::exit(EXIT_FAILURE);
+        }
         load_object_program(input_files[0]);
     } else {
         throw std::runtime_error("Unknown file extension: " + extension);
@@ -237,6 +242,15 @@ void Machine::compile(const std::vector<std::string> &filenames, const std::stri
     if (compiler_path.empty()) {
         throw std::runtime_error("Compiler is not selected");
     }
+    //TODO: create CLI option -v, --verbose.
+    if (false) {
+        // Print compiler invocation.
+        std::cout << compiler_path;
+        for (const auto& arg : filenames) {
+            std::cout << ' ' << arg;
+        }
+        std::cout << std::endl;
+    }
     run_program(compiler_path, filenames, obj_filename);
 }
 
@@ -282,20 +296,9 @@ void Machine::run_program(const std::string &prog_path, const std::vector<std::s
         close(out_fd);
 
         // Start the compiler.
-        {
-            std::vector<const char*> argv;
-            argv.push_back(prog_path.c_str());
-            for (const auto& arg : input_filenames) {
-                // cppcheck-suppress useStlAlgorithm
-                argv.push_back(arg.c_str());
-            }
-
-            // execvp expects the last element to be a null pointer
-            argv.push_back(nullptr);
-
-            execvp(argv[0], const_cast<char* const*>(argv.data()));
-            exit(STATUS_CANNOT_RUN_PROGRAM);
-        }
+        auto argv = build_argv(prog_path, input_filenames);
+        execvp(argv[0], get_argv(argv));
+        exit(STATUS_CANNOT_RUN_PROGRAM);
     }
 
     //
@@ -321,6 +324,24 @@ void Machine::run_program(const std::string &prog_path, const std::vector<std::s
     default:
         throw std::runtime_error("Compiler failed with status " + std::to_string(exit_code));
     }
+}
+
+//
+// Build vector of argument pointers.
+//
+std::vector<const char*> Machine::build_argv(const std::string &arg0, const std::vector<std::string> &args)
+{
+    std::vector<const char*> argv;
+
+    argv.push_back(arg0.c_str());
+    for (const auto& arg : args) {
+        // cppcheck-suppress useStlAlgorithm
+        argv.push_back(arg.c_str());
+    }
+
+    // execvp expects the last element to be a null pointer
+    argv.push_back(nullptr);
+    return argv;
 }
 
 //
@@ -598,4 +619,13 @@ void Machine::print_int_or_real(std::ostream &out, long double x)
     } else {
         print_floating_point(out, 13, 3, x);
     }
+}
+
+//
+// Find location of default Algol library, relative to argv[0].
+//
+void Machine::find_default_library(const char *argv0)
+{
+    //TODO
+    default_library = "/usr/local/lib/x1algol.lib";
 }
