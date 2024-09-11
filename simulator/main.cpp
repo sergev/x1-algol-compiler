@@ -101,7 +101,7 @@ int main(int argc, char *argv[])
     }
 
     // Must specify an Algol file or an object file.
-    if (machine.get_input_file().empty()) {
+    if (machine.input_file_count() < 1) {
         print_usage(std::cerr, prog_name);
         exit(EXIT_FAILURE);
     }

@@ -76,7 +76,7 @@ public:
     void add_input_file(const std::string &filename);
 
     // Return the first input file (Algol source or X1 object file).
-    const std::string &get_input_file() const;
+    unsigned input_file_count() const { return input_files.size(); }
 
     // Set name of compiler.
     void set_compiler(const std::string &filename);

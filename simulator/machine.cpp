@@ -40,15 +40,6 @@ void Machine::add_input_file(const std::string& filename)
 }
 
 //
-// Get name of the first input file (must be Algol source or X1 object file).
-//
-const std::string& Machine::get_input_file() const
-{
-    static const std::string empty;
-    return input_files.empty() ? empty : input_files[0];
-}
-
-//
 // Every few seconds, print a message to stderr, to track the simulation progress.
 //
 void Machine::show_progress()
@@ -79,7 +70,7 @@ void Machine::show_progress()
 //
 void Machine::compile_and_run()
 {
-    const auto input_path = std::filesystem::path(get_input_file());
+    const auto input_path = std::filesystem::path(input_files[0]);
     const auto extension  = input_path.extension().string();
 
     if (extension == ".a60") {
