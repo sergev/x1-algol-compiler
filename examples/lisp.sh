@@ -3,8 +3,7 @@
 # Solve the 3 missionaries and 3 cannibals crossing a river puzzle.
 # Use a simple LISP 1.5 interpreter written in ALGOL 60.
 #
-x1algc lisp.a60 ../library/x1algol.lib > lisp.x1
-x1sim lisp.x1 << END_OF_INPUT
+x1sim lisp.a60 << END_OF_INPUT
 
 t nil quote cond lambda define car cdr cons equal atom numberp lessp greaterp add1 sub1 add minus times div
 
