@@ -55,4 +55,5 @@ enable_testing()
 
 add_subdirectory(compiler)
 add_subdirectory(simulator)
+add_subdirectory(library)
 add_subdirectory(tests)
