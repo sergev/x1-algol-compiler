@@ -626,6 +626,39 @@ void Machine::print_int_or_real(std::ostream &out, long double x)
 //
 void Machine::find_default_library(const char *argv0)
 {
-    //TODO
-    default_library = "/usr/local/lib/x1algol.lib";
+    // Try X1ALGOL_LIB from enviromnent first.
+    auto const env_lib = std::getenv("X1ALGOL_LIB");
+    if (env_lib != nullptr) {
+        default_library = env_lib;
+        return;
+    }
+
+    // Try .x1algol.lib in home directory.
+    auto const env_home = std::getenv("HOME");
+    if (env_home != nullptr) {
+        auto const home_lib = std::string(env_home) + "/.x1algol.lib";
+        if (access(home_lib.c_str(), R_OK) >= 0) {
+            default_library = home_lib;
+            return;
+        }
+    }
+
+    // Try ../lib/x1algol.lib relative to the x1sim location.
+    const auto parent_path = std::filesystem::path(argv0).parent_path().parent_path();
+    const auto relative_lib = parent_path / "lib/x1algol.lib";
+    if (access(relative_lib.c_str(), R_OK) >= 0) {
+        default_library = relative_lib;
+        return;
+    }
+    //std::cout << "--- Cannot read " << relative_lib << '\n';
+
+    // Try ../../library/x1algol.lib relative to the x1sim location, for tests.
+    const auto relative_library = parent_path / "../library/x1algol.lib";
+    if (access(relative_library.c_str(), R_OK) >= 0) {
+        default_library = relative_library;
+        return;
+    }
+    //std::cout << "--- Cannot read " << relative_library << '\n';
+
+    throw std::runtime_error("Cannot find library x1algol.lib");
 }

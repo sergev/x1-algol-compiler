@@ -108,7 +108,7 @@ int main(int argc, char *argv[])
 
     try {
         if (machine.input_file_count() == 1) {
-            machine.find_default_library(prog_name);
+            machine.find_default_library(argv[0]);
         }
         machine.compile_and_run();
 

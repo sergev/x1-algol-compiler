@@ -86,6 +86,7 @@ public:
 
     // Find location of default Algol library.
     void find_default_library(const char *argv0);
+    void set_default_library(const std::string &path) { default_library = path; }
 
     // Compile Algol file to object format.
     void compile(const std::vector<std::string> &filenames, const std::string &obj_filename);

@@ -28,6 +28,7 @@ protected:
 
         // Select compiler
         machine->set_compiler(BUILD_DIR "/compiler/x1algc");
+        machine->set_default_library(TEST_DIR "/../library/x1algol.lib");
     }
 
     // Compile Algol sources and store binaries in memory.
