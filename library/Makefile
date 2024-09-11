@@ -32,9 +32,8 @@ x1algol.lib:    $(TARGET_LIB)
 sum.lib:        objfile sum.src
 		./objfile $(MCP_SUM) < sum.src > $@
 
-# Somehow EVEN source is different?
-#even.lib:       objfile even.src
-#		./objfile $(MCP_EVEN) < even.src > $@
+even.lib:       objfile even.src
+		./objfile $(MCP_EVEN) < even.src > $@
 
 printtext.lib:  objfile printtext.src
 		./objfile $(MCP_PRINTTEXT) < printtext.src > $@
