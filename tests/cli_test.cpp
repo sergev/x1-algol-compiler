@@ -1,4 +1,5 @@
 #include <cstdio>
+#include <cstdlib>
 #include <fstream>
 
 #include "fixture.h"
@@ -6,6 +7,7 @@
 static void run_command(std::string &result, const std::string &cmd)
 {
     // Run simulator via shell.
+    setenv("PATH", "../compiler", 1);
     FILE *pipe = popen(cmd.c_str(), "r");
     ASSERT_TRUE(pipe != nullptr);
 
