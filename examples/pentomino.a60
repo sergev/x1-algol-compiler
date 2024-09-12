@@ -119,6 +119,7 @@ down:       nummer := nummer - 1
         f̲o̲r̲ i := 1 s̲t̲e̲p̲ 1 u̲n̲t̲i̲l̲ aantal stenen d̲o̲
             ongebruikt[i] := t̲r̲u̲e̲;
         score := nummer := 0;
+        PRINTTEXT(`Pentomino '); print(breedte); PRINTTEXT(`x'); print(lengte);
         NLCR; PRINTTEXT(`The first 7 solutions:'); NLCR; NLCR; NLCR;
         up(1, 1);
 ex:
