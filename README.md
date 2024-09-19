@@ -31,17 +31,17 @@ Expected output:
 ```
 ctest --test-dir build/tests
 ...
-      Start  1: arith.x1_to_ieee
- 1/80 Test  #1: arith.x1_to_ieee ......................   Passed    0.07 sec
-      Start  2: arith.ieee_to_x1
- 2/80 Test  #2: arith.ieee_to_x1 ......................   Passed    0.00 sec
-      Start  3: x1_machine.arith_add
+        Start   1: arith.x1_to_ieee
+  1/105 Test   #1: arith.x1_to_ieee ........................   Passed    0.01 sec
+        Start   2: arith.ieee_to_x1
+  2/105 Test   #2: arith.ieee_to_x1 ........................   Passed    0.01 sec
+        Start   3: x1_machine.arith_add
 ...
-80/80 Test #80: cli.print123_x1 .......................   Passed    0.01 sec
+105/105 Test #105: cli.lib_sum .............................   Passed    0.02 sec
 
-100% tests passed, 0 tests failed out of 75
+100% tests passed, 0 tests failed out of 105
 
-Total Test time (real) =   0.73 sec
+Total Test time (real) =   1.39 sec
 ```
 
 # Examples
