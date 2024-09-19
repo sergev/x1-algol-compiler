@@ -58,6 +58,8 @@ $ x1sim man_or_boy.a60
 -67
 ```
 
+See full list on page [examples/README.md](examples/README.md).
+
 # Known bugs
 
 ## Misplaced parentheses in the Pascal version of the compiler
