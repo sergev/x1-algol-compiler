@@ -71,7 +71,7 @@ This is a Pascal transcription artifact.
 
 ## Mistakenly disabled generation of *passing of formals* descriptors
 
-Formal parameters of procedres directly passed as actual parameters to other procedures produce thunks (*implicit subroutines*) unnecessarily.
+Formal parameters of procedures directly passed as actual parameters to other procedures produce thunks (*implicit subroutines*) unnecessarily.
 
 The lines
 ```
