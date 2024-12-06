@@ -12,17 +12,17 @@ if(CMAKE_SYSTEM_PROCESSOR MATCHES "aarch64")
     if(APPLE)
         # This is MacOS machine.
         if ("${CMAKE_CXX_COMPILER_ID}" MATCHES "GNU")
-            message("Using GNU C++ on MaCOS")
+            message("Using GNU C++ on MaCOS ARM64")
         else()
-            message(FATAL_ERROR "Please use GNU C++ on MacOS ARM64")
+            message(FATAL_ERROR "${CMAKE_CXX_COMPILER_ID} compiler on MacOS ARM64 has no long double. Please use GNU C++")
         endif()
     endif()
     if(WIN32)
         # This is Windows machine.
         if ("${CMAKE_CXX_COMPILER_ID}" MATCHES "GNU")
-            message("Using GNU C++ on Windows")
+            message("Using GNU C++ on Windows ARM64")
         else()
-            message(FATAL_ERROR "Please use GNU C++ on Windows ARM64")
+            message(FATAL_ERROR "${CMAKE_CXX_COMPILER_ID} compiler on Windows ARM64 has no long double. Please use GNU C++")
         endif()
     endif()
 endif()
@@ -66,7 +66,7 @@ include(FetchContent)
 FetchContent_Declare(
     googletest
     GIT_REPOSITORY https://github.com/google/googletest.git
-    GIT_TAG release-1.12.1
+    GIT_TAG v1.15.2
     EXCLUDE_FROM_ALL
 )
 FetchContent_MakeAvailable(googletest)

@@ -16,6 +16,15 @@ Directories:
 
 # Build
 
+When compiling under MacOS on Apple silicon, please use GNU C++.
+Unfirtunately, in existing Clang compiler type long double has 64-bit size,
+which is not enough for X1 arithmetic. GNU compiler can be installed and configured
+by commands:
+```
+brew install gcc
+export GXX=g++-14
+```
+
 Compile the X1 Algol simulator from sources and install into /usr/local:
 
 ```
