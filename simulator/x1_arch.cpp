@@ -17,7 +17,7 @@ Real x1_words_to_real(Word hi, Word lo)
 }
 
 //
-// Convert long double value into X1 format.
+// Convert long_double value into X1 format.
 // Always return normalized number (when non-zero).
 //
 // Representation of real numbers in Electrologica X1:
@@ -29,7 +29,7 @@ Real x1_words_to_real(Word hi, Word lo)
 //             sign   mantissa  exponent
 //         (ignored) lower bits  +04000
 //
-Real ieee_to_x1(long double input)
+Real ieee_to_x1(long_double input)
 {
     const bool negate_flag = std::signbit(input);
     if (negate_flag) {
@@ -38,7 +38,7 @@ Real ieee_to_x1(long double input)
 
     // Split into mantissa and exponent.
     int exponent;
-    long double mantissa = frexpl(input, &exponent);
+    long_double mantissa = frexpl(input, &exponent);
     if (mantissa == 0.0) {
         // Either -0.0 or +0.0.
         return negate_flag ? BITS(54) : 0;
@@ -79,9 +79,9 @@ Real ieee_to_x1(long double input)
 }
 
 //
-// Convert real value from X1 format to long double.
+// Convert real value from X1 format to long_double.
 //
-long double x1_to_ieee(Real input)
+long_double x1_to_ieee(Real input)
 {
     const bool negate_flag = input >> 53 & 1;
     if (negate_flag) {
@@ -91,7 +91,7 @@ long double x1_to_ieee(Real input)
     // Rearrange so that sign bit becomes a sign of int64.
     // So mantissa equals real mantissa multiplied by 2**63.
     //
-    const auto mantissa = (long double)(int64_t)((input >> 27 << (64 - 27)) |
+    const auto mantissa = (long_double)(int64_t)((input >> 27 << (64 - 27)) |
                                                  (((input >> 12) & BITS(14)) << (37 - 14)));
     const int exponent  = input & BITS(12);
 
@@ -370,10 +370,9 @@ void x1_print_real(std::ostream &out, Real value)
 {
     auto native = x1_to_ieee(value);
     auto fmt    = "%.13Lg";
-    int nbytes  = 1 + std::snprintf(nullptr, 0, fmt, native);
-    std::vector<char> buf(nbytes);
-    std::snprintf(buf.data(), nbytes, fmt, native);
-    out << buf.data();
+    char buf[32];
+    std::snprintf(buf, sizeof(buf), fmt, native);
+    out << buf;
 }
 
 //

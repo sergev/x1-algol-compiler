@@ -203,7 +203,7 @@ Word Machine::mem_load(unsigned addr)
         gettimeofday(&tv, 0);
         time_t clock = tv.tv_sec;
         auto const *info = localtime(&clock);
-        long double now = ((info->tm_hour * 60.0L + info->tm_min) * 60.0) +
+        long_double now = ((info->tm_hour * 60.0L + info->tm_min) * 60.0) +
                           info->tm_sec + (tv.tv_usec * 0.000'001L);
         time_of_day = ieee_to_x1(now);
 
@@ -441,9 +441,9 @@ void Machine::print_string(std::ostream &out, unsigned addr)
 // A call to FIXT(n, m, x) essentially increases the position on the
 // line by if m = 0 then n + 2 else n + m + 3.
 //
-void Machine::print_fixed_point(std::ostream &out, int n, int m, long double x0, bool need_sign)
+void Machine::print_fixed_point(std::ostream &out, int n, int m, long_double x0, bool need_sign)
 {
-    long double x    = x0;
+    long_double x    = x0;
     char sign_symbol = need_sign ? '+' : ' ';
 
     // Make x positive.
@@ -511,14 +511,14 @@ void Machine::print_fixed_point(std::ostream &out, int n, int m, long double x0,
 // <= n <= 13, 1 <= m <= 3 does not apply, FLOT(n, m, x) is
 // replaced by FLOT(13, 3, x).
 //
-void Machine::print_floating_point(std::ostream &out, int n, int m, long double x0)
+void Machine::print_floating_point(std::ostream &out, int n, int m, long_double x0)
 {
     if (n < 1 || n > 13 || m < 1 || m > 3) {
     again:
         n = 13;
         m = 3;
     }
-    long double x    = x0;
+    long_double x    = x0;
     char sign_symbol = '+';
 
     // Make x positive.
@@ -611,7 +611,7 @@ void Machine::print_floating_point(std::ostream &out, int n, int m, long double 
 // to FLOT(13, 3, x). In both cases, the position on the line is
 // increased by 21.
 //
-void Machine::print_int_or_real(std::ostream &out, long double x)
+void Machine::print_int_or_real(std::ostream &out, long_double x)
 {
     if (x == floorl(x) && fabsl(x) < 1'099'511'627'776L) {
         print_fixed_point(out, 13, 0, x, true);

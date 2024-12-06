@@ -72,7 +72,7 @@ private:
 //  - throw exception when non-interactive
 //  - retry when in interactive mode
 //
-long double Machine::input_real(std::istream &orig_stream)
+long_double Machine::input_real(std::istream &orig_stream)
 {
     ReplaceTenWithEStream input_stream(orig_stream);
     // Loop until user enters a valid input
@@ -80,7 +80,7 @@ long double Machine::input_real(std::istream &orig_stream)
         if (is_interactive) {
             std::cout << "Enter number: " << std::flush;
         }
-        long double x{};
+        long_double x{};
         input_stream >> x;
 
         if (input_stream) {

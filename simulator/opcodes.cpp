@@ -455,7 +455,7 @@ bool Processor::call_opc(unsigned opc)
         }
         auto item = stack.pop();
         if (item.is_int_value()) {
-            auto a = (long double)x1_to_integer(item.get_int());
+            auto a = (long_double)x1_to_integer(item.get_int());
             stack.push_real_value(ieee_to_x1(a / b));
         } else if (item.is_real_value()) {
             auto a = x1_to_ieee(item.get_real());
@@ -480,7 +480,7 @@ bool Processor::call_opc(unsigned opc)
         }
         auto item = stack.pop();
         if (item.is_int_value()) {
-            auto a = (long double)x1_to_integer(item.get_int());
+            auto a = (long_double)x1_to_integer(item.get_int());
             stack.push_real_value(ieee_to_x1(a / b));
         } else if (item.is_real_value()) {
             auto a = x1_to_ieee(item.get_real());
@@ -735,7 +735,7 @@ bool Processor::call_opc(unsigned opc)
         // Function sqrt(E) - square root of the value of E
         // Yield value of type real.
         // Argument can be either of type real or integer.
-        long double input = stack.pop_ieee();
+        long_double input = stack.pop_ieee();
         if (input < 0) {
             throw std::runtime_error("Cannot get square root of negative value " +
                                      std::to_string(input));
@@ -768,7 +768,7 @@ bool Processor::call_opc(unsigned opc)
         // Function ln(E) - natural logarithm of the value of E
         // Yield value of type real.
         // Argument can be either of type real or integer.
-        long double input = stack.pop_ieee();
+        long_double input = stack.pop_ieee();
         if (input <= 0) {
             throw std::runtime_error("Cannot get logarithm of non-positive value " +
                                      std::to_string(input));
@@ -780,8 +780,8 @@ bool Processor::call_opc(unsigned opc)
         // Function exp(E) - exponential function of the value of E (e**E)
         // Yield value of type real.
         // Argument can be either of type real or integer.
-        long double input  = stack.pop_ieee();
-        long double result = expl(input);
+        long_double input  = stack.pop_ieee();
+        long_double result = expl(input);
         if (result == HUGE_VALL) {
             throw std::runtime_error("Overflow in exponential function of value " +
                                      std::to_string(input));
@@ -798,7 +798,7 @@ bool Processor::call_opc(unsigned opc)
         if (item.is_int_value()) {
             result = item.get_int();
         } else if (item.is_real_value()) {
-            long double input = x1_to_ieee(item.get_real());
+            long_double input = x1_to_ieee(item.get_real());
             if (input < -(int)BITS(26) || input >= (int)BITS(26) + 1) {
                 throw std::runtime_error("Overflow in entier of value " + std::to_string(input));
             }
@@ -980,7 +980,7 @@ bool Processor::call_opc(unsigned opc)
                 break;
             case 12: // integer to real
                 stack.push_real_value(
-                    ieee_to_x1((long double)x1_to_integer(load_word(actual + i / 2))));
+                    ieee_to_x1((long_double)x1_to_integer(load_word(actual + i / 2))));
                 break;
             }
         }

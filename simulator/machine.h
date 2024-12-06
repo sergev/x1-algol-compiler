@@ -146,7 +146,7 @@ public:
     void mem_store(unsigned addr, Word val);
 
     // Read number from stream.
-    static long double input_real(std::istream &stream);
+    static long_double input_real(std::istream &stream);
 
     // Read character from stdin.
     static int input_char(std::istream &stream);
@@ -158,14 +158,14 @@ public:
     void ask_console_input() { switches_are_valid = false; }
 
     // Print number in floating-point representation.
-    static void print_floating_point(std::ostream &stream, int n, int m, long double x);
+    static void print_floating_point(std::ostream &stream, int n, int m, long_double x);
 
     // Print number in fixed-point representation, with or without a sign.
-    static void print_fixed_point(std::ostream &stream, int n, int m, long double x,
+    static void print_fixed_point(std::ostream &stream, int n, int m, long_double x,
                                   bool need_sign);
 
     // Print number in fixed-point or floating-point representation.
-    static void print_int_or_real(std::ostream &stream, long double x);
+    static void print_int_or_real(std::ostream &stream, long_double x);
 
     //
     // Trace methods.

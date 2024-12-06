@@ -51,7 +51,7 @@ struct Stack_Cell {
     // Raise this item to the power given by another cell.
     void exponentiate(const Stack_Cell &another);
     void exponentiate_int(int a, const Stack_Cell &another);
-    void exponentiate_real(long double a, const Stack_Cell &another);
+    void exponentiate_real(long_double a, const Stack_Cell &another);
 
     // Multiply this item by another one.
     void multiply(const Stack_Cell &another);
@@ -90,7 +90,7 @@ public:
     void push(Cell_Type type, uint64_t value);
 
     // Remove one item from stack, and return it as standard floating point value.
-    long double pop_ieee();
+    long_double pop_ieee();
 
     // Remove one item from stack, and return it as standard integer value.
     int pop_integer();
@@ -120,7 +120,7 @@ public:
     void push_real_addr(Word addr) { push(Cell_Type::REAL_ADDRESS, addr); }
 
     // Push a standard floating point value.
-    void push_ieee(long double value) { push(Cell_Type::REAL_VALUE, ieee_to_x1(value)); }
+    void push_ieee(long_double value) { push(Cell_Type::REAL_VALUE, ieee_to_x1(value)); }
 
     // Push null item.
     void push_null() { push(Cell_Type::NUL, 0); }

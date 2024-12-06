@@ -558,7 +558,7 @@ void Processor::store_value(const Stack_Cell &dest, const Stack_Cell &src)
                 // Minus zero.
                 result = BITS(54);
             } else {
-                result = ieee_to_x1((long double)x1_to_integer(value));
+                result = ieee_to_x1((long_double)x1_to_integer(value));
             }
         } else {
             throw std::runtime_error("Cannot store address");

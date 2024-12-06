@@ -7,6 +7,26 @@ set(CMAKE_C_STANDARD 11)
 set(CMAKE_CXX_STANDARD 17)
 add_compile_options(-Wall -Werror -Wshadow)
 
+if(CMAKE_SYSTEM_PROCESSOR MATCHES "aarch64")
+    # Building for aarch64 architecture.
+    if(APPLE)
+        # This is MacOS machine.
+        if ("${CMAKE_CXX_COMPILER_ID}" MATCHES "GNU")
+            message("Using GNU C++ on MaCOS")
+        else()
+            message(FATAL_ERROR "Please use GNU C++ on MacOS ARM64")
+        endif()
+    endif()
+    if(WIN32)
+        # This is Windows machine.
+        if ("${CMAKE_CXX_COMPILER_ID}" MATCHES "GNU")
+            message("Using GNU C++ on Windows")
+        else()
+            message(FATAL_ERROR "Please use GNU C++ on Windows ARM64")
+        endif()
+    endif()
+endif()
+
 # Enable cppcheck by default
 find_program(Cppcheck NAMES cppcheck)
 if(NOT (Cppcheck MATCHES "NOTFOUND"))

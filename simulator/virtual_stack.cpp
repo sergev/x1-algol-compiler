@@ -179,7 +179,7 @@ void Stack_Cell::exponentiate(const Stack_Cell &another)
 //
 void Stack_Cell::multiply(const Stack_Cell &another)
 {
-    long double real_product;
+    long_double real_product;
     if (is_int_value() && another.is_int_value()) {
         // Multiply two integers with integer result.
         int a = x1_to_integer(get_int());
@@ -194,8 +194,8 @@ void Stack_Cell::multiply(const Stack_Cell &another)
         real_product = int_product;
     } else {
         // Multiply two values with real result.
-        long double a = is_real_value() ? x1_to_ieee(get_real()) : x1_to_integer(get_int());
-        long double b = another.is_real_value() ? x1_to_ieee(another.get_real()) :
+        long_double a = is_real_value() ? x1_to_ieee(get_real()) : x1_to_integer(get_int());
+        long_double b = another.is_real_value() ? x1_to_ieee(another.get_real()) :
                                                   x1_to_integer(another.get_int());
         real_product = a * b;
     }
@@ -206,8 +206,8 @@ void Stack_Cell::multiply(const Stack_Cell &another)
 void Stack_Cell::multiply_real(Real another)
 {
     // Multiply two values with real result.
-    long double a = is_real_value() ? x1_to_ieee(get_real()) : x1_to_integer(get_int());
-    long double b = x1_to_ieee(another);
+    long_double a = is_real_value() ? x1_to_ieee(get_real()) : x1_to_integer(get_int());
+    long_double b = x1_to_ieee(another);
 
     value = ieee_to_x1(a * b);
     type  = Cell_Type::REAL_VALUE;
@@ -219,8 +219,8 @@ void Stack_Cell::multiply_real(Real another)
 void Stack_Cell::divide(const Stack_Cell &another)
 {
     // Divide two values with real result.
-    long double a = is_real_value() ? x1_to_ieee(get_real()) : x1_to_integer(get_int());
-    long double b =
+    long_double a = is_real_value() ? x1_to_ieee(get_real()) : x1_to_integer(get_int());
+    long_double b =
         another.is_real_value() ? x1_to_ieee(another.get_real()) : x1_to_integer(another.get_int());
     if (b == 0) {
         throw std::runtime_error("Divide by zero");
@@ -243,8 +243,8 @@ void Stack_Cell::add(const Stack_Cell &another)
     }
 
     // Add two real/integer values with real result.
-    long double a = is_real_value() ? x1_to_ieee(get_real()) : x1_to_integer(get_int());
-    long double b =
+    long_double a = is_real_value() ? x1_to_ieee(get_real()) : x1_to_integer(get_int());
+    long_double b =
         another.is_real_value() ? x1_to_ieee(another.get_real()) : x1_to_integer(another.get_int());
     value = ieee_to_x1(a + b);
     type  = Cell_Type::REAL_VALUE;
@@ -264,8 +264,8 @@ void Stack_Cell::subtract(const Stack_Cell &another)
     }
 
     // Add two real/integer values with real result.
-    long double a = is_real_value() ? x1_to_ieee(get_real()) : x1_to_integer(get_int());
-    long double b =
+    long_double a = is_real_value() ? x1_to_ieee(get_real()) : x1_to_integer(get_int());
+    long_double b =
         another.is_real_value() ? x1_to_ieee(another.get_real()) : x1_to_integer(another.get_int());
     value = ieee_to_x1(a - b);
     type  = Cell_Type::REAL_VALUE;
@@ -290,9 +290,9 @@ static int power(int x, unsigned n)
 //
 // Iterative function to calculate real pow(x, n).
 //
-static long double power(long double x, unsigned n)
+static long_double power(long_double x, unsigned n)
 {
-    long double result = 1;
+    long_double result = 1;
     while (n) {
         if (n & 1) {
             result *= x;
@@ -355,7 +355,7 @@ void Stack_Cell::exponentiate_int(int a, const Stack_Cell &another)
     }
 }
 
-void Stack_Cell::exponentiate_real(long double a, const Stack_Cell &another)
+void Stack_Cell::exponentiate_real(long_double a, const Stack_Cell &another)
 {
     switch (another.type) {
     case Cell_Type::INTEGER_VALUE: {
@@ -421,7 +421,7 @@ Stack_Cell Virtual_Stack::pop()
 //
 // Remove one item from stack, and return it as standard floating point value.
 //
-long double Virtual_Stack::pop_ieee()
+long_double Virtual_Stack::pop_ieee()
 {
     if (storage.size() == 0) {
         throw std::runtime_error("Cannot pop empty stack");

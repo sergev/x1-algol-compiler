@@ -5,6 +5,14 @@
 #include <ostream>
 #include <vector>
 
+#if __LDBL_MAX_EXP__ > 2043
+    // Standard long double is good enough.
+    using long_double = long double;
+#else
+    // Need GNU float128 for FP aritmetic.
+    using long_double = _Float128;
+#endif
+
 //
 // Memory has 32768 words.
 //
@@ -49,8 +57,8 @@ Real x1_words_to_real(Word hi, Word lo);
 //
 // Convert real value between IEEE and X1 formats.
 //
-Real ieee_to_x1(long double d);
-long double x1_to_ieee(Real word);
+Real ieee_to_x1(long_double d);
+long_double x1_to_ieee(Real word);
 
 //
 // Convert integer value between native and X1 formats.
