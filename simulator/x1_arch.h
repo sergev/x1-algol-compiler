@@ -5,14 +5,6 @@
 #include <ostream>
 #include <vector>
 
-#if __LDBL_MAX_EXP__ > 2043
-    // Standard long double is good enough.
-    using long_double = long double;
-#else
-    // Need GNU float128 for FP aritmetic.
-    using long_double = _Float128;
-#endif
-
 //
 // Memory has 32768 words.
 //
@@ -33,6 +25,21 @@ using Real = uint64_t;
 // Array of words.
 //
 using Words = std::vector<Word>;
+
+//
+// FP type with wide exponent range.
+//
+#if __LDBL_MAX_EXP__ > 2043
+    // Standard long double is good enough.
+    using long_double = long double;
+    static inline int signbitq(long_double x) { return std::signbit(x); }
+    static inline long_double frexpq(long_double x, int *exp) { return frexpl(x, exp); }
+    static inline long_double ldexpq(long_double x, int exp) { return ldexpl(x, exp); }
+#else
+    // Need GNU float128 for FP aritmetic.
+    #include <quadmath.h>
+    using long_double = _Float128;
+#endif
 
 //
 // Convert assembly source code into binary word.

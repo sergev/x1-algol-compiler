@@ -447,7 +447,7 @@ void Machine::print_fixed_point(std::ostream &out, int n, int m, long_double x0,
     char sign_symbol = need_sign ? '+' : ' ';
 
     // Make x positive.
-    if (std::signbit(x)) {
+    if (signbitq(x)) {
         if (need_sign) {
             sign_symbol = '-';
         }
@@ -522,7 +522,7 @@ void Machine::print_floating_point(std::ostream &out, int n, int m, long_double 
     char sign_symbol = '+';
 
     // Make x positive.
-    if (std::signbit(x)) {
+    if (signbitq(x)) {
         sign_symbol = '-';
         x           = -x;
     }

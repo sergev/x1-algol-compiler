@@ -31,21 +31,21 @@ Real x1_words_to_real(Word hi, Word lo)
 //
 Real ieee_to_x1(long_double input)
 {
-    const bool negate_flag = std::signbit(input);
+    const bool negate_flag = signbitq(input);
     if (negate_flag) {
         input = -input;
     }
 
     // Split into mantissa and exponent.
     int exponent;
-    long_double mantissa = frexpl(input, &exponent);
+    long_double mantissa = frexpq(input, &exponent);
     if (mantissa == 0.0) {
         // Either -0.0 or +0.0.
         return negate_flag ? BITS(54) : 0;
     }
 
     // Multiply mantissa by 2^40.
-    mantissa = ldexpl(mantissa, 40);
+    mantissa = ldexpq(mantissa, 40);
 
     // Positive value in range [0.5, 1) * 2⁴⁰
     // Get 40 bits of mantissa.
@@ -97,7 +97,7 @@ long_double x1_to_ieee(Real input)
 
     // Add exponent with offset.
     // Compensate for 63 bits in mantissa.
-    auto result = ldexpl(mantissa, exponent - 04000 - 63);
+    auto result = ldexpq(mantissa, exponent - 04000 - 63);
     if (negate_flag) {
         result = -result;
     }
