@@ -15,11 +15,11 @@ jobs:
     - uses: actions/checkout@v4
     - name: install depencencies
       run: |
-        sudo apt-get install cppcheck neofetch clang
+        sudo apt-get install neofetch #cppcheck
         neofetch --stdout
     - name: make
-      run: make -j4 CXX=clang++
+      run: make -j4
     - name: make test
-      run: make -j4 test CXX=clang++
+      run: make -j4 test
     - name: make install
       run: sudo make install
