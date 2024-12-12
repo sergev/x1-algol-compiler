@@ -51,18 +51,18 @@ TEST(arith, ieee_to_x1)
 TEST(arith, log10l)
 {
     // Positive numbers
-    EXPECT_FLOAT_EQ(std::log10l(1e111L), 111.0L);
-    EXPECT_FLOAT_EQ(std::log10l(1e444L), 444.0L);
-    EXPECT_FLOAT_EQ(std::log10l(1e555L), 555.0L);
-    EXPECT_FLOAT_EQ(std::log10l(1e-222L), -222.0L);
-    EXPECT_FLOAT_EQ(std::log10l(1e-666L), -666.0L);
-    EXPECT_FLOAT_EQ(std::log10l(1e-777L), -777.0L);
+    EXPECT_FLOAT_EQ(log10l(1e111L), 111.0L);
+    EXPECT_FLOAT_EQ(log10l(1e444L), 444.0L);
+    EXPECT_FLOAT_EQ(log10l(1e555L), 555.0L);
+    EXPECT_FLOAT_EQ(log10l(1e-222L), -222.0L);
+    EXPECT_FLOAT_EQ(log10l(1e-666L), -666.0L);
+    EXPECT_FLOAT_EQ(log10l(1e-777L), -777.0L);
 
     // Zero
-    EXPECT_FLOAT_EQ(std::log10l(0.0), - std::numeric_limits<long double>::infinity());
+    EXPECT_FLOAT_EQ(log10l(0.0), - std::numeric_limits<long double>::infinity());
 
     // Negative numbers
-    EXPECT_TRUE(std::isnan(std::log10l(-1.0L)));
-    EXPECT_TRUE(std::isnan(std::log10l(-1e888L)));
-    EXPECT_TRUE(std::isnan(std::log10l(-1e-999L)));
+    EXPECT_TRUE(std::isnan(log10l(-1.0L)));
+    EXPECT_TRUE(std::isnan(log10l(-1e888L)));
+    EXPECT_TRUE(std::isnan(log10l(-1e-999L)));
 }
