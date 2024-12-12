@@ -15,7 +15,8 @@ jobs:
     - uses: actions/checkout@v4
     - name: install depencencies
       run: |
-        sudo apt-get install cppcheck fpc
+        sudo apt-get install cppcheck neofetch
+        neofetch --stdout
     - name: make
       run: make
     - name: make test
