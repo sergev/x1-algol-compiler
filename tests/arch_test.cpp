@@ -77,9 +77,13 @@ TEST(arith, log10l)
 #endif
 
     // Zero
+    // cppcheck-suppress invalidFunctionArg
+    // cppcheck-suppress wrongmathcall
     EXPECT_FLOAT_EQ(log10l(0.0), - std::numeric_limits<long double>::infinity());
 
     // Negative numbers
+    // cppcheck-suppress invalidFunctionArg
+    // cppcheck-suppress wrongmathcall
     EXPECT_TRUE(std::isnan(log10l(-1.0L)));
 #if __LDBL_MAX_10_EXP__ >= 888
     EXPECT_TRUE(std::isnan(log10l(-1e888L)));
