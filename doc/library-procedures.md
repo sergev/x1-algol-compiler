@@ -134,7 +134,7 @@ the system.
 
 `print` is just another name for PRINT.
 
-**7.3.1.13.** `procedure PRINTTEXT (s); strings;`
+**7.3.1.13.** `procedure PRINTTEXT (s); string s;`
 
 The actual parameter in a call to PRINTTEXT may only be: a
 string, or a formal identifier (the case of a "passed" formal

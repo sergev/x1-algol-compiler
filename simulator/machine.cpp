@@ -644,7 +644,11 @@ void Machine::find_default_library(const char *argv0)
     }
 
     // Try ../lib/x1algol.lib relative to the x1sim location.
-    const auto parent_path = std::filesystem::path(argv0).parent_path().parent_path();
+    auto parent_path = std::filesystem::path(argv0).parent_path().parent_path();
+    if (parent_path == "") {
+        parent_path = "/usr/local";
+    }
+
     const auto relative_lib = parent_path / "lib/x1algol.lib";
     if (access(relative_lib.c_str(), R_OK) >= 0) {
         default_library = relative_lib;

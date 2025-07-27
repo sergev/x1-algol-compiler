@@ -1,0 +1,33 @@
+b̲e̲g̲i̲n̲
+    i̲n̲t̲e̲g̲e̲r̲ i, j, c;
+
+    B̲o̲o̲l̲e̲a̲n̲ p̲r̲o̲c̲e̲d̲u̲r̲e̲ printable(c);
+        v̲a̲l̲u̲e̲ c;
+        i̲n̲t̲e̲g̲e̲r̲ c;
+    b̲e̲g̲i̲n̲
+        printable := c ≥ 0   ∧ c ≤ 35  ∨
+                     c ≥ 37  ∧ c ≤ 62  ∨
+                     c ≥ 64  ∧ c ≤ 80  ∨
+                     c ≥ 87  ∧ c ≤ 93  ∨
+                     c ≥ 98  ∧ c ≤ 103 ∨
+                     c ≥ 121 ∧ c ≤ 122;
+    e̲n̲d̲;
+
+    f̲o̲r̲ i := 0 s̲t̲e̲p̲ 1 u̲n̲t̲i̲l̲ 15 d̲o̲ b̲e̲g̲i̲n̲
+        f̲o̲r̲ j := 0 s̲t̲e̲p̲ 1 u̲n̲t̲i̲l̲ 7 d̲o̲ b̲e̲g̲i̲n̲
+            c := j*16 + i;
+            i̲f̲ printable(c) t̲h̲e̲n̲ b̲e̲g̲i̲n̲
+                ABSFIXT(3, 0, c);
+                PRSYM(c);
+                i̲f̲ c ≠ 92 t̲h̲e̲n̲
+                    SPACE(1)
+            e̲n̲d̲ e̲l̲s̲e̲ i̲f̲ c = 118 t̲h̲e̲n̲
+                PRINTTEXT(` 118 HT')
+            e̲l̲s̲e̲ i̲f̲ c = 119 t̲h̲e̲n̲
+                PRINTTEXT(` 119 NL')
+            e̲l̲s̲e̲
+                SPACE(7)
+        e̲n̲d̲;
+        NLCR;
+    e̲n̲d̲;
+e̲n̲d̲
