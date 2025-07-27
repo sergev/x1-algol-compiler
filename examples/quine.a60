@@ -1,0 +1,8 @@
+b̲e̲g̲i̲n̲ p̲r̲o̲c̲e̲d̲u̲r̲e̲ x(s); s̲t̲r̲i̲n̲g̲ s; b̲e̲g̲i̲n̲ PRSYM(102); PRINTTEXT(s); PRSYM(103); PRSYM(87); NLCR e̲n̲d̲;
+p̲r̲o̲c̲e̲d̲u̲r̲e̲ Q(a,b,c,d,e); s̲t̲r̲i̲n̲g̲ a,b,c,d; r̲e̲a̲l̲ e; b̲e̲g̲i̲n̲ PRINTTEXT(a); NLCR; PRINTTEXT(b); NLCR;
+PRINTTEXT(c); NLCR; x(a); x(b); x(c); x(d); PRINTTEXT(d); NLCR; e̲n̲d̲; Q(
+`begin procedure x(s); string s; begin PRSYM(102); PRINTTEXT(s); PRSYM(103); PRSYM(87); NLCR end;',
+`procedure Q(a,b,c,d,e); string a,b,c,d; real e; begin PRINTTEXT(a); NLCR; PRINTTEXT(b); NLCR;',
+`PRINTTEXT(c); NLCR; x(a); x(b); x(c); x(d); PRINTTEXT(d); NLCR; end; Q(',
+`0); end',
+0); e̲n̲d̲
