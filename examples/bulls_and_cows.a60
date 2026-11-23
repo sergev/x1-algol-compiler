@@ -67,6 +67,6 @@ again:
     e̲n̲d̲;
     PRINTTEXT(`Correct. That took you ');
     print(count);
-    PRINTTEXT(` guesses.')
+    PRINTTEXT(` guesses.');
     NLCR
 e̲n̲d̲
