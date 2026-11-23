@@ -12,11 +12,11 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v5
     - name: install depencencies
       run: |
-        sudo apt-get install neofetch #cppcheck
-        neofetch --stdout
+        sudo apt-get install fastfetch #cppcheck
+        fastfetch --logo none
     - name: make
       run: make -j4
     - name: make test
