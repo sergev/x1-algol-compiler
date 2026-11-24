@@ -681,14 +681,14 @@ bool Processor::call_opc(unsigned opc)
         // and ∧
         bool b = stack.pop_boolean();
         bool a = stack.pop_boolean();
-        stack.push_int_value((a & b) ? X1_TRUE : X1_FALSE);
+        stack.push_int_value((a && b) ? X1_TRUE : X1_FALSE);
         break;
     }
     case OPC_OR: {
         // or ∨
         bool b = stack.pop_boolean();
         bool a = stack.pop_boolean();
-        stack.push_int_value((a | b) ? X1_TRUE : X1_FALSE);
+        stack.push_int_value((a || b) ? X1_TRUE : X1_FALSE);
         break;
     }
     case OPC_IMP: {
